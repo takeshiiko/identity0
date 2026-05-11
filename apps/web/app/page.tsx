@@ -54,12 +54,6 @@ export default function Page() {
             <span />
             <strong>Kandinsky</strong>
           </a>
-          <div className="navLinks">
-            <a href="#generator">Generator</a>
-            <a href="#rarity">Rarity</a>
-            <a href="#collection">Collection</a>
-            <a href="#generator">Mint</a>
-          </div>
           <NavWallet />
         </nav>
 
