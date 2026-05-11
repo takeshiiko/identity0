@@ -11,8 +11,9 @@ import { createPublicClient, createWalletClient, getContract, http, isAddress, p
 import { privateKeyToAccount } from "viem/accounts";
 import { mainnet, sepolia } from "viem/chains";
 import { analyzeWallet } from "@identity0/wallet-analyzer";
-import { generateComposition } from "@identity0/geometry-engine";
+import { generateComposition, getPortraitTraits } from "@identity0/geometry-engine";
 import { stylizeSvg } from "@identity0/ai-pipeline";
+import { RARITY_RULES } from "@identity0/shared";
 
 type MintJobData = {
   tokenId: number;
@@ -128,9 +129,15 @@ async function runRevealWorkflow(job: Job<MintJobData, MintJobResult>): Promise<
   if (process.env.ALCHEMY_API_KEY) analyzerOptions.alchemyApiKey = process.env.ALCHEMY_API_KEY;
   if (process.env.COVALENT_API_KEY) analyzerOptions.covalentApiKey = process.env.COVALENT_API_KEY;
   const profile = await analyzeWallet(job.data.walletAddress, analyzerOptions);
+  const assignedTier = await claimTierSlot(connection, profile.rarityTier);
+  if (assignedTier !== profile.rarityTier) {
+    console.log(`  Soft cap: ${profile.rarityTier} → ${assignedTier} for token #${job.data.tokenId}`);
+    profile.rarityTier = assignedTier;
+  }
 
   await job.updateProgress({ status: "composing" });
   const svg = generateComposition(profile);
+  const traits = getPortraitTraits(profile);
 
   await job.updateProgress({ status: "generating" });
   const styleReferenceImage = await loadStyleReference();
@@ -148,7 +155,9 @@ async function runRevealWorkflow(job: Job<MintJobData, MintJobResult>): Promise<
   const generated = await stylizeSvg(svg, stylizeOptions);
 
   await job.updateProgress({ status: "uploading" });
-  const imageCid = await uploadBufferToIPFS(generated.imageBuffer, `kandinsky-${job.data.tokenId}.png`);
+  const imageCid = await uploadBufferToIPFS(generated.imageBuffer, `kandinsky-${job.data.tokenId}.webp`);
+  const rareItemLabel = (["None", "Accent", "Brooch", "Symbol", "Aura", "Crown"] as const)[traits.rareItemLevel] ?? "None";
+  const scoreKeyLabel: Record<string, string> = { age: "Wallet Age", tx: "Transactions", defi: "DeFi Activity", nft: "NFT Holdings", risk: "Risk Profile", multichain: "Multi-chain", wealth: "Portfolio Wealth" };
   const metadata = {
     name: `Kandinsky #${job.data.tokenId}`,
     description: "A wallet-derived AI cubist portrait generated deterministically from on-chain identity signals.",
@@ -156,7 +165,12 @@ async function runRevealWorkflow(job: Job<MintJobData, MintJobResult>): Promise<
     attributes: [
       { trait_type: "Rarity", value: profile.rarityTier },
       { trait_type: "Composite Score", value: Math.round(profile.compositeScore) },
-      ...Object.entries(profile.scores).map(([key, value]) => ({ trait_type: key, value: Math.round(value) }))
+      { trait_type: "Face Archetype", value: traits.faceArchetype },
+      { trait_type: "Expression", value: traits.expression },
+      { trait_type: "Palette", value: traits.paletteFamily },
+      { trait_type: "Form", value: traits.hasFeminineForm ? "Feminine" : "Masculine" },
+      { trait_type: "Rare Item", value: rareItemLabel },
+      ...Object.entries(profile.scores).map(([key, value]) => ({ trait_type: scoreKeyLabel[key] ?? key, value: Math.round(value) }))
     ]
   };
   const metadataCid = await uploadJsonToIPFS(metadata, `kandinsky-${job.data.tokenId}.json`);
@@ -243,6 +257,29 @@ async function revealToken(tokenId: number, metadataUri: string): Promise<string
   const hash = await contract.write.revealToken([BigInt(tokenId), metadataUri]);
   await publicClient.waitForTransactionReceipt({ hash });
   return hash;
+}
+
+// Tier sırasına göre cap kontrolü — dolu ise bir alt tiere kaydır.
+// Redis INCR atomik olduğundan race condition yok.
+// Bir job başarısız olursa sayaç düzeltilmez — bu kabul edilebilir bir edge case.
+async function claimTierSlot(redis: Redis, scoredTier: string): Promise<typeof RARITY_RULES[number]["tier"]> {
+  const tierOrder = RARITY_RULES.slice().reverse().map(r => r.tier); // Legendary → Common
+  const caps = Object.fromEntries(RARITY_RULES.map(r => [r.tier, r.targetSupply]));
+
+  const startIdx = tierOrder.indexOf(scoredTier as (typeof tierOrder)[number]);
+  if (startIdx === -1) return scoredTier as typeof RARITY_RULES[number]["tier"];
+
+  for (let i = startIdx; i < tierOrder.length; i++) {
+    const tier = tierOrder[i]!;
+    const cap = caps[tier];
+    if (cap === undefined || cap >= 9999) return tier; // Common: no hard cap
+
+    const count = await redis.incr(`kandinsky:tier:${tier.toLowerCase()}`);
+    if (count <= cap) return tier;
+    await redis.decr(`kandinsky:tier:${tier.toLowerCase()}`);
+  }
+
+  return "Common";
 }
 
 function mockCid(buffer: Buffer, filename: string): string {

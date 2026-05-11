@@ -76,7 +76,7 @@ export const SCORE_WEIGHTS: Record<ScoreKey, number> = {
 };
 
 export const deployments: ContractDeployment[] = [
-  { chainId: 11155111, name: "sepolia", address: "0x1E9fE9a5bBA33d0403368fC2dce7af660DaF5B1E" }
+  { chainId: 11155111, name: "sepolia", address: "0xC87eBF55F27fa5B0fC415d93B24d30590f7bF390" }
 ];
 
 export const identity0Abi = [
@@ -145,7 +145,7 @@ export const identity0Abi = [
   { inputs: [{ internalType: "address", name: "from", type: "address" }, { internalType: "address", name: "to", type: "address" }, { internalType: "uint256", name: "tokenId", type: "uint256" }, { internalType: "bytes", name: "data", type: "bytes" }], name: "safeTransferFrom", outputs: [], stateMutability: "nonpayable", type: "function" },
   { inputs: [{ internalType: "address", name: "operator", type: "address" }, { internalType: "bool", name: "approved", type: "bool" }], name: "setApprovalForAll", outputs: [], stateMutability: "nonpayable", type: "function" },
   { inputs: [{ internalType: "uint256", name: "price", type: "uint256" }], name: "setMintPrice", outputs: [], stateMutability: "nonpayable", type: "function" },
-  { inputs: [{ internalType: "address", name: "receiver", type: "address" }], name: "setRoyaltyReceiver", outputs: [], stateMutability: "nonpayable", type: "function" },
+  { inputs: [{ internalType: "address", name: "receiver", type: "address" }, { internalType: "uint96", name: "feeNumerator", type: "uint96" }], name: "setRoyalty", outputs: [], stateMutability: "nonpayable", type: "function" },
   { inputs: [{ internalType: "string", name: "uri", type: "string" }], name: "setUnrevealedURI", outputs: [], stateMutability: "nonpayable", type: "function" },
   { inputs: [{ internalType: "bytes4", name: "interfaceId", type: "bytes4" }], name: "supportsInterface", outputs: [{ internalType: "bool", name: "", type: "bool" }], stateMutability: "view", type: "function" },
   { inputs: [], name: "symbol", outputs: [{ internalType: "string", name: "", type: "string" }], stateMutability: "view", type: "function" },

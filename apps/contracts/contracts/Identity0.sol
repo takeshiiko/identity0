@@ -13,7 +13,7 @@ contract Identity0 is ERC721, ERC721URIStorage, ERC2981, Ownable, AccessControl,
     bytes32 public constant OPERATOR_ROLE = keccak256("OPERATOR_ROLE");
     uint256 public constant MAX_SUPPLY = 3333;
     uint256 public constant MAX_MINTS_PER_WALLET = 3;
-    uint96 public constant ROYALTY_FEE_NUMERATOR = 300;
+    uint96 public constant ROYALTY_FEE_NUMERATOR = 350;
     uint256 public mintPrice = 0.00065 ether;
 
     string private unrevealedURI;
@@ -88,8 +88,9 @@ contract Identity0 is ERC721, ERC721URIStorage, ERC2981, Ownable, AccessControl,
         emit MintPriceUpdated(price);
     }
 
-    function setRoyaltyReceiver(address receiver) external onlyOwner {
-        _setDefaultRoyalty(receiver, ROYALTY_FEE_NUMERATOR);
+    function setRoyalty(address receiver, uint96 feeNumerator) external onlyOwner {
+        require(feeNumerator <= 1000, "Kandinsky: royalty too high"); // max %10
+        _setDefaultRoyalty(receiver, feeNumerator);
     }
 
     function setUnrevealedURI(string calldata uri) external onlyOwner {

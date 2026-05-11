@@ -39,6 +39,7 @@ export interface PortraitTraits {
   expression: "neutral" | "soft" | "severe" | "fragmented";
   paletteFamily: string;
   hasFeminineForm: boolean;
+  rareItemLevel: number;
 }
 
 interface CompositionLayout {
@@ -95,12 +96,14 @@ export function getPortraitTraits(profile: WalletProfile): PortraitTraits {
   const layout = createLayout(rng, scores);
   const palette = selectPalette(scores.wealth);
   const colors = portraitColorSet(palette, layout);
+  const blueprint = createCuratedBlueprint(profile, scores, layout, rng);
 
   return {
     faceArchetype: layout.faceArchetype,
     expression: layout.faceArchetype === "mask" || scores.risk > 80 ? "severe" : layout.faceArchetype === "split-face" ? "fragmented" : layout.isFeminine ? "soft" : "neutral",
     paletteFamily: colors.name,
-    hasFeminineForm: layout.isFeminine
+    hasFeminineForm: layout.isFeminine,
+    rareItemLevel: blueprint.rareItem
   };
 }
 

@@ -403,7 +403,10 @@ export class QualityGateError extends Error {
 }
 
 async function buildGenerationResult(imageBuffer: Buffer, attempts: number, options: StylizeOptions = {}): Promise<GenerationResult> {
-  const png = await sharp(imageBuffer).resize(1024, 1024, { fit: "cover" }).png().toBuffer();
+  const png = await sharp(imageBuffer)
+    .resize(1000, 1000, { fit: "cover" })
+    .webp({ quality: 90 })
+    .toBuffer();
   const stats = await sharp(png).stats();
   const dominantColors = stats.dominant ? [rgbToHex(stats.dominant.r, stats.dominant.g, stats.dominant.b)] : [];
   const pHash = await perceptualHash(png);
