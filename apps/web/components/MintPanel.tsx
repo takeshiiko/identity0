@@ -23,7 +23,7 @@ export function MintPanel() {
   return (
     <>
       <div className="walletBox">
-        <span>Wallet</span>
+        <span>Enter wallet address</span>
         <div className="walletRow">
           {isConnected ? (
             <>
@@ -84,16 +84,16 @@ export function MintPanel() {
           <ConnectButton.Custom>
             {({ openConnectModal }) => (
               <>
-                <a className="generateButton" href="#rarity">Rarity System</a>
+                <a className="generateButton" href="#rarity">Generate Preview</a>
                 <button type="button" className="mintButton" onClick={openConnectModal}>
-                  Connect Wallet
+                  Mint Identity
                 </button>
               </>
             )}
           </ConnectButton.Custom>
         ) : (
           <>
-            <a className="generateButton" href="#rarity">Rarity System</a>
+            <a className="generateButton" href="#rarity">Generate Preview</a>
             <button
               type="button"
               className="mintButton"
@@ -101,7 +101,7 @@ export function MintPanel() {
               disabled={!canMint && phase !== "error"}
               style={{ opacity: canMint || phase === "error" ? 1 : 0.5, cursor: canMint || phase === "error" ? "pointer" : "default" }}
             >
-              {MINT_PHASE_LABEL[phase]}
+              {phase === "idle" ? "Mint Identity" : MINT_PHASE_LABEL[phase]}
             </button>
           </>
         )}

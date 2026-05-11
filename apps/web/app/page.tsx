@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { MintPanel } from "../components/MintPanel";
-import { MintCTA } from "../components/MintCTA";
 
 const scoreRows = [
   ["Geometry", 82, "#356f95"],
@@ -70,7 +69,7 @@ export default function Page() {
             <a href="#generator">Generator</a>
             <a href="#rarity">Rarity</a>
             <a href="#collection">Collection</a>
-            <a href="#mint">Mint</a>
+            <a href="#generator">Mint</a>
           </div>
           <div className="navOrb" aria-hidden="true" />
         </nav>
@@ -180,14 +179,6 @@ export default function Page() {
         <a className="collectionButton" href="#mint">View Full Collection</a>
       </section>
 
-      <section className="mintSection" id="mint">
-        <h2>Mint the portrait your wallet generates.</h2>
-        <p>
-          Kandinsky mints a deterministic AI NFT for each wallet. Your wallet analysis controls the portrait structure,
-          rarity, clothing, palette, and rare items.
-        </p>
-        <MintCTA />
-      </section>
     </main>
   );
 }

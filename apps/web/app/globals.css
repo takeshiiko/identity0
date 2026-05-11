@@ -576,36 +576,6 @@ button, a {
   color: var(--ink);
 }
 
-.mintSection {
-  padding: 70px 72px;
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 44px;
-  align-items: center;
-  background: var(--ink);
-  color: var(--paper);
-}
-
-.mintSection h2 {
-  margin: 0;
-  font-family: var(--display);
-  font-size: clamp(3rem, 5vw, 5.4rem);
-  line-height: 0.9;
-  font-weight: 400;
-}
-
-.mintSection p {
-  max-width: 680px;
-  margin: 18px 0 0;
-  color: rgba(239, 228, 207, 0.68);
-  line-height: 1.8;
-}
-
-.mintSection button {
-  background: var(--paper);
-  color: var(--ink);
-  min-width: 210px;
-}
 
 .walletRow {
   height: 58px;
