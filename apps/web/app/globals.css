@@ -76,15 +76,11 @@ button, a {
   white-space: nowrap;
 }
 
-.mark span {
+.markLogo {
   width: 42px;
   height: 42px;
   display: block;
-  border: 1px solid var(--ink);
-  background:
-    linear-gradient(90deg, var(--red) 0 44%, transparent 44%),
-    linear-gradient(135deg, transparent 0 49%, var(--ink) 50% 52%, transparent 53%),
-    var(--paper);
+  object-fit: contain;
 }
 
 .mark strong {

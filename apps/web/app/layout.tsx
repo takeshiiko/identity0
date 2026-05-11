@@ -4,7 +4,11 @@ import { Web3Provider } from "../components/Web3Provider";
 
 export const metadata: Metadata = {
   title: "Kandinsky",
-  description: "Deterministic Bauhaus wallet portrait NFTs"
+  description: "Deterministic Bauhaus wallet portrait NFTs",
+  icons: {
+    icon: "/favicon.png",
+    apple: "/favicon.png"
+  }
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

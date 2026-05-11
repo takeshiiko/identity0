@@ -55,7 +55,7 @@ export default function Page() {
       <section className="posterHero">
         <nav className="topbar">
           <a className="mark" href="#" aria-label="Kandinsky home">
-            <span />
+            <img src="/logo.png" alt="Kandinsky" className="markLogo" />
             <strong>Kandinsky</strong>
           </a>
           <NavWallet />
@@ -65,7 +65,7 @@ export default function Page() {
           <section className="controlPanel">
             <h1>Your wallet.<br />Your portrait.</h1>
             <p>
-              Your wallet's on-chain history — transactions, DeFi positions, NFT holdings, age — is scored across seven dimensions and translated into a Bauhaus AI portrait. No two wallets produce the same geometry, palette, or composition. Your identity, rendered in art.
+              Your wallet's on-chain history — transactions, DeFi positions, NFT holdings, age — is scored across seven dimensions and translated into a Bauhaus AI portrait. Your identity, rendered in art.
             </p>
 
             <MintPanel />
