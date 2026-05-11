@@ -12,6 +12,8 @@
   "scripts": {
     "dev": "turbo dev",
     "build": "turbo build",
+    "build:api": "turbo build --filter=@identity0/api...",
+    "start": "node services/api/dist/index.js",
     "test": "turbo test",
     "lint": "turbo lint",
     "typecheck": "turbo typecheck",
