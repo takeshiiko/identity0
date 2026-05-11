@@ -6,14 +6,16 @@ import { NavWallet } from "../components/NavWallet";
 import { CollectionGallery } from "../components/CollectionGallery";
 import { HeroPortrait } from "../components/HeroPortrait";
 
+// Score labels match actual WalletScores keys (age, tx, defi, nft, risk, multichain, wealth)
+// Values are illustrative — real values are derived per wallet at mint time
 const scoreRows = [
-  ["Geometry", 82, "#356f95"],
-  ["Color Balance", 76, "#d44f36"],
-  ["Composition", 89, "#cda846"],
-  ["Symmetry", 41, "#6d8f84"],
-  ["Contrast", 67, "#14130f"],
-  ["Rarity Potential", 93, "#8e7294"],
-  ["Uniqueness", 88, "#2f7188"]
+  ["Wallet Age",       72, "#356f95"],
+  ["Transactions",     58, "#d44f36"],
+  ["DeFi Activity",    84, "#cda846"],
+  ["NFT Holdings",     46, "#6d8f84"],
+  ["Risk Profile",     61, "#14130f"],
+  ["Multi-chain",      40, "#8e7294"],
+  ["Portfolio Wealth", 68, "#2f7188"]
 ] as const;
 
 const pipeline = [
@@ -24,22 +26,24 @@ const pipeline = [
   ["5. Mint", "Mint your on-chain portrait as an NFT identity."]
 ] as const;
 
+// Categories match geometry-engine composition layers
 const attributes = [
-  ["Face Structure", 14],
-  ["Eyes", 18],
-  ["Nose", 16],
-  ["Mouth", 16],
-  ["Headwear", 20],
-  ["Clothing", 22],
-  ["Accessories", 15]
+  ["Face Archetype", 7],
+  ["Eyes",           6],
+  ["Nose",           5],
+  ["Mouth",          5],
+  ["Hair",           8],
+  ["Clothing",       5],
+  ["Rare Items",     7]
 ] as const;
 
+// Ranges match RARITY_RULES in @identity0/shared
 const rarityRows = [
-  ["Common", "0-20", "circle"],
-  ["Uncommon", "21-40", "square"],
-  ["Rare", "41-60", "triangle"],
-  ["Epic", "61-80", "diamond"],
-  ["Legendary", "81-100", "hexagon"]
+  ["Common",    "0 – 40",   "circle"],
+  ["Uncommon",  "41 – 65",  "square"],
+  ["Rare",      "66 – 80",  "triangle"],
+  ["Epic",      "81 – 92",  "diamond"],
+  ["Legendary", "93 – 100", "hexagon"]
 ] as const;
 
 
@@ -99,7 +103,7 @@ export default function Page() {
       <section className="systemSplit" id="rarity">
         <article className="attributePanel">
           <h2>Attribute system</h2>
-          <p>100+ traits across 7 categories</p>
+          <p>7 composition layers · deterministic per wallet</p>
           <div className="attributeBody">
             <div className="attributeList">
               {attributes.map(([name, count]) => (
@@ -221,8 +225,9 @@ function RarityShape({ shape }: { shape: string }) {
 }
 
 function RarityChart({ selected }: { selected: string }) {
-  const activeX = selected === "Legendary" ? 76 : selected === "Epic" ? 64 : selected === "Rare" ? 48 : selected === "Uncommon" ? 32 : 18;
-  const activeY = selected === "Legendary" ? 34 : selected === "Epic" ? 46 : selected === "Rare" ? 58 : selected === "Uncommon" ? 70 : 82;
+  // X axis = Rarity Potential midpoint of each tier range (0-40 / 41-65 / 66-80 / 81-92 / 93-100)
+  const activeX = selected === "Legendary" ? 96 : selected === "Epic" ? 86 : selected === "Rare" ? 73 : selected === "Uncommon" ? 53 : 20;
+  const activeY = selected === "Legendary" ? 26 : selected === "Epic" ? 40 : selected === "Rare" ? 56 : selected === "Uncommon" ? 72 : 88;
 
   return (
     <svg viewBox="0 0 300 210" aria-hidden="true">
