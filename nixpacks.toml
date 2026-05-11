@@ -1,0 +1,11 @@
+[phases.setup]
+nixPkgs = ["nodejs_20"]
+
+[phases.install]
+cmds = ["npm install"]
+
+[phases.build]
+cmds = ["npm run build --workspace=packages/shared && npm run build --workspace=packages/wallet-analyzer && npm run build --workspace=packages/geometry-engine && npm run build --workspace=packages/ai-pipeline && npm run build --workspace=services/api"]
+
+[start]
+cmd = "node services/api/dist/index.js"
