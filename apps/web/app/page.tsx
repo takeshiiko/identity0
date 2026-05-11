@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { MintPanel } from "../components/MintPanel";
 import { NavWallet } from "../components/NavWallet";
+import { CollectionGallery } from "../components/CollectionGallery";
+import { HeroPortrait } from "../components/HeroPortrait";
 
 const scoreRows = [
   ["Geometry", 82, "#356f95"],
@@ -12,12 +14,6 @@ const scoreRows = [
   ["Contrast", 67, "#14130f"],
   ["Rarity Potential", 93, "#8e7294"],
   ["Uniqueness", 88, "#2f7188"]
-] as const;
-
-const portraits = [
-  ["Portrait #2187", "Visionary Architect", "Rare", "#d44f36", "#356f95", 0],
-  ["Portrait #7741", "Abstract Thinker", "Epic", "#cda846", "#356f95", 1],
-  ["Portrait #9910", "Analytical Collector", "Legendary", "#d44f36", "#2f7188", 2]
 ] as const;
 
 const pipeline = [
@@ -46,14 +42,6 @@ const rarityRows = [
   ["Legendary", "81-100", "hexagon"]
 ] as const;
 
-const collection = [
-  ["#0134", "Uncommon", "#d44f36", "#356f95", 0],
-  ["#2567", "Rare", "#cda846", "#6d8f84", 1],
-  ["#3892", "Epic", "#d44f36", "#2f7188", 2],
-  ["#4711", "Rare", "#b85f65", "#356f95", 3],
-  ["#6880", "Legendary", "#cda846", "#8e7294", 4],
-  ["#9321", "Epic", "#d44f36", "#6d8f84", 5]
-] as const;
 
 export default function Page() {
   const [selected, setSelected] = useState("Epic");
@@ -97,22 +85,7 @@ export default function Page() {
             </div>
           </section>
 
-          <section className="portraitWall">
-            {portraits.map(([title, role, rarity, warm, cool, index]) => (
-              <article className="portraitRow" key={title}>
-                <div className="portraitImage">
-                  <MiniPortrait warm={warm} cool={cool} index={index} />
-                </div>
-                <aside>
-                  <h2>{title}</h2>
-                  <p>{role}</p>
-                  <strong>{rarity}</strong>
-                  <i style={{ background: rarity === "Legendary" ? "#cda846" : rarity === "Epic" ? "#356f95" : "#d44f36" }} />
-                  <span />
-                </aside>
-              </article>
-            ))}
-          </section>
+          <HeroPortrait />
         </div>
       </section>
 
@@ -168,16 +141,8 @@ export default function Page() {
       <section className="collectionSection" id="collection">
         <h2>The Kandinsky collection</h2>
         <p>A living gallery of on-chain identities</p>
-        <div className="collectionGrid">
-          {collection.map(([id, rarity, warm, cool, index]) => (
-            <article key={id}>
-              <MiniPortrait warm={warm} cool={cool} index={index} />
-              <strong>{id}</strong>
-              <span>{rarity}</span>
-            </article>
-          ))}
-        </div>
-        <a className="collectionButton" href="#mint">View Full Collection</a>
+        <CollectionGallery />
+        <a className="collectionButton" href="https://testnets.opensea.io/collection/identity0-2" target="_blank" rel="noopener noreferrer">View on OpenSea</a>
       </section>
 
     </main>

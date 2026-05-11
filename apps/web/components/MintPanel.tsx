@@ -18,23 +18,6 @@ export function MintPanel() {
   const effectiveQty = Math.min(qty, maxQty);
   const totalEth = (parseFloat(priceEth) * effectiveQty).toFixed(5);
 
-  const statusSteps = [
-    { label: "Wallet Connected", active: isConnected },
-    { label: "Seed Generated",   active: isConnected },
-    { label: "AI Composition",   active: ["queuing","done"].includes(phase) },
-    { label: "Attribute Scoring",active: phase === "done" },
-    { label: "Portrait Finalized",active: false }
-  ];
-
-  const statusLabel = (i: number) => {
-    if (!isConnected && i >= 1) return "Pending";
-    if (phase === "done" && i <= 3) return "Completed";
-    if (["queuing","done"].includes(phase) && i === 2) return "In Progress";
-    if (i <= 1 && isConnected) return "Completed";
-    if (i === 2 && ["signing","confirming"].includes(phase)) return "In Progress";
-    return i === 0 ? (isConnected ? "Completed" : "Pending") : "Queued";
-  };
-
   return (
     <>
       {/* ── Mint box ── */}
@@ -114,18 +97,6 @@ export function MintPanel() {
         )}
       </div>
 
-      {/* ── Generation status ── */}
-      <div className="statusPanel">
-        <h2>Generation status</h2>
-        {statusSteps.map(({ label, active }, i) => (
-          <div className={active ? "statusLine active" : "statusLine"} key={label}>
-            <i />
-            <span>{label}</span>
-            <b />
-            <small>{statusLabel(i)}</small>
-          </div>
-        ))}
-      </div>
     </>
   );
 }

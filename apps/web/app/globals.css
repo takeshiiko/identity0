@@ -536,6 +536,126 @@ button, a {
   background: var(--ink);
 }
 
+/* Hero portrait — single real artwork */
+.portraitWallSingle {
+  display: flex;
+  align-items: stretch;
+  justify-content: stretch;
+}
+
+.heroPortraitPlaceholder {
+  flex: 1;
+  background: var(--paper-2);
+  min-height: 600px;
+  animation: pulse 1.8s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.heroPortraitWrap {
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.heroPortraitWrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  min-height: 600px;
+}
+
+.heroPortraitMeta {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  padding: 18px 22px;
+  background: rgba(239, 228, 207, 0.92);
+  border-top: 1px solid var(--ink);
+  border-left: 1px solid var(--ink);
+  text-align: right;
+}
+
+.heroPortraitMeta h2 {
+  margin: 0 0 4px;
+  font-size: 0.88rem;
+  line-height: 1.3;
+}
+
+.heroPortraitMeta span {
+  font-size: 0.74rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* Collection gallery — real NFTs */
+.collectionEmpty {
+  color: var(--muted);
+  font-size: 0.82rem;
+  text-align: center;
+  padding: 40px 0;
+}
+
+.collectionCard {
+  min-width: 0;
+}
+
+.collectionCardImg {
+  display: block;
+  position: relative;
+  aspect-ratio: 1;
+  border: 1px solid rgba(20, 19, 15, 0.34);
+  overflow: hidden;
+  background: var(--paper-2);
+}
+
+.collectionCardImg img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.3s ease;
+}
+
+.collectionCardImg:hover img {
+  transform: scale(1.04);
+}
+
+.collectionCardLoading .collectionCardImg {
+  animation: pulse 1.8s ease-in-out infinite;
+}
+
+.collectionCardBadge {
+  position: absolute;
+  bottom: 6px;
+  left: 6px;
+  background: var(--ink);
+  color: var(--paper);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 3px 7px;
+}
+
+.collectionCard strong,
+.collectionCard span {
+  display: block;
+  margin-top: 10px;
+  font-size: 0.78rem;
+}
+
+.collectionCard span {
+  margin-top: 2px;
+  color: var(--muted);
+}
+
 .pipelineSection {
   padding: 34px 72px 48px;
   border-top: 1px solid var(--ink);
