@@ -74,38 +74,43 @@ export function useMint() {
     phase === "idle" &&
     mintPrice !== undefined;
 
-  async function mint() {
+  async function mint(quantity = 1) {
     if (!address || !publicClient || !canMint || mintPrice === undefined) return;
     setErrorMsg(null);
+    const qty = Math.max(1, Math.min(quantity, MAX_PER_WALLET - minted));
 
     try {
       setPhase("signing");
-      const hash = await writeContractAsync({
-        address: CONTRACT,
-        abi: identity0Abi,
-        functionName: "mint",
-        value: mintPrice
-      });
+      const lastTokenId: number | null = null;
 
-      setPhase("confirming");
-      const receipt = await publicClient.waitForTransactionReceipt({ hash });
-      const logs = parseEventLogs({ abi: identity0Abi, logs: receipt.logs, eventName: "TokenMinted" });
-      const mintedLog = logs.find(l => l.args.minter?.toLowerCase() === address.toLowerCase());
-      const id = mintedLog ? Number(mintedLog.args.tokenId) : null;
-      if (id) setTokenId(id);
-      await refetchMinted();
-
-      setPhase("queuing");
-      try {
-        await fetch(`${API_URL}/api/mint/initiate`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ tokenId: id, walletAddress: address, txHash: hash })
+      for (let i = 0; i < qty; i++) {
+        if (i > 0) setPhase("confirming");
+        const hash = await writeContractAsync({
+          address: CONTRACT,
+          abi: identity0Abi,
+          functionName: "mint",
+          value: mintPrice
         });
-      } catch {
-        // API offline — mint succeeded on-chain regardless
+
+        setPhase("confirming");
+        const receipt = await publicClient.waitForTransactionReceipt({ hash });
+        const logs = parseEventLogs({ abi: identity0Abi, logs: receipt.logs, eventName: "TokenMinted" });
+        const mintedLog = logs.find(l => l.args.minter?.toLowerCase() === address.toLowerCase());
+        const id = mintedLog ? Number(mintedLog.args.tokenId) : null;
+        if (id) setTokenId(id);
+
+        try {
+          await fetch(`${API_URL}/api/mint/initiate`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ tokenId: id, walletAddress: address, txHash: hash })
+          });
+        } catch {
+          // API offline — mint succeeded on-chain regardless
+        }
       }
 
+      await refetchMinted();
       setPhase("done");
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "";
