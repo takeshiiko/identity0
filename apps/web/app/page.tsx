@@ -65,7 +65,7 @@ export default function Page() {
           <section className="controlPanel">
             <h1>Your wallet.<br />Your portrait.</h1>
             <p>
-              Every connected wallet receives a unique, AI-generated NFT portrait. Deterministic. On-chain. Verifiable.
+              Your wallet's on-chain history — transactions, DeFi positions, NFT holdings, age — is scored across seven dimensions and translated into a Bauhaus AI portrait. No two wallets produce the same geometry, palette, or composition. Your identity, rendered in art.
             </p>
 
             <MintPanel />
