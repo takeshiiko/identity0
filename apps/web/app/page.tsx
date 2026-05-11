@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { MintPanel } from "../components/MintPanel";
+import { NavWallet } from "../components/NavWallet";
 
 const scoreRows = [
   ["Geometry", 82, "#356f95"],
@@ -71,7 +72,7 @@ export default function Page() {
             <a href="#collection">Collection</a>
             <a href="#generator">Mint</a>
           </div>
-          <div className="navOrb" aria-hidden="true" />
+          <NavWallet />
         </nav>
 
         <div className="heroBody" id="generator">

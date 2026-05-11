@@ -62,7 +62,7 @@ button, a {
 .topbar {
   height: 78px;
   display: grid;
-  grid-template-columns: 1fr auto 96px;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
   border-bottom: 2px solid var(--ink);
 }
@@ -71,8 +71,9 @@ button, a {
   height: 100%;
   display: inline-flex;
   align-items: center;
-  gap: 26px;
+  gap: 18px;
   padding-left: 36px;
+  white-space: nowrap;
 }
 
 .mark span {
@@ -92,14 +93,6 @@ button, a {
   line-height: 1;
 }
 
-.navLinks {
-  display: flex;
-  gap: 58px;
-  font-size: 0.82rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-}
-
 .navLinks a:hover {
   color: var(--red);
 }
@@ -116,9 +109,59 @@ button, a {
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  background:
-    conic-gradient(var(--blue) 0 25%, var(--gold) 0 50%, var(--red) 0 75%, var(--ink) 0);
+  background: conic-gradient(var(--blue) 0 25%, var(--gold) 0 50%, var(--red) 0 75%, var(--ink) 0);
   opacity: 0.8;
+}
+
+.navWalletBtn {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 0;
+  border-left: 1px solid var(--ink);
+  background: transparent;
+  color: var(--ink);
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+  padding: 0 20px;
+  white-space: nowrap;
+}
+
+.navWalletBtn:hover {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.navWalletError {
+  color: var(--red);
+}
+
+.navWalletConnected {
+  color: var(--ink);
+}
+
+.navWalletDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--sage);
+  flex-shrink: 0;
+}
+
+.navLinks {
+  display: flex;
+  justify-content: center;
+  gap: 48px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
 }
 
 .heroBody {
