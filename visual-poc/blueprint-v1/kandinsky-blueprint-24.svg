@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024" role="img" aria-label="Kandinsky deterministic wallet portrait"><defs>
+    <linearGradient id="sky-gradient" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0%" stop-color="#cfdad9"/>
+      <stop offset="42%" stop-color="#F5F0E8"/>
+      <stop offset="100%" stop-color="#e4d7b7"/>
+    </linearGradient>
+    <radialGradient id="paper-vignette" cx="50%" cy="40%" r="78%">
+      <stop offset="0%" stop-color="#F7E8BE" stop-opacity="0.46"/>
+      <stop offset="58%" stop-color="#F5F0E8" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#183E4B" stop-opacity="0.32"/>
+    </radialGradient>
+    <filter id="paper-noise" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.018 0.032" numOctaves="5" seed="803" stitchTiles="stitch"/>
+      <feColorMatrix type="saturate" values="0"/>
+      <feComponentTransfer><feFuncA type="table" tableValues="0 0.22"/></feComponentTransfer>
+    </filter>
+  </defs><g id="curated-background"><rect x="0" y="0" width="1024" height="1024" fill="#E2ECE4"/><rect x="0" y="0" width="1024" height="1024" fill="#CADDD0" opacity="0.22"/><rect x="56" y="108" width="292" height="398" fill="#C8866D" opacity="0.78"/><polygon points="642,122 930,438 590,438" fill="#C9B64B" opacity="0.56"/><polygon points="0,685 330,465 330,1024 0,1024" fill="#3D8178" opacity="0.28"/><rect x="0" y="0" width="1024" height="1024" fill="url(#paper-vignette)" opacity="0.36"/></g><g id="curated-rarity-aura" opacity="0.24"><polygon points="760,130 910,130 910,280" fill="#C9B64B"/><rect x="128" y="705" width="165" height="86" fill="#3D8178"/></g><g id="curated-hair-back"><path d="M 234 210 C 296 72 684 65 762 214 C 824 330 764 458 666 458 C 614 310 526 245 382 280 L 342 600 L 246 660 Z" fill="#15140F"/></g><g id="curated-head"><path d="M 290.6 280 C 370.6 157 697.4 189 757.4 335 C 804.4 480 677.4 811 479 851 C 344 791 215.6 465 290.6 280 Z" fill="#EFE3D0"/></g><g id="curated-face-planes"><polygon points="270,305 386,262 362,710 266,702" fill="#C9B64B" opacity="0.84"/><polygon points="540,318 714,372 690,548 544,520" fill="#B85B3A" opacity="0.7"/><rect x="372" y="578" width="320" height="88" fill="#4F978B" opacity="0.9"/></g><g id="curated-hair-front"><path d="M 239 245 C 389 128 714 150 764 300 C 744 360 689 385 629 355 C 604 260 524 215 389 245 L 349 490 L 279 540 Z" fill="#15140F"/></g><g id="curated-eyes"><path d="M 288 379 Q 358 343 450 385" fill="none" stroke="#15140F" stroke-width="22" stroke-linecap="round"/><path d="M 517.3199999999999 377 Q 587.3199999999999 345 679.3199999999999 383" fill="none" stroke="#15140F" stroke-width="22" stroke-linecap="round"/><g transform="rotate(-7 358 435)"><path d="M 292 435 Q 358 398.04 424 435 Q 358 461.6112 292 435 Z" fill="#F7EEDB" stroke="#15140F" stroke-width="6"/><circle cx="358" cy="435" r="19.9584" fill="#2F6F91"/><circle cx="358" cy="435" r="11.088" fill="#15140F"/></g><g transform="rotate(5 587.3199999999999 424)"><path d="M 539.3199999999999 424 Q 587.3199999999999 397.12 635.3199999999999 424 Q 587.3199999999999 443.35360000000003 539.3199999999999 424 Z" fill="#F7EEDB" stroke="#15140F" stroke-width="6"/><circle cx="587.3199999999999" cy="424" r="14.515200000000002" fill="#2F6F91"/><circle cx="587.3199999999999" cy="424" r="8.064" fill="#15140F"/></g></g><g id="curated-nose"><polygon points="479,345 568.16,625 402,600" fill="#1A4C48" opacity="0.64"/><polygon points="506,386 536.16,590 474,566" fill="#E2ECE4" opacity="0.9"/><path d="M 412 610 C 464 632 534 612 562 628" fill="none" stroke="#15140F" stroke-width="10" stroke-linecap="round"/></g><g id="curated-mouth"><path d="M 395 675 C 452 639 476 657 484 675 C 516 639 573 671 573 675 C 532 707 426 707 395 675 Z" fill="#B85B3A"/><path d="M 383 691 C 464 717 539 713 591 691" fill="none" stroke="#15140F" stroke-width="5"/></g><g id="curated-clothing">
+    <rect x="378.5" y="720" width="211" height="280" fill="#6E9468" opacity="0.92"/>
+    <polygon points="589.5,758 910,1024 589.5,1024" fill="#C9B64B" opacity="0.9"/>
+    <polygon points="378.5,762 145,1024 378.5,1024" fill="#EFE3D0" opacity="0.9"/>
+    <polygon points="409,760 484,860 559,760" fill="#E2ECE4" opacity="0.88"/>
+    
+    <rect x="568" y="774" width="52" height="52" fill="#C9B64B" opacity="0.72" transform="rotate(45 594 800)"/><rect x="558" y="764" width="72" height="72" fill="none" stroke="#B85B3A" stroke-width="6" opacity="0.38" transform="rotate(45 594 800)"/>
+  </g><g id="curated-rare-item"><rect x="670" y="510" width="58" height="58" fill="none" stroke="#C9B64B" stroke-width="7" opacity="0.72" transform="rotate(45 699 539)"/></g><g id="curated-linework" opacity="0.36">
+    <line x1="476" y1="165" x2="476" y2="760" stroke="#15140F" stroke-width="2"/>
+    <line x1="154" y1="735" x2="814" y2="735" stroke="#15140F" stroke-width="2"/>
+    <line x1="254" y1="330" x2="734" y2="280" stroke="#15140F" stroke-width="1.5"/>
+  </g><g id="paper-texture" opacity="0.82" style="mix-blend-mode:multiply">
+    <rect x="0" y="0" width="1024" height="1024" filter="url(#paper-noise)" opacity="1"/>
+    <rect x="0" y="0" width="1024" height="1024" fill="#C5B17C" opacity="0.08"/>
+  </g></svg>

@@ -1,0 +1,24 @@
+{
+  "name": "identity0",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Identity.0 deterministic wallet-derived Bauhaus NFT collection.",
+  "packageManager": "npm@10.0.0",
+  "workspaces": [
+    "apps/*",
+    "packages/*",
+    "services/*"
+  ],
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "test": "turbo test",
+    "lint": "turbo lint",
+    "typecheck": "turbo typecheck",
+    "clean": "turbo clean && rm -rf node_modules"
+  },
+  "devDependencies": {
+    "turbo": "^2.0.0",
+    "typescript": "^5.5.4"
+  }
+}

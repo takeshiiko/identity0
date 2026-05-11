@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024" role="img" aria-label="Identity.0 deterministic Bauhaus wallet composition"><defs>
+    <linearGradient id="sky-gradient" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0%" stop-color="#cadadc"/>
+      <stop offset="42%" stop-color="#E8EEF0"/>
+      <stop offset="100%" stop-color="#ded6ba"/>
+    </linearGradient>
+    <radialGradient id="paper-vignette" cx="50%" cy="40%" r="78%">
+      <stop offset="0%" stop-color="#F7E8BE" stop-opacity="0.46"/>
+      <stop offset="58%" stop-color="#F5F0E8" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#183E4B" stop-opacity="0.32"/>
+    </radialGradient>
+    <filter id="paper-noise" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.018 0.032" numOctaves="5" seed="614" stitchTiles="stitch"/>
+      <feColorMatrix type="saturate" values="0"/>
+      <feComponentTransfer><feFuncA type="table" tableValues="0 0.22"/></feComponentTransfer>
+    </filter>
+  </defs><g id="portrait-background">
+    <rect x="0" y="0" width="1024" height="1024" fill="#E8EEF0"/>
+    <rect x="0" y="0" width="1024" height="1024" fill="#D9E4E4" opacity="0.34"/>
+    <rect x="0" y="0" width="1024" height="1024" fill="url(#paper-vignette)" opacity="0.42"/>
+    <rect x="80" y="540" width="110" height="270" fill="#D8A070" opacity="0.1819619158282876"/><rect x="860" y="480" width="100" height="240" fill="#C9B76B" opacity="0.22302330564707518"/><rect x="200" y="360" width="160" height="160" fill="#A2B9A8" opacity="0.2034015268459916"/><rect x="180" y="420" width="190" height="150" fill="#C6A884" opacity="0.2515601486712694"/><rect x="840" y="620" width="210" height="120" fill="#D8A070" opacity="0.18156897582113743"/>
+    <path d="M 70 205 L 250 330 L 250 905 L 58 850 Z" fill="#B84A2B" opacity="0.4216"/>
+  </g><g id="portrait-back-shapes">
+      <circle cx="300" cy="330" r="145" fill="#C79A22" opacity="0.86"/>
+      <rect x="92" y="150" width="270" height="285" fill="#B84A2B" opacity="0.86"/>
+      <polygon points="555,220 730,415 525,415" fill="#B97B5D" opacity="0.8"/>
+      <rect x="675" y="360" width="92" height="155" fill="#3A5A6A" opacity="0.9"/>
+      <circle cx="760" cy="245" r="54" fill="#91503A" opacity="0.24"/>
+    </g><g id="rarity-aura" opacity="0.26">
+      <circle cx="500" cy="468" r="330" fill="none" stroke="#C79A22" stroke-width="16"/>
+      <circle cx="500" cy="468" r="255" fill="none" stroke="#3A5A6A" stroke-width="6"/>
+    </g><g id="portrait-hair-back"></g><g id="portrait-neck-shoulders">
+    <rect x="455" y="665" width="217.4" height="240" fill="#7F6B48" opacity="0.9"/>
+    <polygon points="672.4,705 885,930 672.4,930" fill="#102C35" opacity="0.94"/>
+    <polygon points="430,745 210,930 430,930" fill="#E8EEF0" opacity="0.9"/>
+    <polygon points="760,705 940,980 760,930" fill="#C79A22" opacity="0.6864"/>
+    
+    <rect x="692.4" y="750" width="72" height="145" fill="#E8EEF0" opacity="0.58"/>
+  </g><g id="portrait-hair">
+      <path d="M 271.5 202.44 C 450 90.44 778.2 107.44 828.2 262.44 C 858.2 352.44 808.2 410.44 742.2 392.44 L 693.2 227.44 C 555 174.44 480 178.44 340 210.44 L 340 412.44 L 290 462.44 L 270 228.44 Z" fill="#111318"/>
+      <rect x="325" y="210.44" width="62" height="280" fill="#111318"/>
+    </g><g id="portrait-head">
+      <path d="M 348.85 169.45 C 741.15 104.44999999999999 791.15 520 717.15 738.55 C 646.15 852.55 328.85 858.55 266.85 715.55 C 200.85000000000002 465 246.85000000000002 219.45 348.85 169.45 Z" fill="#F0E7D6"/>
+      <path d="M 500 159.45 C 741.15 149.45 776.15 530 719.15 732.55 C 666.15 838.55 505 832.55 500 790.55 Z" fill="#C79A22" opacity="0.9"/>
+    </g><g id="portrait-color-planes">
+      <polygon points="255,360 450,300 418,560 245,545" fill="#B84A2B" opacity="0.68"/>
+      <polygon points="492,250 645,228 745,420 495,430" fill="#C79A22" opacity="0.9"/>
+      <path d="M 315 560 C 445 525 645 548 730 608 C 595 715 395 735 295 645 Z" fill="#5A7A8A" opacity="0.92"/>
+      <circle cx="610" cy="690" r="70.24" fill="#B97B5D" opacity="0.72"/>
+    </g><g id="portrait-eyes">
+      <g transform="rotate(-5 375.7568 437.28)">
+    <path d="M 303.53679999999997 437.28 Q 375.7568 393.948 447.9768 437.28 Q 375.7568 468.47904 303.53679999999997 437.28 Z" fill="#F0E7D6" stroke="#111318" stroke-width="7"/>
+    <circle cx="375.7568" cy="437.28" r="24.26592" fill="#1767A8"/>
+    <circle cx="375.7568" cy="437.28" r="13.866240000000001" fill="#111318"/>
+    <path d="M 289.53679999999997 375.948 Q 370.7568 345.948 463.9768 383.948" fill="none" stroke="#111318" stroke-width="24" stroke-linecap="round" opacity="0.8484"/>
+  </g>
+      <path d="M 562 421.28 Q 655 389.28 745 423.28" fill="none" stroke="#111318" stroke-width="18" stroke-linecap="round" opacity="0.8484"/>
+      <line x1="576" y1="445.28" x2="728" y2="439.28" stroke="#111318" stroke-width="7" opacity="0.74"/>
+    </g><g id="portrait-nose">
+    <polygon points="485,378.7 512.36,587.8 393,562.8" fill="#592B20" opacity="0.72"/>
+    <polygon points="503,410.7 538.36,569.8 465,543.8" fill="#F0E7D6" opacity="0.92"/>
+    <path d="M 403 579.8 C 451 605.8 537 585.8 553 605.8" fill="none" stroke="#111318" stroke-width="12" stroke-linecap="round"/>
+  </g><g id="portrait-mouth">
+      <path d="M 383.8 693 C 455 647 481 675 485 693 C 519 648 586.2 687 598.2 695 C 527 727 413 727 383.8 693 Z" fill="#D84E35"/>
+      <line x1="365.8" y1="711" x2="616.2" y2="711" stroke="#111318" stroke-width="5"/>
+    </g><g id="portrait-feminine-details"></g><g id="portrait-clothing-details"><polygon points="380,780 485,890 426,930" fill="#E8EEF0" opacity="0.78"/>
+      <polygon points="640,780 535,890 600,930" fill="#D9E4E4" opacity="0.78"/>
+      <rect x="480" y="796" width="122" height="18" fill="#C79A22" opacity="0.45"/><circle cx="532" cy="820" r="18" fill="#7F6B48" opacity="0.84"/>
+      <circle cx="532" cy="820" r="32" fill="none" stroke="#102C35" stroke-width="4" opacity="0.34"/></g><g id="rarity-traits">
+      <rect x="614" y="238" width="42" height="42" fill="none" stroke="#C79A22" stroke-width="6" opacity="0.78" transform="rotate(24 635 259)"/>
+      <circle cx="715" cy="555" r="18" fill="#7F6B48" opacity="0.8"/>
+    </g><g id="portrait-accents"><rect x="660" y="600" width="20.769143799319863" height="20.769143799319863" fill="none" stroke="#B84A2B" stroke-width="4" opacity="0.34" transform="rotate(-15.680734474211931 660 600)"/><line x1="433.8969354731962" y1="620" x2="512.2061290536076" y2="613.474233868299" stroke="#111318" stroke-width="3" opacity="0.22"/><polygon points="840,108.54297260567546 871.4570273943245,171.45702739432454 808.5429726056755,171.45702739432454" fill="#3A5A6A" opacity="0.2"/><polygon points="780,724.5339182969183 815.4660817030817,795.4660817030817 744.5339182969183,795.4660817030817" fill="#7F6B48" opacity="0.2"/></g><g id="paper-texture" opacity="0.82" style="mix-blend-mode:multiply">
+    <rect x="0" y="0" width="1024" height="1024" filter="url(#paper-noise)" opacity="1"/>
+    <rect x="0" y="0" width="1024" height="1024" fill="#C5B17C" opacity="0.08"/>
+  </g></svg>

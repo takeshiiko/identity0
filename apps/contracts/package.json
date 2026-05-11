@@ -1,0 +1,24 @@
+{
+  "name": "@identity0/contracts",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "hardhat node",
+    "build": "hardhat compile",
+    "typecheck": "tsc --noEmit",
+    "test": "hardhat test",
+    "lint": "tsc --noEmit",
+    "clean": "rm -rf artifacts cache typechain-types coverage *.tsbuildinfo"
+  },
+  "dependencies": {
+    "@identity0/shared": "*",
+    "@openzeppelin/contracts": "^5.0.2"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "@types/node": "^20.14.12",
+    "dotenv": "^16.4.5",
+    "hardhat": "^2.22.6",
+    "typescript": "^5.5.4"
+  }
+}

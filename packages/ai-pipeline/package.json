@@ -1,0 +1,27 @@
+{
+  "name": "@identity0/ai-pipeline",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "dev": "tsc -w",
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "lint": "tsc --noEmit",
+    "clean": "rm -rf dist coverage *.tsbuildinfo"
+  },
+  "dependencies": {
+    "@identity0/shared": "*",
+    "imghash": "^0.0.9",
+    "replicate": "^0.32.1",
+    "sharp": "^0.33.4"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.12",
+    "typescript": "^5.5.4",
+    "vitest": "^2.0.5"
+  }
+}

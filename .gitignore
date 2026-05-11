@@ -1,0 +1,15 @@
+node_modules
+.claude
+.DS_Store
+identity0/
+dist
+.next
+coverage
+artifacts
+cache
+typechain-types
+.env
+.env.local
+.turbo
+*.tsbuildinfo
+.vercel
