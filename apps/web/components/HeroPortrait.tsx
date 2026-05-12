@@ -16,20 +16,11 @@ export function HeroPortrait() {
   const [image, setImage] = useState<string | null>(null);
   const [meta, setMeta] = useState<{ name: string; rarity: string } | null>(null);
 
-  const { data: totalSupply } = useReadContract({
-    address: CONTRACT,
-    abi: identity0Abi,
-    functionName: "totalSupply",
-  });
-
-  const featuredId = totalSupply ? Number(totalSupply) : 1;
-
   const { data: tokenURI } = useReadContract({
     address: CONTRACT,
     abi: identity0Abi,
     functionName: "tokenURI",
-    args: [BigInt(featuredId)],
-    query: { enabled: featuredId > 0 },
+    args: [BigInt(1)],
   });
 
   useEffect(() => {
