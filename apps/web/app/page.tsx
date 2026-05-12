@@ -143,7 +143,7 @@ export default function Page() {
         <h2>The Kandinsky collection</h2>
         <p>A living gallery of on-chain identities <span className="galleryNote">(Your portrait will be revealed automatically — the AI render completes in 2–3 minutes.)</span></p>
         <CollectionGallery />
-        <a className="collectionButton" href="https://opensea.io/collection/kandinsky-identity0" target="_blank" rel="noopener noreferrer">View on OpenSea</a>
+        <a className="collectionButton" href="https://opensea.io/collection/kandinsky-774051143" target="_blank" rel="noopener noreferrer">View on OpenSea</a>
       </section>
 
     </main>
