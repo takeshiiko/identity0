@@ -19,6 +19,8 @@ type MintJobData = {
   tokenId: number;
   walletAddress: `0x${string}`;
   txHash?: `0x${string}`;
+  cachedImageCid?: string;
+  cachedMetadataCid?: string;
 };
 
 type MintJobResult = {
@@ -124,57 +126,66 @@ app.listen(port, () => {
 });
 
 async function runRevealWorkflow(job: Job<MintJobData, MintJobResult>): Promise<MintJobResult> {
-  await job.updateProgress({ status: "analyzing" });
-  const analyzerOptions: { alchemyApiKey?: string; covalentApiKey?: string; tokenId?: number } = {};
-  if (process.env.ALCHEMY_API_KEY) analyzerOptions.alchemyApiKey = process.env.ALCHEMY_API_KEY;
-  if (process.env.COVALENT_API_KEY) analyzerOptions.covalentApiKey = process.env.COVALENT_API_KEY;
-  analyzerOptions.tokenId = job.data.tokenId;
-  const profile = await analyzeWallet(job.data.walletAddress, analyzerOptions);
-  const assignedTier = await claimTierSlot(connection, profile.rarityTier);
-  if (assignedTier !== profile.rarityTier) {
-    console.log(`  Soft cap: ${profile.rarityTier} → ${assignedTier} for token #${job.data.tokenId}`);
-    profile.rarityTier = assignedTier;
+  let imageCid = job.data.cachedImageCid;
+  let metadataCid = job.data.cachedMetadataCid;
+
+  if (!imageCid || !metadataCid) {
+    await job.updateProgress({ status: "analyzing" });
+    const analyzerOptions: { alchemyApiKey?: string; covalentApiKey?: string; tokenId?: number } = {};
+    if (process.env.ALCHEMY_API_KEY) analyzerOptions.alchemyApiKey = process.env.ALCHEMY_API_KEY;
+    if (process.env.COVALENT_API_KEY) analyzerOptions.covalentApiKey = process.env.COVALENT_API_KEY;
+    analyzerOptions.tokenId = job.data.tokenId;
+    const profile = await analyzeWallet(job.data.walletAddress, analyzerOptions);
+    const assignedTier = await claimTierSlot(connection, profile.rarityTier);
+    if (assignedTier !== profile.rarityTier) {
+      console.log(`  Soft cap: ${profile.rarityTier} → ${assignedTier} for token #${job.data.tokenId}`);
+      profile.rarityTier = assignedTier;
+    }
+
+    await job.updateProgress({ status: "composing" });
+    const svg = generateComposition(profile);
+    const traits = getPortraitTraits(profile);
+
+    await job.updateProgress({ status: "generating" });
+    const styleReferenceImage = await loadStyleReference();
+    const stylizeOptions: Parameters<typeof stylizeSvg>[1] = {
+      profile,
+      preset: "ip-adapter-cubist",
+      model: (process.env.REPLICATE_MODEL_OVERRIDE ?? "lucataco/ip_adapter-sdxl-face:226c6bf67a75a129b0f978e518fed33e1fb13956e15761c1ac53c9d2f898c9af") as `${string}/${string}` | `${string}/${string}:${string}`,
+      ipAdapterScale: Number(process.env.IP_ADAPTER_SCALE ?? 0.82),
+      maxAttempts: 3,
+      enforceQuality: true
+    };
+    if (styleReferenceImage) {
+      stylizeOptions.styleReferenceImage = styleReferenceImage;
+    }
+    const generated = await stylizeSvg(svg, stylizeOptions);
+
+    await job.updateProgress({ status: "uploading" });
+    imageCid = await uploadBufferToIPFS(generated.imageBuffer, `kandinsky-${job.data.tokenId}.webp`);
+    const rareItemLabel = (["None", "Accent", "Brooch", "Symbol", "Aura", "Crown"] as const)[traits.rareItemLevel] ?? "None";
+    const scoreKeyLabel: Record<string, string> = { age: "Wallet Age", tx: "Transactions", defi: "DeFi Activity", nft: "NFT Holdings", risk: "Risk Profile", multichain: "Multi-chain", wealth: "Portfolio Wealth" };
+    const metadata = {
+      name: `Kandinsky #${job.data.tokenId}`,
+      description: "A wallet-derived AI cubist portrait generated deterministically from on-chain identity signals.",
+      image: `ipfs://${imageCid}`,
+      attributes: [
+        { trait_type: "Rarity", value: profile.rarityTier },
+        { trait_type: "Composite Score", value: Math.round(profile.compositeScore) },
+        { trait_type: "Face Archetype", value: traits.faceArchetype },
+        { trait_type: "Expression", value: traits.expression },
+        { trait_type: "Palette", value: traits.paletteFamily },
+        { trait_type: "Form", value: traits.hasFeminineForm ? "Feminine" : "Masculine" },
+        { trait_type: "Rare Item", value: rareItemLabel },
+        ...Object.entries(profile.scores).map(([key, value]) => ({ trait_type: scoreKeyLabel[key] ?? key, value: Math.round(value) }))
+      ]
+    };
+    metadataCid = await uploadJsonToIPFS(metadata, `kandinsky-${job.data.tokenId}.json`);
+    // Retry durumunda generation'ı atlamak için CID'leri job data'ya kaydet
+    await job.updateData({ ...job.data, cachedImageCid: imageCid, cachedMetadataCid: metadataCid });
+  } else {
+    console.log(`  Token #${job.data.tokenId}: cached CIDs found, skipping generation`);
   }
-
-  await job.updateProgress({ status: "composing" });
-  const svg = generateComposition(profile);
-  const traits = getPortraitTraits(profile);
-
-  await job.updateProgress({ status: "generating" });
-  const styleReferenceImage = await loadStyleReference();
-  const stylizeOptions: Parameters<typeof stylizeSvg>[1] = {
-    profile,
-    preset: "ip-adapter-cubist",
-    model: (process.env.REPLICATE_MODEL_OVERRIDE ?? "lucataco/ip_adapter-sdxl-face:226c6bf67a75a129b0f978e518fed33e1fb13956e15761c1ac53c9d2f898c9af") as `${string}/${string}` | `${string}/${string}:${string}`,
-    ipAdapterScale: Number(process.env.IP_ADAPTER_SCALE ?? 0.82),
-    maxAttempts: 3,
-    enforceQuality: true
-  };
-  if (styleReferenceImage) {
-    stylizeOptions.styleReferenceImage = styleReferenceImage;
-  }
-  const generated = await stylizeSvg(svg, stylizeOptions);
-
-  await job.updateProgress({ status: "uploading" });
-  const imageCid = await uploadBufferToIPFS(generated.imageBuffer, `kandinsky-${job.data.tokenId}.webp`);
-  const rareItemLabel = (["None", "Accent", "Brooch", "Symbol", "Aura", "Crown"] as const)[traits.rareItemLevel] ?? "None";
-  const scoreKeyLabel: Record<string, string> = { age: "Wallet Age", tx: "Transactions", defi: "DeFi Activity", nft: "NFT Holdings", risk: "Risk Profile", multichain: "Multi-chain", wealth: "Portfolio Wealth" };
-  const metadata = {
-    name: `Kandinsky #${job.data.tokenId}`,
-    description: "A wallet-derived AI cubist portrait generated deterministically from on-chain identity signals.",
-    image: `ipfs://${imageCid}`,
-    attributes: [
-      { trait_type: "Rarity", value: profile.rarityTier },
-      { trait_type: "Composite Score", value: Math.round(profile.compositeScore) },
-      { trait_type: "Face Archetype", value: traits.faceArchetype },
-      { trait_type: "Expression", value: traits.expression },
-      { trait_type: "Palette", value: traits.paletteFamily },
-      { trait_type: "Form", value: traits.hasFeminineForm ? "Feminine" : "Masculine" },
-      { trait_type: "Rare Item", value: rareItemLabel },
-      ...Object.entries(profile.scores).map(([key, value]) => ({ trait_type: scoreKeyLabel[key] ?? key, value: Math.round(value) }))
-    ]
-  };
-  const metadataCid = await uploadJsonToIPFS(metadata, `kandinsky-${job.data.tokenId}.json`);
   const metadataUri = `ipfs://${metadataCid}`;
 
   await job.updateProgress({ status: "revealing" });
@@ -186,7 +197,7 @@ async function runRevealWorkflow(job: Job<MintJobData, MintJobResult>): Promise<
     walletAddress: job.data.walletAddress,
     metadataUri,
     imageCid,
-    pHash: generated.pHash
+    pHash: ""
   };
   if (revealTxHash) {
     result.revealTxHash = revealTxHash;
