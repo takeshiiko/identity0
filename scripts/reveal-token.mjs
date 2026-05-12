@@ -57,6 +57,7 @@ async function analyzeWallet(address) {
   const profile = await analyze(address, {
     covalentApiKey: process.env.COVALENT_API_KEY,
     alchemyApiKey: process.env.ALCHEMY_API_KEY,
+    tokenId: TOKEN_ID,
   });
   return profile;
 }

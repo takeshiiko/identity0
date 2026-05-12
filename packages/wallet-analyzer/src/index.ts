@@ -4,6 +4,7 @@ import { keccak256, toBytes } from "viem";
 export interface AnalyzeWalletOptions {
   alchemyApiKey?: string;
   covalentApiKey?: string;
+  tokenId?: number;
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
@@ -202,8 +203,12 @@ export async function analyzeWallet(
   address: `0x${string}`,
   options: AnalyzeWalletOptions = {}
 ): Promise<WalletProfile> {
-  const seed = keccak256(toBytes(address.toLowerCase())) as `0x${string}`;
-  const { covalentApiKey, alchemyApiKey } = options;
+  const { covalentApiKey, alchemyApiKey, tokenId } = options;
+  // tokenId dahil edilince aynı cüzdanın farklı mintleri benzeyip özdeş olmaz
+  const seedInput = tokenId != null
+    ? `${address.toLowerCase()}:${tokenId}`
+    : address.toLowerCase();
+  const seed = keccak256(toBytes(seedInput)) as `0x${string}`;
 
   let scores: WalletScores;
 

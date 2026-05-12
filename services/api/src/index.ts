@@ -125,9 +125,10 @@ app.listen(port, () => {
 
 async function runRevealWorkflow(job: Job<MintJobData, MintJobResult>): Promise<MintJobResult> {
   await job.updateProgress({ status: "analyzing" });
-  const analyzerOptions: { alchemyApiKey?: string; covalentApiKey?: string } = {};
+  const analyzerOptions: { alchemyApiKey?: string; covalentApiKey?: string; tokenId?: number } = {};
   if (process.env.ALCHEMY_API_KEY) analyzerOptions.alchemyApiKey = process.env.ALCHEMY_API_KEY;
   if (process.env.COVALENT_API_KEY) analyzerOptions.covalentApiKey = process.env.COVALENT_API_KEY;
+  analyzerOptions.tokenId = job.data.tokenId;
   const profile = await analyzeWallet(job.data.walletAddress, analyzerOptions);
   const assignedTier = await claimTierSlot(connection, profile.rarityTier);
   if (assignedTier !== profile.rarityTier) {
