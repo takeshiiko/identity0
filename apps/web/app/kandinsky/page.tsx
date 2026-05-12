@@ -26,11 +26,7 @@ export default function KandinskyPage() {
           </p>
         </div>
         <div className="kandinskyHeroArt">
-          <img
-            src="/kandinsky-portrait.webp"
-            alt="Wassily Kandinsky"
-            className="kandinskyHeroImg"
-          />
+          <CompositionVIII />
         </div>
       </header>
 
@@ -126,5 +122,37 @@ export default function KandinskyPage() {
         <Link href="/">kandisky.art</Link>
       </footer>
     </main>
+  );
+}
+
+function CompositionVIII() {
+  return (
+    <svg viewBox="0 0 600 500" xmlns="http://www.w3.org/2000/svg" aria-label="Composition VIII interpretation">
+      <rect width="600" height="500" fill="#efe4cf" />
+      <circle cx="420" cy="130" r="110" fill="none" stroke="#14130f" strokeWidth="2.5" />
+      <circle cx="420" cy="130" r="78" fill="none" stroke="#356f95" strokeWidth="1.5" />
+      <circle cx="420" cy="130" r="48" fill="#356f95" opacity="0.22" />
+      <line x1="60" y1="60" x2="540" y2="60" stroke="#14130f" strokeWidth="3" />
+      <line x1="60" y1="80" x2="540" y2="80" stroke="#14130f" strokeWidth="1" />
+      <polygon points="80,120 180,240 80,360" fill="#cda846" opacity="0.72" />
+      <polygon points="80,120 180,240 200,120" fill="#d44f36" opacity="0.58" />
+      <rect x="200" y="200" width="140" height="140" fill="none" stroke="#14130f" strokeWidth="2" transform="rotate(22 270 270)" />
+      <rect x="215" y="215" width="110" height="110" fill="#14130f" opacity="0.08" transform="rotate(22 270 270)" />
+      <line x1="300" y1="60" x2="60" y2="440" stroke="#14130f" strokeWidth="1.5" />
+      <line x1="380" y1="60" x2="140" y2="440" stroke="#14130f" strokeWidth="0.8" opacity="0.5" />
+      <line x1="460" y1="60" x2="220" y2="440" stroke="#14130f" strokeWidth="0.8" opacity="0.3" />
+      <circle cx="160" cy="380" r="36" fill="#d44f36" opacity="0.68" />
+      <circle cx="160" cy="380" r="20" fill="#cda846" opacity="0.9" />
+      <circle cx="160" cy="380" r="8" fill="#14130f" />
+      <polygon points="470,280 560,420 380,420" fill="none" stroke="#14130f" strokeWidth="2" />
+      <polygon points="470,280 560,420 380,420" fill="#6d8f84" opacity="0.18" />
+      <line x1="350" y1="300" x2="550" y2="160" stroke="#d44f36" strokeWidth="2.5" />
+      <line x1="340" y1="320" x2="540" y2="180" stroke="#d44f36" strokeWidth="1" opacity="0.4" />
+      <rect x="230" y="380" width="8" height="60" fill="#14130f" />
+      <rect x="250" y="380" width="8" height="60" fill="#356f95" />
+      <rect x="270" y="380" width="8" height="60" fill="#d44f36" />
+      <rect x="290" y="380" width="8" height="60" fill="#cda846" />
+      <rect x="310" y="380" width="8" height="60" fill="#14130f" opacity="0.4" />
+    </svg>
   );
 }
