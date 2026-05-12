@@ -63,7 +63,7 @@ export function useMint() {
   const minted = mintedCount !== undefined ? Number(mintedCount) : 0;
   const soldOut = supply !== null && supply >= MAX_SUPPLY;
   const walletFull = minted >= MAX_PER_WALLET;
-  const priceEth = mintPrice !== undefined ? formatEther(mintPrice) : "0.02";
+  const priceEth = mintPrice !== undefined ? formatEther(mintPrice) : "0.00065";
   const remaining = supply !== null ? MAX_SUPPLY - supply : null;
   const canMint =
     isConnected &&
