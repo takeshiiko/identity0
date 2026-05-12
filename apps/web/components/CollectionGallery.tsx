@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useReadContract, useReadContracts } from "wagmi";
 import { identity0Abi, deployments } from "@identity0/shared";
 
-const CONTRACT = deployments.find(d => d.chainId === 11155111)!.address;
+const CONTRACT = deployments.find(d => d.chainId === 1)!.address;
 const GATEWAY = "https://ipfs.io/ipfs/";
 
 function ipfsToHttp(uri: string): string {
@@ -102,7 +102,7 @@ export function CollectionGallery() {
       {tokens.map(({ tokenId, name, image, rarity, revealed }) => (
         <article key={tokenId} className="collectionCard">
           <a
-            href={`https://testnets.opensea.io/assets/sepolia/${CONTRACT}/${tokenId}`}
+            href={`https://opensea.io/assets/ethereum/${CONTRACT}/${tokenId}`}
             target="_blank"
             rel="noopener noreferrer"
             className="collectionCardImg"

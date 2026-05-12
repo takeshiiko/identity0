@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useReadContract } from "wagmi";
 import { identity0Abi, deployments } from "@identity0/shared";
 
-const CONTRACT = deployments.find(d => d.chainId === 11155111)!.address;
+const CONTRACT = deployments.find(d => d.chainId === 1)!.address;
 const GATEWAY = "https://ipfs.io/ipfs/";
 
 function ipfsToHttp(uri: string): string {

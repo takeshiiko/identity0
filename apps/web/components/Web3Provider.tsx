@@ -3,13 +3,13 @@
 import "@rainbow-me/rainbowkit/styles.css";
 import { RainbowKitProvider, getDefaultConfig } from "@rainbow-me/rainbowkit";
 import { WagmiProvider } from "wagmi";
-import { sepolia } from "wagmi/chains";
+import { mainnet } from "wagmi/chains";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 const wagmiConfig = getDefaultConfig({
   appName: "Kandinsky",
   projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID ?? "placeholder",
-  chains: [sepolia],
+  chains: [mainnet],
   ssr: true
 });
 

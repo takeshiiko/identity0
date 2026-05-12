@@ -3,10 +3,10 @@
 import { useState } from "react";
 import { useAccount, useReadContract, useWriteContract, usePublicClient, useChainId } from "wagmi";
 import { parseEventLogs, formatEther } from "viem";
-import { sepolia } from "viem/chains";
+import { mainnet } from "viem/chains";
 import { identity0Abi, deployments } from "@identity0/shared";
 
-const CONTRACT = deployments.find(d => d.chainId === 11155111)!.address;
+const CONTRACT = deployments.find(d => d.chainId === 1)!.address;
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
 const MAX_SUPPLY = 3333;
 const MAX_PER_WALLET = 3;
@@ -25,7 +25,7 @@ export const MINT_PHASE_LABEL: Record<MintPhase, string> = {
 export function useMint() {
   const { address, isConnected } = useAccount();
   const chainId = useChainId();
-  const publicClient = usePublicClient({ chainId: sepolia.id });
+  const publicClient = usePublicClient({ chainId: mainnet.id });
   const [phase, setPhase] = useState<MintPhase>("idle");
   const [tokenId, setTokenId] = useState<number | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -58,12 +58,12 @@ export function useMint() {
 
   const { writeContractAsync } = useWriteContract();
 
-  const isWrongChain = isConnected && chainId !== sepolia.id;
+  const isWrongChain = isConnected && chainId !== mainnet.id;
   const supply = totalSupply !== undefined ? Number(totalSupply) : null;
   const minted = mintedCount !== undefined ? Number(mintedCount) : 0;
   const soldOut = supply !== null && supply >= MAX_SUPPLY;
   const walletFull = minted >= MAX_PER_WALLET;
-  const priceEth = mintPrice !== undefined ? formatEther(mintPrice) : "0.00065";
+  const priceEth = mintPrice !== undefined ? formatEther(mintPrice) : "0.02";
   const remaining = supply !== null ? MAX_SUPPLY - supply : null;
   const canMint =
     isConnected &&
