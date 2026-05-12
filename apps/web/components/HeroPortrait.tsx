@@ -31,7 +31,7 @@ export function HeroPortrait() {
         const isUnrevealed = m.attributes?.some((a: any) => a.value === "Unrevealed");
         if (!isUnrevealed) {
           setImage(ipfsToHttp(m.image));
-          const rarity = m.attributes?.find((a: any) => a.trait_type === "Rarity")?.value ?? "";
+          const rarity = m.attributes?.find((a: any) => a.trait_type === "Tier")?.value ?? "";
           setMeta({ name: m.name, rarity });
         }
       })

@@ -215,15 +215,15 @@ async function runRevealWorkflow(job: Job<MintJobData, MintJobResult>): Promise<
       image: `ipfs://${imageCid}`,
       external_url: `https://identity0.vercel.app`,
       attributes: [
-        { trait_type: "Rarity",         value: profile.rarityTier },
+        { trait_type: "Tier",            value: profile.rarityTier },
         { trait_type: "Face Archetype", value: traits.faceArchetype },
         { trait_type: "Expression",     value: traits.expression },
         { trait_type: "Palette",        value: traits.paletteFamily },
         { trait_type: "Form",           value: traits.hasFeminineForm ? "Feminine" : "Masculine" },
         { trait_type: "Rare Item",      value: rareItemLabel },
-        { display_type: "number", trait_type: "Composite Score", value: Math.round(profile.compositeScore), max_value: 100 },
+        { display_type: "boost_number", trait_type: "Composite Score", value: Math.round(profile.compositeScore), max_value: 100 },
         ...Object.entries(profile.scores).map(([key, value]) => ({
-          display_type: "number" as const,
+          display_type: "boost_number" as const,
           trait_type: scoreKeyLabel[key] ?? key,
           value: Math.round(value),
           max_value: 100

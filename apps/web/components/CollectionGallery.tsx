@@ -58,7 +58,7 @@ export function CollectionGallery() {
           const res = await fetch(ipfsToHttp(uri), { signal: controller.signal });
           clearTimeout(timer);
           const meta = await res.json();
-          const rarity = meta.attributes?.find((a: any) => a.trait_type === "Rarity")?.value ?? "Common";
+          const rarity = meta.attributes?.find((a: any) => a.trait_type === "Tier")?.value ?? "Common";
           const isUnrevealed =
             !meta.attributes ||
             meta.attributes.length === 0 ||
