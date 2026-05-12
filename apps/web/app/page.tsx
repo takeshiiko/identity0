@@ -58,12 +58,15 @@ export default function Page() {
             <img src="/logo.png" alt="Kandinsky" className="markLogo" />
             <strong>Kandinsky</strong>
           </a>
+          <nav className="navLinks">
+            <a href="/kandinsky">Who is Kandinsky?</a>
+          </nav>
           <NavWallet />
         </nav>
 
         <div className="heroBody" id="generator">
           <section className="controlPanel">
-            <h1>Your wallet.<br />Your portrait.</h1>
+            <h1>Your wallet.<br />Your art.</h1>
             <p>
               Your wallet's on-chain history — transactions, DeFi positions, NFT holdings, age — is scored across seven dimensions and translated into a Bauhaus AI portrait. Your identity, rendered in art.
             </p>

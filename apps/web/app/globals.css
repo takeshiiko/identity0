@@ -979,3 +979,261 @@ button, a {
     align-items: stretch;
   }
 }
+
+/* ── Kandinsky Page ─────────────────────────────────────────── */
+
+.kandinskyPage {
+  min-height: 100vh;
+  background:
+    linear-gradient(90deg, rgba(20,19,15,0.07) 1px, transparent 1px),
+    linear-gradient(rgba(20,19,15,0.07) 1px, transparent 1px),
+    var(--paper);
+  background-size: 72px 72px;
+}
+
+.kandinskyTopbar {
+  height: 78px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 2px solid var(--ink);
+}
+
+.kandinskyBack {
+  height: 100%;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 36px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border-left: 1px solid var(--ink);
+}
+
+.kandinskyBack:hover { color: var(--red); }
+
+.kandinskyHero {
+  display: grid;
+  grid-template-columns: 1fr 1.1fr;
+  min-height: 540px;
+  border-bottom: 2px solid var(--ink);
+}
+
+.kandinskyHeroText {
+  padding: clamp(48px, 6vw, 86px) clamp(38px, 5vw, 82px);
+  border-right: 1px solid var(--ink);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.kandinskyEyebrow {
+  margin: 0 0 12px;
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.kandinskyHeroText h1 {
+  margin: 0 0 24px;
+  font-family: var(--display);
+  font-size: clamp(3.4rem, 5.5vw, 6rem);
+  line-height: 0.96;
+  letter-spacing: -0.01em;
+}
+
+.kandinskyLead {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.65;
+  max-width: 480px;
+  color: var(--muted);
+}
+
+.kandinskyHeroArt {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px;
+  background: rgba(20,19,15,0.03);
+}
+
+.kandinskyHeroArt svg {
+  width: 100%;
+  max-width: 560px;
+  height: auto;
+}
+
+.kandinskyBio {
+  border-bottom: 2px solid var(--ink);
+  padding: clamp(48px, 6vw, 86px) clamp(38px, 5vw, 82px);
+}
+
+.kandinskyBioGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 48px 56px;
+}
+
+.kandinskyBioGrid h2 {
+  margin: 0 0 18px;
+  font-family: var(--display);
+  font-size: 1.55rem;
+}
+
+.kandinskyBioGrid p {
+  margin: 0 0 14px;
+  font-size: 0.82rem;
+  line-height: 1.75;
+  color: var(--muted);
+}
+
+.kandinskyBioGrid em {
+  font-style: italic;
+  color: var(--ink);
+}
+
+.kandinskyGallery {
+  padding: clamp(48px, 6vw, 86px) clamp(38px, 5vw, 82px);
+  border-bottom: 2px solid var(--ink);
+}
+
+.kandinskyGallery > h2 {
+  margin: 0 0 4px;
+  font-family: var(--display);
+  font-size: 2.2rem;
+}
+
+.kandinskyGalleryNote {
+  margin: 0 0 40px;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+}
+
+.kandinskyGalleryGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2px;
+  border: 1px solid var(--ink);
+}
+
+.kandinskyGalleryGrid figure {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--ink);
+}
+
+.kandinskyGalleryGrid figure:last-child { border-right: 0; }
+
+.kandinskyGalleryGrid svg {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-bottom: 1px solid var(--ink);
+}
+
+.kandinskyGalleryGrid figcaption {
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.kandinskyGalleryGrid strong {
+  font-size: 0.78rem;
+}
+
+.kandinskyGalleryGrid span {
+  font-size: 0.66rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.kandinskyQuote {
+  padding: clamp(64px, 8vw, 110px) clamp(38px, 10vw, 160px);
+  border-bottom: 2px solid var(--ink);
+  text-align: center;
+}
+
+.kandinskyQuote blockquote {
+  margin: 0 0 20px;
+  font-family: var(--display);
+  font-style: italic;
+  font-size: clamp(1.35rem, 2.5vw, 2rem);
+  line-height: 1.45;
+}
+
+.kandinskyQuote cite {
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-style: normal;
+}
+
+.kandinskyConnection {
+  border-bottom: 2px solid var(--ink);
+  padding: clamp(48px, 6vw, 86px) clamp(38px, 5vw, 82px);
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.kandinskyConnectionInner {
+  max-width: 780px;
+}
+
+.kandinskyConnection h2 {
+  margin: 0 0 20px;
+  font-family: var(--display);
+  font-size: 2.2rem;
+}
+
+.kandinskyConnection p {
+  margin: 0 0 14px;
+  font-size: 0.9rem;
+  line-height: 1.72;
+  color: rgba(239,228,207,0.72);
+}
+
+.kandinskyMintLink {
+  display: inline-block;
+  margin-top: 20px;
+  padding: 12px 28px;
+  border: 1px solid var(--paper);
+  color: var(--paper);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.kandinskyMintLink:hover {
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.kandinskyFooter {
+  height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 clamp(38px, 5vw, 82px);
+  font-size: 0.72rem;
+  color: var(--muted);
+  letter-spacing: 0.04em;
+}
+
+@media (max-width: 900px) {
+  .kandinskyHero { grid-template-columns: 1fr; }
+  .kandinskyHeroText { border-right: 0; border-bottom: 1px solid var(--ink); }
+  .kandinskyBioGrid { grid-template-columns: 1fr; }
+  .kandinskyGalleryGrid { grid-template-columns: 1fr 1fr; }
+  .kandinskyGalleryGrid figure:nth-child(2) { border-right: 0; }
+  .kandinskyGalleryGrid figure:nth-child(3) { border-right: 1px solid var(--ink); }
+}
