@@ -76,7 +76,7 @@ export const SCORE_WEIGHTS: Record<ScoreKey, number> = {
 };
 
 export const deployments: ContractDeployment[] = [
-  { chainId: 1,        name: "mainnet", address: "0x0000000000000000000000000000000000000000" },
+  { chainId: 1,        name: "mainnet", address: "0x1e9fe9a5bba33d0403368fc2dce7af660daf5b1e" },
   { chainId: 11155111, name: "sepolia", address: "0xC87eBF55F27fa5B0fC415d93B24d30590f7bF390" }
 ];
 

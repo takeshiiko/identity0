@@ -20,8 +20,8 @@ async function main() {
   const balance = await ethers.provider.getBalance(deployer.address);
   console.log(`Balance   : ${ethers.formatEther(balance)} ETH\n`);
 
-  if (balance < ethers.parseEther("0.05")) {
-    throw new Error("Insufficient ETH for deployment — need at least 0.05 ETH");
+  if (balance < ethers.parseEther("0.015")) {
+    throw new Error("Insufficient ETH for deployment — need at least 0.015 ETH");
   }
 
   // 1. Deploy
