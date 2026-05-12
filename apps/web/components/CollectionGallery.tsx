@@ -53,10 +53,16 @@ export function CollectionGallery() {
         if (!uri) continue;
 
         try {
-          const res = await fetch(ipfsToHttp(uri));
+          const controller = new AbortController();
+          const timer = setTimeout(() => controller.abort(), 10_000);
+          const res = await fetch(ipfsToHttp(uri), { signal: controller.signal });
+          clearTimeout(timer);
           const meta = await res.json();
           const rarity = meta.attributes?.find((a: any) => a.trait_type === "Rarity")?.value ?? "Common";
-          const isUnrevealed = meta.attributes?.some((a: any) => a.value === "Unrevealed") ?? false;
+          const isUnrevealed =
+            !meta.attributes ||
+            meta.attributes.length === 0 ||
+            meta.attributes.some((a: any) => a.trait_type === "Status" && a.value === "Unrevealed");
           results.push({
             tokenId,
             name: meta.name ?? `Kandinsky #${tokenId}`,

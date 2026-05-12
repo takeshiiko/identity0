@@ -79,9 +79,9 @@ export function useMint() {
     setErrorMsg(null);
     const qty = Math.max(1, Math.min(quantity, MAX_PER_WALLET - minted));
 
+    let successCount = 0;
     try {
       setPhase("signing");
-      const lastTokenId: number | null = null;
 
       for (let i = 0; i < qty; i++) {
         if (i > 0) setPhase("confirming");
@@ -98,6 +98,7 @@ export function useMint() {
         const mintedLog = logs.find(l => l.args.minter?.toLowerCase() === address.toLowerCase());
         const id = mintedLog ? Number(mintedLog.args.tokenId) : null;
         if (id) setTokenId(id);
+        successCount++;
 
         try {
           await fetch(`${API_URL}/api/mint/initiate`, {
@@ -114,11 +115,13 @@ export function useMint() {
       setPhase("done");
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "";
-      setErrorMsg(
-        msg.toLowerCase().includes("rejected") || msg.toLowerCase().includes("denied")
-          ? "Transaction cancelled."
-          : "Mint failed. Try again."
-      );
+      const cancelled = msg.toLowerCase().includes("rejected") || msg.toLowerCase().includes("denied");
+      if (successCount > 0) {
+        setErrorMsg(`${successCount} of ${qty} minted successfully. Remaining transaction failed.`);
+      } else {
+        setErrorMsg(cancelled ? "Transaction cancelled." : "Mint failed. Try again.");
+      }
+      await refetchMinted();
       setPhase("error");
     }
   }

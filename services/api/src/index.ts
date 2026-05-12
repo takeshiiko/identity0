@@ -41,27 +41,57 @@ const queueEvents = new QueueEvents("kandinsky-reveal", { connection });
 
 const mintRequests = new Map<string, { tokenId: number; walletAddress: `0x${string}`; txHash?: `0x${string}`; createdAt: string }>();
 
-app.use(cors());
+const allowedOrigins = [
+  process.env.FRONTEND_URL,
+  "https://identity0.vercel.app",
+  "http://localhost:3000",
+].filter(Boolean) as string[];
+
+app.use(cors({
+  origin: (origin, cb) => {
+    if (!origin || allowedOrigins.some(o => origin.startsWith(o))) return cb(null, true);
+    cb(new Error("Not allowed by CORS"));
+  }
+}));
 app.use(express.json({ limit: "1mb" }));
 app.use(rateLimit({ windowMs: 60_000, limit: 100 }));
+
+// Wallet başına max 3 mint/initiate isteği (MAX_MINTS_PER_WALLET ile eşit)
+const mintInitiateLimit = rateLimit({
+  windowMs: 60_000 * 60,
+  limit: 3,
+  keyGenerator: (req) => (req.body?.walletAddress ?? req.ip ?? "unknown").toLowerCase(),
+  message: { error: "Wallet mint limit reached. Maximum 3 per wallet." },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
 
 app.get("/health", (_req, res) => {
   res.json({ ok: true, service: "kandinsky-api" });
 });
 
-app.post("/api/mint/initiate", async (req, res) => {
+app.post("/api/mint/initiate", mintInitiateLimit, async (req, res) => {
   const { tokenId, walletAddress, txHash } = req.body as Partial<MintJobData>;
   if (!Number.isInteger(tokenId) || !walletAddress || !isAddress(walletAddress)) {
     res.status(400).json({ error: "tokenId and walletAddress are required" });
     return;
   }
 
+  // Aynı tokenId için duplicate job önle
+  const existingJob = await mintQueue.getJob(`token-${tokenId}`);
+  if (existingJob) {
+    const state = await existingJob.getState();
+    if (state === "active" || state === "waiting" || state === "delayed") {
+      res.json({ jobId: existingJob.id, status: "already_queued", estimatedTime: "60-180s" });
+      return;
+    }
+  }
+
   const normalizedWallet = walletAddress.toLowerCase() as `0x${string}`;
   const numericTokenId = Number(tokenId);
   const data: MintJobData = { tokenId: numericTokenId, walletAddress: normalizedWallet };
-  if (txHash) {
-    data.txHash = txHash;
-  }
+  if (txHash) data.txHash = txHash;
+
   const job = await mintQueue.add(
     `token-${tokenId}`,
     data,
@@ -73,6 +103,17 @@ app.post("/api/mint/initiate", async (req, res) => {
 });
 
 app.post("/api/webhooks/mint", async (req, res) => {
+  // HMAC signature doğrulama
+  const secret = process.env.WEBHOOK_SECRET;
+  if (secret) {
+    const sig = req.headers["x-webhook-signature"] ?? req.headers["x-alchemy-signature"];
+    const expected = createHash("sha256").update(secret).update(JSON.stringify(req.body)).digest("hex");
+    if (!sig || sig !== expected) {
+      res.status(401).json({ error: "Invalid webhook signature" });
+      return;
+    }
+  }
+
   const events = extractMintEvents(req.body);
   const jobs = [];
   for (const event of events) {
@@ -136,10 +177,13 @@ async function runRevealWorkflow(job: Job<MintJobData, MintJobResult>): Promise<
     if (process.env.COVALENT_API_KEY) analyzerOptions.covalentApiKey = process.env.COVALENT_API_KEY;
     analyzerOptions.tokenId = job.data.tokenId;
     const profile = await analyzeWallet(job.data.walletAddress, analyzerOptions);
-    const assignedTier = await claimTierSlot(connection, profile.rarityTier);
-    if (assignedTier !== profile.rarityTier) {
-      console.log(`  Soft cap: ${profile.rarityTier} → ${assignedTier} for token #${job.data.tokenId}`);
-      profile.rarityTier = assignedTier;
+    // Tier claim sadece ilk denemede yapılır — retry'da counter şişmez
+    if (job.attemptsMade === 0) {
+      const assignedTier = await claimTierSlot(connection, profile.rarityTier);
+      if (assignedTier !== profile.rarityTier) {
+        console.log(`  Soft cap: ${profile.rarityTier} → ${assignedTier} for token #${job.data.tokenId}`);
+        profile.rarityTier = assignedTier;
+      }
     }
 
     await job.updateProgress({ status: "composing" });
@@ -272,6 +316,14 @@ async function revealToken(tokenId: number, metadataUri: string): Promise<string
   }
 
   try {
+    // Double-reveal koruması — daha önce başarıyla reveal edildiyse atla
+    const revealedKey = `kandinsky:revealed:${tokenId}`;
+    const alreadyRevealed = await connection.get(revealedKey);
+    if (alreadyRevealed) {
+      console.log(`  Token #${tokenId} already revealed (cached), skipping`);
+      return alreadyRevealed;
+    }
+
     const nonce = await publicClient.getTransactionCount({ address: account.address });
     const contract = getContract({
       address: process.env.CONTRACT_ADDRESS as `0x${string}`,
@@ -280,6 +332,8 @@ async function revealToken(tokenId: number, metadataUri: string): Promise<string
     });
     const hash = await contract.write.revealToken([BigInt(tokenId), metadataUri], { nonce });
     await publicClient.waitForTransactionReceipt({ hash });
+    // 30 gün saklı kalır
+    await connection.set(revealedKey, hash, "EX", 60 * 60 * 24 * 30);
     return hash;
   } finally {
     await connection.del(lockKey);
