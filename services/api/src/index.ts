@@ -239,6 +239,7 @@ async function uploadJsonToIPFS(json: unknown, filename: string): Promise<string
   return result.IpfsHash;
 }
 
+// Concurrent reveal'larda nonce çakışmasını önlemek için Redis mutex
 async function revealToken(tokenId: number, metadataUri: string): Promise<string | undefined> {
   if (!process.env.CONTRACT_ADDRESS || !process.env.OPERATOR_PRIVATE_KEY || process.env.SKIP_CHAIN_REVEAL === "true") {
     return undefined;
@@ -249,15 +250,29 @@ async function revealToken(tokenId: number, metadataUri: string): Promise<string
   const account = privateKeyToAccount(process.env.OPERATOR_PRIVATE_KEY as `0x${string}`);
   const publicClient = createPublicClient({ chain, transport });
   const walletClient = createWalletClient({ account, chain, transport });
-  const contract = getContract({
-    address: process.env.CONTRACT_ADDRESS as `0x${string}`,
-    abi: parseAbi(["function revealToken(uint256 tokenId,string ipfsCidOrURI) external"]),
-    client: { public: publicClient, wallet: walletClient }
-  });
 
-  const hash = await contract.write.revealToken([BigInt(tokenId), metadataUri]);
-  await publicClient.waitForTransactionReceipt({ hash });
-  return hash;
+  // Redis lock — aynı anda sadece 1 tx gönderilir, nonce çakışmaz
+  const lockKey = "kandinsky:reveal:lock";
+  const lockTtl = 60; // saniye
+  while (true) {
+    const acquired = await connection.set(lockKey, "1", "EX", lockTtl, "NX");
+    if (acquired) break;
+    await new Promise(r => setTimeout(r, 500));
+  }
+
+  try {
+    const nonce = await publicClient.getTransactionCount({ address: account.address });
+    const contract = getContract({
+      address: process.env.CONTRACT_ADDRESS as `0x${string}`,
+      abi: parseAbi(["function revealToken(uint256 tokenId,string ipfsCidOrURI) external"]),
+      client: { public: publicClient, wallet: walletClient }
+    });
+    const hash = await contract.write.revealToken([BigInt(tokenId), metadataUri], { nonce });
+    await publicClient.waitForTransactionReceipt({ hash });
+    return hash;
+  } finally {
+    await connection.del(lockKey);
+  }
 }
 
 // Tier sırasına göre cap kontrolü — dolu ise bir alt tiere kaydır.
