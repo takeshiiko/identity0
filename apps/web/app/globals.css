@@ -717,6 +717,13 @@ button, a {
   text-transform: uppercase;
 }
 
+.galleryNote {
+  font-size: 0.72rem;
+  opacity: 0.55;
+  text-transform: none;
+  font-weight: 400;
+}
+
 .attributeBody,
 .rarityBody {
   display: grid;

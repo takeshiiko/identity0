@@ -19,11 +19,11 @@ const scoreRows = [
 ] as const;
 
 const pipeline = [
-  ["1. Connect", "Connect any Web3 wallet."],
-  ["2. Seed", "Deterministic seed derived from your wallet address."],
-  ["3. Generate", "AI model composes your unique portrait from 100+ traits."],
-  ["4. Score", "Seven-dimensional scoring calculates rarity and uniqueness."],
-  ["5. Mint", "Mint your on-chain portrait as an NFT identity."]
+  ["1. Connect", "Connect any EVM-compatible wallet — MetaMask, Coinbase, WalletConnect and more."],
+  ["2. Analyze", "Your wallet's on-chain history is analyzed across seven dimensions: age, transactions, DeFi activity, NFT holdings, risk profile, multi-chain presence and portfolio wealth."],
+  ["3. Compose", "A deterministic Bauhaus composition is generated from your scores — face archetype, palette, expression and rare items are all derived from your identity."],
+  ["4. Render", "An AI model stylizes your composition into a final portrait using your wallet's unique parameters. No two wallets produce the same result."],
+  ["5. Mint & Reveal", "Your portrait is minted on-chain and revealed automatically within 2–3 minutes. Rarity tier is determined by your composite score."]
 ] as const;
 
 // Categories match geometry-engine composition layers
@@ -138,7 +138,7 @@ export default function Page() {
 
       <section className="collectionSection" id="collection">
         <h2>The Kandinsky collection</h2>
-        <p>A living gallery of on-chain identities</p>
+        <p>A living gallery of on-chain identities <span className="galleryNote">(Your portrait will appear as unrevealed immediately — the AI reveal completes in 2–3 minutes.)</span></p>
         <CollectionGallery />
         <a className="collectionButton" href={`https://testnets.opensea.io/assets/sepolia/0xC87eBF55F27fa5B0fC415d93B24d30590f7bF390`} target="_blank" rel="noopener noreferrer">View on OpenSea</a>
       </section>
