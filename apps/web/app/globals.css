@@ -1053,17 +1053,15 @@ button, a {
 }
 
 .kandinskyHeroArt {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 48px;
-  background: rgba(20,19,15,0.03);
+  overflow: hidden;
+  min-height: 420px;
 }
 
-.kandinskyHeroArt svg {
+.kandinskyHeroImg {
   width: 100%;
-  max-width: 560px;
-  height: auto;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 .kandinskyBio {
@@ -1130,9 +1128,10 @@ button, a {
 
 .kandinskyGalleryGrid figure:last-child { border-right: 0; }
 
-.kandinskyGalleryGrid svg {
+.kandinskyGalleryGrid img {
   width: 100%;
-  height: auto;
+  height: 280px;
+  object-fit: cover;
   display: block;
   border-bottom: 1px solid var(--ink);
 }
