@@ -72,12 +72,14 @@ const mintInitiateLimit = rateLimit({
 });
 
 app.get("/health", (_req, res) => {
+  const rpc = process.env.ETH_RPC_URL ?? process.env.ETH_SEPOLIA_RPC_URL ?? process.env.ETH_MAINNET_RPC_URL;
   res.json({
     ok: true,
     service: "kandinsky-api",
     chainId: process.env.CHAIN_ID,
     chainIdParsed: Number(process.env.CHAIN_ID ?? 11155111),
-    ethRpcUrl: process.env.ETH_RPC_URL ? process.env.ETH_RPC_URL.slice(0, 40) + "..." : undefined,
+    ethRpcUrl: rpc ? rpc.slice(0, 50) + "..." : "NOT SET",
+    ethRpcUrlVar: process.env.ETH_RPC_URL ? "ETH_RPC_URL" : process.env.ETH_SEPOLIA_RPC_URL ? "ETH_SEPOLIA_RPC_URL" : process.env.ETH_MAINNET_RPC_URL ? "ETH_MAINNET_RPC_URL" : "NONE",
     contractAddress: process.env.CONTRACT_ADDRESS
   });
 });
