@@ -54,13 +54,11 @@ app.use(cors({
   }
 }));
 
-// Raw body'yi webhook doğrulaması için sakla
-app.use((req, _res, next) => {
-  let raw = Buffer.alloc(0);
-  req.on("data", (chunk: Buffer) => { raw = Buffer.concat([raw, chunk]); });
-  req.on("end", () => { (req as express.Request & { rawBody?: Buffer }).rawBody = raw; next(); });
-});
-app.use(express.json({ limit: "1mb" }));
+// Raw body'yi webhook doğrulaması için sakla (express.json verify ile — stream tüketilmez)
+app.use(express.json({
+  limit: "1mb",
+  verify: (req: express.Request & { rawBody?: Buffer }, _res, buf) => { req.rawBody = buf; }
+}));
 app.use(rateLimit({ windowMs: 60_000, limit: 100 }));
 
 // Wallet başına max 3 mint/initiate isteği (MAX_MINTS_PER_WALLET ile eşit)
