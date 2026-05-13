@@ -73,7 +73,7 @@ export function MintPanel() {
           <ConnectButton.Custom>
             {({ openChainModal }) => (
               <button type="button" className="mintActionBtn" onClick={openChainModal}>
-                Switch to Sepolia
+                Switch to Ethereum
                 <span className="btnArrow">►</span>
               </button>
             )}
