@@ -1,5 +1,5 @@
 import "dotenv/config";
-import { createHash } from "node:crypto";
+import { createHash, createHmac } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import express from "express";
@@ -53,6 +53,13 @@ app.use(cors({
     cb(new Error("Not allowed by CORS"));
   }
 }));
+
+// Raw body'yi webhook doğrulaması için sakla
+app.use((req, _res, next) => {
+  let raw = Buffer.alloc(0);
+  req.on("data", (chunk: Buffer) => { raw = Buffer.concat([raw, chunk]); });
+  req.on("end", () => { (req as express.Request & { rawBody?: Buffer }).rawBody = raw; next(); });
+});
 app.use(express.json({ limit: "1mb" }));
 app.use(rateLimit({ windowMs: 60_000, limit: 100 }));
 
@@ -77,8 +84,21 @@ app.post("/api/mint/initiate", mintInitiateLimit, async (req, res) => {
     return;
   }
 
-  // Aynı tokenId için duplicate job önle
-  const existingJob = await mintQueue.getJob(`token-${tokenId}`);
+  // tokenId geçerli aralıkta mı?
+  if (Number(tokenId) < 1 || Number(tokenId) > 3333) {
+    res.status(400).json({ error: "Invalid tokenId" });
+    return;
+  }
+
+  // txHash format doğrulaması (varsa)
+  if (txHash && !/^0x[a-fA-F0-9]{64}$/.test(txHash)) {
+    res.status(400).json({ error: "Invalid txHash format" });
+    return;
+  }
+
+  // Aynı tokenId için duplicate job önle — jobId ile
+  const jobId = `token-${tokenId}`;
+  const existingJob = await mintQueue.getJob(jobId);
   if (existingJob) {
     const state = await existingJob.getState();
     if (state === "active" || state === "waiting" || state === "delayed") {
@@ -95,7 +115,7 @@ app.post("/api/mint/initiate", mintInitiateLimit, async (req, res) => {
   const job = await mintQueue.add(
     `token-${tokenId}`,
     data,
-    { attempts: 3, backoff: { type: "exponential", delay: 30_000 }, removeOnComplete: 1000, removeOnFail: 1000 }
+    { jobId, attempts: 3, backoff: { type: "exponential", delay: 30_000 }, removeOnComplete: 1000, removeOnFail: 1000 }
   );
 
   mintRequests.set(job.id!, { ...data, createdAt: new Date().toISOString() });
@@ -103,11 +123,12 @@ app.post("/api/mint/initiate", mintInitiateLimit, async (req, res) => {
 });
 
 app.post("/api/webhooks/mint", async (req, res) => {
-  // HMAC signature doğrulama
+  // HMAC-SHA256 signature doğrulama (Alchemy raw body formatı)
   const secret = process.env.WEBHOOK_SECRET;
   if (secret) {
-    const sig = req.headers["x-webhook-signature"] ?? req.headers["x-alchemy-signature"];
-    const expected = createHash("sha256").update(secret).update(JSON.stringify(req.body)).digest("hex");
+    const sig = req.headers["x-alchemy-signature"] ?? req.headers["x-webhook-signature"];
+    const rawBody = (req as express.Request & { rawBody?: Buffer }).rawBody ?? Buffer.from(JSON.stringify(req.body));
+    const expected = createHmac("sha256", secret).update(rawBody).digest("hex");
     if (!sig || sig !== expected) {
       res.status(401).json({ error: "Invalid webhook signature" });
       return;
@@ -117,10 +138,11 @@ app.post("/api/webhooks/mint", async (req, res) => {
   const events = extractMintEvents(req.body);
   const jobs = [];
   for (const event of events) {
+    const jobId = `token-${event.tokenId}`;
     const job = await mintQueue.add(
-      `token-${event.tokenId}`,
+      jobId,
       event,
-      { attempts: 3, backoff: { type: "exponential", delay: 30_000 }, removeOnComplete: 1000, removeOnFail: 1000 }
+      { jobId, attempts: 3, backoff: { type: "exponential", delay: 30_000 }, removeOnComplete: 1000, removeOnFail: 1000 }
     );
     jobs.push({ jobId: job.id, tokenId: event.tokenId });
   }
@@ -195,7 +217,7 @@ async function runRevealWorkflow(job: Job<MintJobData, MintJobResult>): Promise<
     const stylizeOptions: Parameters<typeof stylizeSvg>[1] = {
       profile,
       preset: "ip-adapter-cubist",
-      model: (process.env.REPLICATE_MODEL_OVERRIDE ?? "lucataco/ip_adapter-sdxl-face:226c6bf67a75a129b0f978e518fed33e1fb13956e15761c1ac53c9d2f898c9af") as `${string}/${string}` | `${string}/${string}:${string}`,
+      model: (process.env.REPLICATE_MODEL_OVERRIDE ?? process.env.REPLICATE_MODEL ?? "stability-ai/stable-diffusion-3.5-large") as `${string}/${string}` | `${string}/${string}:${string}`,
       ipAdapterScale: Number(process.env.IP_ADAPTER_SCALE ?? 0.82),
       maxAttempts: 3,
       enforceQuality: true
@@ -213,7 +235,7 @@ async function runRevealWorkflow(job: Job<MintJobData, MintJobResult>): Promise<
       name: `Kandinsky #${job.data.tokenId}`,
       description: "Your wallet's on-chain history — transactions, DeFi positions, NFT holdings, age — scored across seven dimensions and rendered as a Bauhaus AI portrait. Each identity is unique, deterministic, and permanent.",
       image: `ipfs://${imageCid}`,
-      external_url: `https://identity0.vercel.app`,
+      external_url: `https://www.kandisky.art`,
       attributes: [
         { trait_type: "Tier",            value: profile.rarityTier },
         { trait_type: "Face Archetype", value: traits.faceArchetype },

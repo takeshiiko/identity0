@@ -302,8 +302,8 @@ function buildReplicateInput(
     return {
       image,
       prompt: `${prompt.positive}. Avoid: ${prompt.negative}.`,
-      prompt_strength: prompt.strength,
-      cfg: prompt.guidanceScale,
+      prompt_strength: clampNumber(prompt.strength, 0.1, 1),
+      cfg: Math.max(1, prompt.guidanceScale || 4.5),
       steps: prompt.numInferenceSteps,
       seed: prompt.seed,
       output_format: outputFormat,

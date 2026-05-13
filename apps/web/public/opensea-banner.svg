@@ -1,0 +1,125 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 400" width="1400" height="400">
+  <defs>
+    <pattern id="grid" width="72" height="72" patternUnits="userSpaceOnUse">
+      <path d="M 72 0 L 0 0 0 72" fill="none" stroke="#14130f" stroke-width="0.5" opacity="0.12"/>
+    </pattern>
+    <clipPath id="clip"><rect width="1400" height="400"/></clipPath>
+  </defs>
+
+  <rect width="1400" height="400" fill="#efe4cf"/>
+  <rect width="1400" height="400" fill="url(#grid)"/>
+
+  <g clip-path="url(#clip)">
+
+    <!-- Far left block composition -->
+    <rect x="-20" y="40" width="180" height="320" fill="#356f95" opacity="0.82"/>
+    <rect x="30" y="0" width="90" height="180" fill="#cda846" opacity="0.78"/>
+    <polygon points="-20,400 160,160 160,400" fill="#14130f" opacity="0.72"/>
+    <circle cx="80" cy="110" r="62" fill="#d44f36" opacity="0.7"/>
+    <circle cx="80" cy="110" r="36" fill="#efe4cf" opacity="0.55"/>
+    <circle cx="80" cy="110" r="14" fill="#14130f"/>
+    <rect x="-20" y="300" width="80" height="100" fill="#cda846" opacity="0.6"/>
+    <polygon points="130,0 200,0 130,80" fill="#d44f36" opacity="0.55"/>
+
+    <!-- Left-center face-like composition -->
+    <rect x="200" y="30" width="160" height="340" fill="#8e7294" opacity="0.38"/>
+    <circle cx="280" cy="150" r="110" fill="#f1e5d4" opacity="0.92"/>
+    <circle cx="280" cy="150" r="108" fill="none" stroke="#14130f" stroke-width="1.5"/>
+    <!-- eyes -->
+    <path d="M230 130 Q255 112 278 130" fill="none" stroke="#14130f" stroke-width="10" stroke-linecap="round"/>
+    <path d="M282 130 Q305 112 328 130" fill="none" stroke="#14130f" stroke-width="10" stroke-linecap="round"/>
+    <!-- nose triangle -->
+    <polygon points="280,140 260,200 300,200" fill="#a85d69" opacity="0.7"/>
+    <!-- mouth -->
+    <path d="M245 230 C262 248 298 248 315 230 C298 260 262 260 245 230 Z" fill="#356f95" opacity="0.75"/>
+    <!-- hair -->
+    <path d="M170 120 C200 40 360 40 390 120 C370 80 340 60 280 58 C220 60 190 80 170 120 Z" fill="#14130f" opacity="0.85"/>
+    <rect x="200" y="260" width="160" height="110" fill="#6d8f84" opacity="0.7"/>
+    <!-- rare item - crown -->
+    <polygon points="280,30 250,75 265,75 280,48 295,75 310,75" fill="#cda846" opacity="0.95"/>
+    <!-- earring -->
+    <circle cx="168" cy="175" r="16" fill="#cda846" opacity="0.88"/>
+    <circle cx="168" cy="175" r="28" fill="none" stroke="#cda846" stroke-width="3" opacity="0.5"/>
+
+    <!-- Center geometric cluster -->
+    <polygon points="500,0 700,0 700,400 500,400" fill="#14130f" opacity="0.06"/>
+    <circle cx="590" cy="200" r="160" fill="#d44f36" opacity="0.14"/>
+    <polygon points="480,50 720,50 720,350 480,350" fill="none" stroke="#14130f" stroke-width="1.5" opacity="0.2"/>
+
+    <!-- Big overlapping shapes center -->
+    <rect x="440" y="60" width="200" height="280" fill="#cda846" opacity="0.55"/>
+    <polygon points="550,20 730,300 370,300" fill="#d44f36" opacity="0.42"/>
+    <circle cx="600" cy="220" r="100" fill="#356f95" opacity="0.58"/>
+    <circle cx="600" cy="220" r="60" fill="#efe4cf" opacity="0.45"/>
+    <circle cx="600" cy="220" r="28" fill="#14130f" opacity="0.8"/>
+    <rect x="490" y="300" width="220" height="100" fill="#8e7294" opacity="0.5"/>
+    <polygon points="440,60 560,60 440,180" fill="#14130f" opacity="0.55"/>
+    <circle cx="700" cy="80" r="44" fill="#6d8f84" opacity="0.7"/>
+    <circle cx="700" cy="80" r="24" fill="#cda846" opacity="0.8"/>
+    <rect x="680" y="280" width="60" height="120" fill="#d44f36" opacity="0.6"/>
+
+    <!-- Right-center face composition -->
+    <rect x="760" y="20" width="170" height="360" fill="#c98968" opacity="0.32"/>
+    <path d="M760 100 C790 20 930 20 960 100 C940 60 910 44 845 42 C780 44 750 60 760 100 Z" fill="#14130f" opacity="0.88"/>
+    <circle cx="860" cy="190" r="115" fill="#f1e5d4" opacity="0.9"/>
+    <circle cx="860" cy="190" r="113" fill="none" stroke="#14130f" stroke-width="1.5"/>
+    <!-- eyes -->
+    <path d="M808 168 Q832 150 856 168" fill="none" stroke="#14130f" stroke-width="10" stroke-linecap="round"/>
+    <path d="M864 168 Q888 150 912 168" fill="none" stroke="#14130f" stroke-width="10" stroke-linecap="round"/>
+    <!-- nose -->
+    <polygon points="860,178 840,240 880,240" fill="#356f95" opacity="0.65"/>
+    <!-- mouth -->
+    <path d="M826 268 C843 282 877 282 894 268 C877 296 843 296 826 268 Z" fill="#cda846" opacity="0.8"/>
+    <rect x="790" y="300" width="140" height="100" fill="#d44f36" opacity="0.62"/>
+    <!-- rare item aura -->
+    <circle cx="860" cy="190" r="130" fill="none" stroke="#cda846" stroke-width="4" opacity="0.6"/>
+    <circle cx="860" cy="190" r="142" fill="none" stroke="#cda846" stroke-width="1.5" opacity="0.3"/>
+    <circle cx="758" cy="230" r="20" fill="#cda846" opacity="0.85"/>
+    <circle cx="758" cy="230" r="34" fill="none" stroke="#cda846" stroke-width="3" opacity="0.45"/>
+
+    <!-- Far right composition -->
+    <rect x="1000" y="0" width="120" height="400" fill="#356f95" opacity="0.28"/>
+    <polygon points="1000,0 1400,0 1400,400 1000,400" fill="#14130f" opacity="0.05"/>
+    <circle cx="1140" cy="100" r="88" fill="#d44f36" opacity="0.72"/>
+    <circle cx="1140" cy="100" r="54" fill="#cda846" opacity="0.6"/>
+    <circle cx="1140" cy="100" r="24" fill="#14130f"/>
+    <polygon points="1050,200 1250,200 1150,380" fill="#6d8f84" opacity="0.65"/>
+    <polygon points="1050,200 1250,200 1150,380" fill="none" stroke="#14130f" stroke-width="1.5"/>
+    <rect x="1240" y="40" width="160" height="200" fill="#cda846" opacity="0.55"/>
+    <rect x="1240" y="40" width="160" height="200" fill="none" stroke="#14130f" stroke-width="1.5"/>
+    <circle cx="1320" cy="320" r="70" fill="#8e7294" opacity="0.65"/>
+    <circle cx="1320" cy="320" r="42" fill="#d44f36" opacity="0.55"/>
+    <polygon points="1000,0 1080,0 1000,100" fill="#cda846" opacity="0.7"/>
+    <polygon points="1380,300 1400,260 1400,400 1360,400" fill="#356f95" opacity="0.7"/>
+    <rect x="1100" y="0" width="18" height="400" fill="#d44f36" opacity="0.18"/>
+    <rect x="1122" y="0" width="8" height="400" fill="#cda846" opacity="0.22"/>
+    <circle cx="1050" cy="340" r="30" fill="#efe4cf" opacity="0.7"/>
+    <circle cx="1050" cy="340" r="14" fill="#356f95" opacity="0.8"/>
+
+    <!-- Scattered accent shapes -->
+    <circle cx="420" cy="30" r="18" fill="#d44f36" opacity="0.7"/>
+    <circle cx="730" cy="370" r="14" fill="#cda846" opacity="0.8"/>
+    <polygon points="960,10 1000,10 980,48" fill="#356f95" opacity="0.7"/>
+    <rect x="395" y="340" width="40" height="55" fill="#14130f" opacity="0.5"/>
+
+  </g>
+
+  <!-- Top + bottom border -->
+  <line x1="0" y1="0" x2="1400" y2="0" stroke="#14130f" stroke-width="3"/>
+  <line x1="0" y1="399" x2="1400" y2="399" stroke="#14130f" stroke-width="3"/>
+
+  <!-- KANDINSKY text — bold, centered -->
+  <text
+    x="700" y="236"
+    font-family="Georgia, 'DM Serif Display', serif"
+    font-size="148"
+    font-weight="400"
+    fill="#efe4cf"
+    letter-spacing="-4"
+    text-anchor="middle"
+    paint-order="stroke"
+    stroke="#14130f"
+    stroke-width="3"
+  >Kandinsky</text>
+
+</svg>
