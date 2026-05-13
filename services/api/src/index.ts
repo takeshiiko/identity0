@@ -72,7 +72,14 @@ const mintInitiateLimit = rateLimit({
 });
 
 app.get("/health", (_req, res) => {
-  res.json({ ok: true, service: "kandinsky-api" });
+  res.json({
+    ok: true,
+    service: "kandinsky-api",
+    chainId: process.env.CHAIN_ID,
+    chainIdParsed: Number(process.env.CHAIN_ID ?? 11155111),
+    ethRpcUrl: process.env.ETH_RPC_URL ? process.env.ETH_RPC_URL.slice(0, 40) + "..." : undefined,
+    contractAddress: process.env.CONTRACT_ADDRESS
+  });
 });
 
 app.post("/api/mint/initiate", mintInitiateLimit, async (req, res) => {
