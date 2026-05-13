@@ -94,7 +94,7 @@ export function MintPanel() {
 
         {isConnected && (soldOut || walletFull || paused) && (
           <small className="mintBoxNote">
-            {soldOut ? "Sold out." : walletFull ? `Wallet limit reached (${maxPerWallet}/${maxPerWallet}).` : "Minting paused."}
+            {soldOut ? "Sold out." : walletFull ? `Wallet limit reached (${maxPerWallet}/${maxPerWallet}).` : "Minting has not started yet."}
           </small>
         )}
       </div>
