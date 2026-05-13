@@ -249,26 +249,27 @@ async function runRevealWorkflow(job: Job<MintJobData, MintJobResult>): Promise<
     imageCid = await uploadBufferToIPFS(generated.imageBuffer, `kandinsky-${job.data.tokenId}.webp`);
     const rareItemLabel = (["None", "Accent", "Brooch", "Symbol", "Aura", "Crown"] as const)[traits.rareItemLevel] ?? "None";
     const scoreKeyLabel: Record<string, string> = { age: "Wallet Age", tx: "Transactions", defi: "DeFi Activity", nft: "NFT Holdings", risk: "Risk Profile", multichain: "Multi-chain", wealth: "Portfolio Wealth" };
+    const categoricalAttrs = [
+      { trait_type: "Tier",          value: profile.rarityTier },
+      { trait_type: "Face Archetype", value: traits.faceArchetype },
+      { trait_type: "Expression",    value: traits.expression },
+      { trait_type: "Palette",       value: traits.paletteFamily },
+      { trait_type: "Form",          value: traits.hasFeminineForm ? "Feminine" : "Masculine" },
+      // Rare Item: None ise hiç ekleme
+      ...(rareItemLabel !== "None" ? [{ trait_type: "Rare Item", value: rareItemLabel }] : []),
+    ];
+    const numericAttrs = Object.entries(profile.scores).map(([key, value]) => ({
+      display_type: "boost_number" as const,
+      trait_type: scoreKeyLabel[key] ?? key,
+      value: Math.round(value),
+      max_value: 100
+    }));
     const metadata = {
       name: `Kandinsky #${job.data.tokenId}`,
       description: "Your wallet's on-chain history — transactions, DeFi positions, NFT holdings, age — scored across seven dimensions and rendered as a Bauhaus AI portrait. Each identity is unique, deterministic, and permanent.",
       image: `ipfs://${imageCid}`,
       external_url: `https://www.kandisky.art`,
-      attributes: [
-        { trait_type: "Tier",            value: profile.rarityTier },
-        { trait_type: "Face Archetype", value: traits.faceArchetype },
-        { trait_type: "Expression",     value: traits.expression },
-        { trait_type: "Palette",        value: traits.paletteFamily },
-        { trait_type: "Form",           value: traits.hasFeminineForm ? "Feminine" : "Masculine" },
-        { trait_type: "Rare Item",      value: rareItemLabel },
-        { display_type: "boost_number", trait_type: "Composite Score", value: Math.round(profile.compositeScore), max_value: 100 },
-        ...Object.entries(profile.scores).map(([key, value]) => ({
-          display_type: "boost_number" as const,
-          trait_type: scoreKeyLabel[key] ?? key,
-          value: Math.round(value),
-          max_value: 100
-        }))
-      ]
+      attributes: [...categoricalAttrs, ...numericAttrs]
     };
     metadataCid = await uploadJsonToIPFS(metadata, `kandinsky-${job.data.tokenId}.json`);
     // Retry durumunda generation'ı atlamak için CID'leri job data'ya kaydet
