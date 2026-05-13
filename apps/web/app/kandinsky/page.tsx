@@ -118,7 +118,7 @@ export default function KandinskyPage() {
       </section>
 
       <footer className="kandinskyFooter">
-        <span>© 2025 Kandinsky NFT</span>
+        <span>© 2026 Kandinsky NFT</span>
         <Link href="/">kandisky.art</Link>
       </footer>
     </main>
