@@ -168,8 +168,8 @@ app.get("/api/mint/status/:jobId", async (req, res) => {
 
 // Admin: token reveal cache'ini sıfırla (ADMIN_SECRET ile korunur)
 app.delete("/api/admin/reveal-cache/:tokenId", async (req, res) => {
-  const secret = process.env.ADMIN_SECRET;
-  if (!secret || req.headers["x-admin-secret"] !== secret) {
+  const secret = process.env.ADMIN_KEY;
+  if (!secret || req.headers["x-admin-key"] !== secret) {
     res.status(401).json({ error: "Unauthorized" });
     return;
   }
