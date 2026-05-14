@@ -77,12 +77,15 @@ app.get("/health", (_req, res) => {
 
 // Public: reveal ilerleme durumu (admin key gerekmez)
 app.get("/api/reveal/progress", async (_req, res) => {
-  const [completed, active, waiting, failed] = await Promise.all([
-    mintQueue.getCompletedCount(),
+  const [active, waiting, failed] = await Promise.all([
     mintQueue.getActiveCount(),
     mintQueue.getWaitingCount(),
     mintQueue.getFailedCount(),
   ]);
+
+  // Gerçek generate sayısı: 3333 - bekleyen - aktif - hatalı
+  // (BullMQ removeOnComplete:1000 nedeniyle getCompletedCount güvenilmez)
+  const generated = Math.max(0, 3333 - waiting - active - failed);
 
   const tiers = ["legendary", "epic", "rare", "uncommon", "common"];
   const tierCounts = Object.fromEntries(
@@ -98,7 +101,7 @@ app.get("/api/reveal/progress", async (_req, res) => {
   }));
 
   res.json({
-    revealed: completed,
+    revealed: generated,
     total: 3333,
     active,
     waiting,
