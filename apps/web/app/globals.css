@@ -810,6 +810,35 @@ button, a {
   gap: 28px;
 }
 
+.collectionPagination {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 32px;
+}
+
+.collectionPageBtn {
+  width: 36px;
+  height: 36px;
+  border: 1.5px solid #14130f;
+  background: transparent;
+  color: #14130f;
+  font-family: var(--mono);
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.collectionPageBtn:hover {
+  background: #14130f;
+  color: #efe4cf;
+}
+
+.collectionPageBtn.active {
+  background: #14130f;
+  color: #efe4cf;
+}
+
 .collectionGrid article {
   min-width: 0;
 }

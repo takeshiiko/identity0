@@ -6,6 +6,7 @@ import { identity0Abi, deployments } from "@identity0/shared";
 
 const CONTRACT = deployments.find(d => d.chainId === 1)!.address;
 const GATEWAY = "https://ipfs.io/ipfs/";
+const PAGE_SIZE = 6;
 
 function ipfsToHttp(uri: string): string {
   if (uri.startsWith("ipfs://")) return GATEWAY + uri.slice(7);
@@ -22,6 +23,7 @@ interface TokenMeta {
 
 export function CollectionGallery() {
   const [tokens, setTokens] = useState<TokenMeta[]>([]);
+  const [page, setPage] = useState(1);
 
   const { data: totalSupply } = useReadContract({
     address: CONTRACT,
@@ -30,6 +32,9 @@ export function CollectionGallery() {
   });
 
   const count = totalSupply ? Number(totalSupply) : 0;
+  const totalPages = Math.ceil(count / PAGE_SIZE);
+  const pageStart = (page - 1) * PAGE_SIZE;
+  const pageEnd = Math.min(pageStart + PAGE_SIZE, count);
 
   const { data: uris } = useReadContracts({
     contracts: Array.from({ length: count }, (_, i) => ({
@@ -84,40 +89,55 @@ export function CollectionGallery() {
     return <p className="collectionEmpty">No tokens minted yet.</p>;
   }
 
-  if (tokens.length === 0) {
-    return (
-      <div className="collectionGrid">
-        {Array.from({ length: count }, (_, i) => (
-          <article key={i} className="collectionCard collectionCardLoading">
-            <div className="collectionCardImg" />
-            <strong>Loading…</strong>
-          </article>
-        ))}
-      </div>
-    );
-  }
+  const pageTokens = tokens.length > 0
+    ? tokens.slice(pageStart, pageEnd)
+    : Array.from({ length: pageEnd - pageStart }, (_, i) => ({ tokenId: pageStart + i + 1, name: `Kandinsky #${pageStart + i + 1}`, image: "", rarity: "Common", revealed: false }));
 
   return (
-    <div className="collectionGrid">
-      {tokens.map(({ tokenId, name, image, rarity, revealed }) => (
-        <article key={tokenId} className="collectionCard">
-          <a
-            href={`https://opensea.io/assets/ethereum/${CONTRACT}/${tokenId}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="collectionCardImg"
-          >
-            {image ? (
-              <img src={image} alt={name} loading="lazy" />
-            ) : (
-              <div className="collectionCardPlaceholder" />
-            )}
-            {!revealed && <span className="collectionCardBadge">Unrevealed</span>}
-          </a>
-          <strong>{name}</strong>
-          <span>{rarity}</span>
-        </article>
-      ))}
-    </div>
+    <>
+      <div className="collectionGrid">
+        {pageTokens.map(({ tokenId, name, image, rarity, revealed }) => (
+          tokens.length === 0 ? (
+            <article key={tokenId} className="collectionCard collectionCardLoading">
+              <div className="collectionCardImg" />
+              <strong>Loading…</strong>
+            </article>
+          ) : (
+            <article key={tokenId} className="collectionCard">
+              <a
+                href={`https://opensea.io/assets/ethereum/${CONTRACT}/${tokenId}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="collectionCardImg"
+              >
+                {image ? (
+                  <img src={image} alt={name} loading="lazy" />
+                ) : (
+                  <div className="collectionCardPlaceholder" />
+                )}
+                {!revealed && <span className="collectionCardBadge">Unrevealed</span>}
+              </a>
+              <strong>{name}</strong>
+              <span>{rarity}</span>
+            </article>
+          )
+        ))}
+      </div>
+
+      {totalPages > 1 && (
+        <div className="collectionPagination">
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (
+            <button
+              key={p}
+              type="button"
+              className={`collectionPageBtn${p === page ? " active" : ""}`}
+              onClick={() => setPage(p)}
+            >
+              {p}
+            </button>
+          ))}
+        </div>
+      )}
+    </>
   );
 }
