@@ -33,7 +33,6 @@ interface ProgressData {
 
 export function RevealProgress() {
   const [data, setData] = useState<ProgressData | null>(null);
-  const [tick, setTick] = useState(0);
 
   useEffect(() => {
     let alive = true;
@@ -44,7 +43,7 @@ export function RevealProgress() {
       } catch { /* silently ignore */ }
     }
     load();
-    const id = setInterval(() => { load(); setTick(t => t + 1); }, REFRESH_MS);
+    const id = setInterval(load, REFRESH_MS);
     return () => { alive = false; clearInterval(id); };
   }, []);
 
@@ -52,10 +51,11 @@ export function RevealProgress() {
   const tierEntries = data
     ? Object.entries(data.tiers).filter(([, v]) => v > 0)
     : [];
+  const allDone = data ? data.revealed >= data.total && data.active === 0 && data.waiting === 0 : false;
 
   return (
     <div className="revealBox">
-      <span>Reveal Progress</span>
+      <span>Generation Progress</span>
       <div className="revealBoxInner">
 
         {/* Progress bar */}
@@ -68,12 +68,12 @@ export function RevealProgress() {
           <strong className="revealCount">
             {data ? data.revealed.toLocaleString("en-US") : "—"}
           </strong>
-          <span className="revealCountOf">/ {(data?.total ?? 3333).toLocaleString("en-US")} revealed</span>
+          <span className="revealCountOf">/ {(data?.total ?? 3333).toLocaleString("en-US")} portraits generated</span>
           <span className="revealPct">{pct.toFixed(1)}%</span>
         </div>
 
         {/* Active / Waiting */}
-        {data && (
+        {data && !allDone && (
           <div className="revealStatusRow">
             <span className="revealStatusChip revealStatusActive">
               ⚙ {data.active} generating
@@ -116,7 +116,9 @@ export function RevealProgress() {
         )}
 
         <p className="revealNote">
-          Portraits are generated automatically — each reveal takes ~2 min.
+          {allDone
+            ? "All portraits generated — on-chain reveal incoming."
+            : "Each portrait is generated from your wallet's on-chain history. On-chain reveal will be done in a single batch."}
         </p>
       </div>
     </div>
