@@ -498,6 +498,7 @@ async function uploadJsonToIPFS(json: unknown, filename: string): Promise<string
 // Batch reveal döngüsü — 30sn'de bir pending_reveals hash'ini okur, batchReveal gönderir
 const BATCH_REVEAL_SIZE = 100;
 const BATCH_REVEAL_INTERVAL = 30_000;
+const MAX_GAS_GWEI = Number(process.env.MAX_GAS_GWEI ?? 5); // bu Gwei'nin üstündeyse bekle
 
 async function runBatchRevealLoop() {
   if (!process.env.CONTRACT_ADDRESS || !process.env.OPERATOR_PRIVATE_KEY || process.env.SKIP_CHAIN_REVEAL === "true") return;
@@ -516,6 +517,16 @@ async function runBatchRevealLoop() {
   const account = privateKeyToAccount(process.env.OPERATOR_PRIVATE_KEY as `0x${string}`);
   const publicClient = createPublicClient({ chain, transport });
   const walletClient = createWalletClient({ account, chain, transport });
+
+  // Gas fiyatı kontrolü — çok pahalıysa bekle
+  const gasPrice = await publicClient.getGasPrice();
+  const gasPriceGwei = Number(gasPrice) / 1e9;
+  if (gasPriceGwei > MAX_GAS_GWEI) {
+    console.log(`[batch-reveal] Gas ${gasPriceGwei.toFixed(2)} Gwei > limit ${MAX_GAS_GWEI} Gwei — bekleniyor`);
+    return;
+  }
+  console.log(`[batch-reveal] Gas ${gasPriceGwei.toFixed(2)} Gwei ✓`);
+
   const batchContract = getContract({
     address: process.env.CONTRACT_ADDRESS as `0x${string}`,
     abi: parseAbi(["function batchReveal(uint256[] calldata tokenIds,string[] calldata ipfsCidsOrURIs) external"]),
