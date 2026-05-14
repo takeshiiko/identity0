@@ -287,6 +287,18 @@ app.get("/api/admin/queue-stats", async (req, res) => {
   });
 });
 
+// Admin: tüm waiting job token ID'lerini döndür
+app.get("/api/admin/waiting-token-ids", async (req, res) => {
+  const secret = process.env.ADMIN_KEY;
+  if (!secret || req.headers["x-admin-key"] !== secret) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+  const waitingJobs = await mintQueue.getWaiting(0, 9999);
+  const tokenIds = waitingJobs.map(j => j.data.tokenId).sort((a, b) => a - b);
+  res.json({ count: tokenIds.length, tokenIds });
+});
+
 // Admin: Pinata'dan recover edilen CID'leri pending_reveals'a ekle
 app.post("/api/admin/add-pending-reveals", async (req, res) => {
   const secret = process.env.ADMIN_KEY;
