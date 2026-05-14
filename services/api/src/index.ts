@@ -287,6 +287,24 @@ app.get("/api/admin/queue-stats", async (req, res) => {
   });
 });
 
+// Admin: tier sayaçlarını sıfırla / düzelt
+app.post("/api/admin/reset-tiers", async (req, res) => {
+  const secret = process.env.ADMIN_KEY;
+  if (!secret || req.headers["x-admin-key"] !== secret) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+  const { legendary = 0, epic = 0, rare = 0, uncommon = 0, common = 0 } = req.body as Record<string, number>;
+  await connection.mset(
+    "kandinsky:tier:legendary", String(legendary),
+    "kandinsky:tier:epic",      String(epic),
+    "kandinsky:tier:rare",      String(rare),
+    "kandinsky:tier:uncommon",  String(uncommon),
+    "kandinsky:tier:common",    String(common),
+  );
+  res.json({ ok: true, set: { legendary, epic, rare, uncommon, common } });
+});
+
 // Admin: token listesini doğrudan kuyruğa al (rate limit bypass)
 app.post("/api/admin/requeue", async (req, res) => {
   const secret = process.env.ADMIN_KEY;
