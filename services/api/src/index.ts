@@ -282,6 +282,42 @@ app.get("/api/admin/queue-stats", async (req, res) => {
   });
 });
 
+// Admin: token listesini doğrudan kuyruğa al (rate limit bypass)
+app.post("/api/admin/requeue", async (req, res) => {
+  const secret = process.env.ADMIN_KEY;
+  if (!secret || req.headers["x-admin-key"] !== secret) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+
+  const { tokens } = req.body as { tokens?: { tokenId: number; walletAddress: string }[] };
+  if (!Array.isArray(tokens) || tokens.length === 0) {
+    res.status(400).json({ error: "tokens array required" });
+    return;
+  }
+
+  let queued = 0, skipped = 0;
+  for (const { tokenId, walletAddress } of tokens) {
+    if (!Number.isInteger(tokenId) || tokenId < 1 || tokenId > 3333) continue;
+    if (!walletAddress || !isAddress(walletAddress)) continue;
+
+    const jobId = `token-${tokenId}`;
+    const existing = await mintQueue.getJob(jobId);
+    if (existing) {
+      const state = await existing.getState();
+      if (state === "active" || state === "waiting" || state === "delayed") { skipped++; continue; }
+    }
+
+    await mintQueue.add(jobId, { tokenId, walletAddress: walletAddress.toLowerCase() as `0x${string}` }, {
+      jobId, attempts: 3, backoff: { type: "exponential", delay: 30_000 },
+      removeOnComplete: 1000, removeOnFail: 1000
+    });
+    queued++;
+  }
+
+  res.json({ queued, skipped });
+});
+
 // Admin: failed job'ları yeniden kuyruğa al
 app.post("/api/admin/retry-failed", async (req, res) => {
   const secret = process.env.ADMIN_KEY;
