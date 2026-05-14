@@ -818,8 +818,8 @@ button, a {
 }
 
 .collectionPageBtn {
-  width: 36px;
-  height: 36px;
+  padding: 0 28px;
+  height: 38px;
   border: 1.5px solid #14130f;
   background: transparent;
   color: #14130f;
@@ -827,14 +827,10 @@ button, a {
   font-size: 13px;
   cursor: pointer;
   transition: background 0.15s, color 0.15s;
+  letter-spacing: 0.04em;
 }
 
 .collectionPageBtn:hover {
-  background: #14130f;
-  color: #efe4cf;
-}
-
-.collectionPageBtn.active {
   background: #14130f;
   color: #efe4cf;
 }

@@ -23,7 +23,7 @@ interface TokenMeta {
 
 export function CollectionGallery() {
   const [tokens, setTokens] = useState<TokenMeta[]>([]);
-  const [page, setPage] = useState(1);
+  const [visible, setVisible] = useState(PAGE_SIZE);
 
   const { data: totalSupply } = useReadContract({
     address: CONTRACT,
@@ -32,9 +32,6 @@ export function CollectionGallery() {
   });
 
   const count = totalSupply ? Number(totalSupply) : 0;
-  const totalPages = Math.ceil(count / PAGE_SIZE);
-  const pageStart = (page - 1) * PAGE_SIZE;
-  const pageEnd = Math.min(pageStart + PAGE_SIZE, count);
 
   const { data: uris } = useReadContracts({
     contracts: Array.from({ length: count }, (_, i) => ({
@@ -89,14 +86,22 @@ export function CollectionGallery() {
     return <p className="collectionEmpty">No tokens minted yet.</p>;
   }
 
-  const pageTokens = tokens.length > 0
-    ? tokens.slice(pageStart, pageEnd)
-    : Array.from({ length: pageEnd - pageStart }, (_, i) => ({ tokenId: pageStart + i + 1, name: `Kandinsky #${pageStart + i + 1}`, image: "", rarity: "Common", revealed: false }));
+  const shownTokens = tokens.length > 0
+    ? tokens.slice(0, visible)
+    : Array.from({ length: Math.min(visible, count) }, (_, i) => ({
+        tokenId: i + 1,
+        name: `Kandinsky #${i + 1}`,
+        image: "",
+        rarity: "Common",
+        revealed: false
+      }));
+
+  const hasMore = visible < count;
 
   return (
     <>
       <div className="collectionGrid">
-        {pageTokens.map(({ tokenId, name, image, rarity, revealed }) => (
+        {shownTokens.map(({ tokenId, name, image, rarity, revealed }) => (
           tokens.length === 0 ? (
             <article key={tokenId} className="collectionCard collectionCardLoading">
               <div className="collectionCardImg" />
@@ -124,18 +129,15 @@ export function CollectionGallery() {
         ))}
       </div>
 
-      {totalPages > 1 && (
+      {hasMore && (
         <div className="collectionPagination">
-          {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (
-            <button
-              key={p}
-              type="button"
-              className={`collectionPageBtn${p === page ? " active" : ""}`}
-              onClick={() => setPage(p)}
-            >
-              {p}
-            </button>
-          ))}
+          <button
+            type="button"
+            className="collectionPageBtn"
+            onClick={() => setVisible(v => v + PAGE_SIZE)}
+          >
+            Load more
+          </button>
         </div>
       )}
     </>
