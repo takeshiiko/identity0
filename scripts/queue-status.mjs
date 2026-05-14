@@ -1,24 +1,17 @@
 #!/usr/bin/env node
-// Usage: node scripts/queue-status.mjs
+// Usage:
+//   node scripts/queue-status.mjs          → tek seferlik
+//   node scripts/queue-status.mjs --watch  → canlı (5sn refresh)
 
-const API = process.env.API_URL ?? "https://identity0-production.up.railway.app";
-const KEY = process.env.ADMIN_KEY ?? process.argv[2];
+const API     = process.env.API_URL  ?? "https://identity0-production.up.railway.app";
+const KEY     = process.env.ADMIN_KEY ?? process.argv.find(a => !a.startsWith("--") && a !== process.argv[1]);
+const WATCH   = process.argv.includes("--watch");
+const INTERVAL = 5_000; // ms
 
 if (!KEY) {
-  console.error("Usage: ADMIN_KEY=xxx node scripts/queue-status.mjs");
+  console.error("Usage: ADMIN_KEY=xxx node scripts/queue-status.mjs [--watch]");
   process.exit(1);
 }
-
-const res = await fetch(`${API}/api/admin/queue-stats`, {
-  headers: { "x-admin-key": KEY }
-});
-
-if (!res.ok) {
-  console.error("Error:", res.status, await res.text());
-  process.exit(1);
-}
-
-const d = await res.json();
 
 const RESET  = "\x1b[0m";
 const BOLD   = "\x1b[1m";
@@ -29,70 +22,110 @@ const RED    = "\x1b[31m";
 const CYAN   = "\x1b[36m";
 const WHITE  = "\x1b[97m";
 const GRAY   = "\x1b[90m";
+const CLEAR  = "\x1bc"; // terminal'i temizle
 
-const bar = (filled, total, width = 28) => {
+const bar = (filled, total, width = 30) => {
   const pct = total === 0 ? 0 : Math.round((filled / total) * width);
-  const done = "█".repeat(pct);
-  const empty = "░".repeat(width - pct);
-  return `${GREEN}${done}${GRAY}${empty}${RESET}`;
+  return `${GREEN}${"█".repeat(pct)}${GRAY}${"░".repeat(width - pct)}${RESET}`;
 };
 
-const pct = d.queue.total === 0 ? 0 : ((d.queue.completed / 3333) * 100).toFixed(1);
-
-const phaseLabel = { analyzing: "Analyzing wallet", composing: "Composing SVG", generating: "AI generating", uploading: "Uploading IPFS", revealing: "Revealing on-chain" };
+const phaseLabel = {
+  analyzing:  "🔍 Analyzing wallet",
+  composing:  "✏️  Composing SVG",
+  generating: "🎨 AI generating",
+  uploading:  "📤 Uploading IPFS",
+  revealing:  "⛓️  Revealing on-chain",
+};
 
 const tierEmoji = { legendary: "👑", epic: "💎", rare: "✨", uncommon: "🔷", common: "⬜" };
 
-const hrs = Math.floor(d.estimatedMinutes / 60);
-const mins = d.estimatedMinutes % 60;
-const eta = hrs > 0 ? `~${hrs}h ${mins}m` : `~${mins}m`;
+async function fetchStats() {
+  const res = await fetch(`${API}/api/admin/queue-stats`, {
+    headers: { "x-admin-key": KEY }
+  });
+  if (!res.ok) throw new Error(`${res.status} ${await res.text()}`);
+  return res.json();
+}
 
-console.log();
-console.log(`  ${BOLD}${WHITE}KANDINSKY  ·  Generation Queue${RESET}`);
-console.log(`  ${GRAY}${"─".repeat(42)}${RESET}`);
-console.log();
+function render(d) {
+  const pct     = ((d.queue.completed / 3333) * 100).toFixed(1);
+  const hrs     = Math.floor(d.estimatedMinutes / 60);
+  const mins    = d.estimatedMinutes % 60;
+  const eta     = hrs > 0 ? `~${hrs}h ${mins}m` : mins > 0 ? `~${mins}m` : "almost done";
+  const now     = new Date().toLocaleTimeString("en-US");
+  const lines   = [];
 
-console.log(`  ${bar(d.queue.completed, 3333)}  ${BOLD}${pct}%${RESET}`);
-console.log(`  ${GREEN}${d.queue.completed.toLocaleString("en-US")}${RESET}${GRAY} / 3,333 revealed${RESET}   ${DIM}${eta} remaining${RESET}`);
-console.log();
+  const p = s => lines.push(s);
 
-console.log(`  ${GRAY}${"─".repeat(42)}${RESET}`);
-console.log(`  ${CYAN}⚙  Active    ${RESET}${BOLD}${d.queue.active}${RESET}`);
-console.log(`  ${YELLOW}⏳ Waiting   ${RESET}${BOLD}${d.queue.waiting}${RESET}`);
-console.log(`  ${GREEN}✓  Completed ${RESET}${BOLD}${d.queue.completed}${RESET}`);
-console.log(`  ${RED}✗  Failed    ${RESET}${BOLD}${d.queue.failed}${RESET}`);
-console.log(`  ${GRAY}${"─".repeat(42)}${RESET}`);
+  p(``);
+  p(`  ${BOLD}${WHITE}KANDINSKY  ·  Generation Queue${RESET}${WATCH ? `${GRAY}  (live · refreshes every 5s)${RESET}` : ""}`);
+  p(`  ${GRAY}${"─".repeat(48)}${RESET}`);
+  p(``);
+  p(`  ${bar(d.queue.completed, 3333)}  ${BOLD}${pct}%${RESET}`);
+  p(`  ${GREEN}${d.queue.completed.toLocaleString("en-US")}${RESET}${GRAY} / 3,333 revealed${RESET}   ${DIM}${eta} remaining${RESET}`);
+  p(``);
+  p(`  ${GRAY}${"─".repeat(48)}${RESET}`);
+  p(`  ${CYAN}⚙  Active      ${RESET}${BOLD}${String(d.queue.active).padStart(4)}${RESET}`);
+  p(`  ${YELLOW}⏳ Waiting     ${RESET}${BOLD}${String(d.queue.waiting).padStart(4)}${RESET}`);
+  p(`  ${GREEN}✓  Completed   ${RESET}${BOLD}${String(d.queue.completed).padStart(4)}${RESET}`);
+  p(`  ${RED}✗  Failed      ${RESET}${BOLD}${String(d.queue.failed).padStart(4)}${RESET}`);
+  p(`  ${GRAY}${"─".repeat(48)}${RESET}`);
 
-if (d.activeJobs.length > 0) {
-  console.log();
-  console.log(`  ${BOLD}Now processing${RESET}`);
-  for (const j of d.activeJobs) {
-    const phase = typeof j.progress === "object" ? j.progress?.status : j.progress;
-    const label = phaseLabel[phase] ?? phase ?? "—";
-    console.log(`  ${GRAY}#${String(j.tokenId).padEnd(5)}${RESET} ${label}`);
+  if (d.activeJobs.length > 0) {
+    p(``);
+    p(`  ${BOLD}Now processing${RESET}`);
+    for (const j of d.activeJobs) {
+      const phase = typeof j.progress === "object" ? j.progress?.status : j.progress;
+      const label = phaseLabel[phase] ?? phase ?? "—";
+      p(`  ${GRAY}#${String(j.tokenId).padEnd(6)}${RESET}${label}`);
+    }
+  }
+
+  const tierEntries = Object.entries(d.tiers).filter(([, v]) => v > 0);
+  if (tierEntries.length > 0) {
+    p(``);
+    p(`  ${BOLD}Tier distribution${RESET}`);
+    for (const [tier, count] of tierEntries) {
+      const emoji = tierEmoji[tier] ?? "·";
+      const label = (tier.charAt(0).toUpperCase() + tier.slice(1)).padEnd(12);
+      p(`  ${emoji}  ${label}${BOLD}${count}${RESET}`);
+    }
+  }
+
+  if (d.failedJobs?.length > 0) {
+    p(``);
+    p(`  ${RED}${BOLD}Failed jobs${RESET}`);
+    for (const j of d.failedJobs) {
+      const short = (j.reason ?? "unknown").slice(0, 50);
+      p(`  ${GRAY}#${String(j.tokenId).padEnd(6)}${RESET}${RED}${short}${RESET}`);
+    }
+  }
+
+  p(``);
+  p(`  ${GRAY}kandisky.art  ·  ${now}${RESET}`);
+  p(``);
+
+  return lines.join("\n");
+}
+
+async function run() {
+  try {
+    const d = await fetchStats();
+    if (WATCH) process.stdout.write(CLEAR);
+    process.stdout.write(render(d) + "\n");
+  } catch (err) {
+    if (WATCH) process.stdout.write(CLEAR);
+    console.error(`  ${RED}Fetch error: ${err.message}${RESET}`);
   }
 }
 
-const tierEntries = Object.entries(d.tiers).filter(([, v]) => v > 0);
-if (tierEntries.length > 0) {
-  console.log();
-  console.log(`  ${BOLD}Tier distribution${RESET}`);
-  for (const [tier, count] of tierEntries) {
-    const emoji = tierEmoji[tier] ?? "·";
-    const label = tier.charAt(0).toUpperCase() + tier.slice(1);
-    console.log(`  ${emoji}  ${label.padEnd(12)}${BOLD}${count}${RESET}`);
-  }
-}
+await run();
 
-if (d.failedJobs?.length > 0) {
-  console.log();
-  console.log(`  ${RED}${BOLD}Failed jobs${RESET}`);
-  for (const j of d.failedJobs) {
-    const short = (j.reason ?? "unknown").slice(0, 48);
-    console.log(`  ${GRAY}#${String(j.tokenId).padEnd(5)}${RESET} ${RED}${short}${RESET}`);
-  }
+if (WATCH) {
+  setInterval(run, INTERVAL);
+  // Ctrl+C ile temiz çıkış
+  process.on("SIGINT", () => {
+    console.log(`\n  ${GRAY}Stopped.${RESET}\n`);
+    process.exit(0);
+  });
 }
-
-console.log();
-console.log(`  ${GRAY}kandisky.art  ·  ${new Date().toLocaleTimeString("en-US")}${RESET}`);
-console.log();
