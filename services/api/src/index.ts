@@ -249,6 +249,31 @@ app.get("/api/admin/queue-stats", async (req, res) => {
   });
 });
 
+// Admin: failed job'ları yeniden kuyruğa al
+app.post("/api/admin/retry-failed", async (req, res) => {
+  const secret = process.env.ADMIN_KEY;
+  if (!secret || req.headers["x-admin-key"] !== secret) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+
+  const failedJobs = await mintQueue.getFailed(0, 999);
+  let retried = 0;
+  const details: { jobId: string | undefined; tokenId: number; reason: string }[] = [];
+
+  for (const job of failedJobs) {
+    try {
+      await job.retry();
+      retried++;
+      details.push({ jobId: job.id, tokenId: job.data.tokenId, reason: job.failedReason ?? "" });
+    } catch {
+      // job zaten aktif/waiting olmuş olabilir
+    }
+  }
+
+  res.json({ ok: true, retried, jobs: details });
+});
+
 app.get("/api/token/:tokenId", async (req, res) => {
   const tokenId = Number(req.params.tokenId);
   const request = [...mintRequests.values()].find((item) => item.tokenId === tokenId);
