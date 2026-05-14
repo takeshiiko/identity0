@@ -323,6 +323,39 @@ app.post("/api/admin/requeue", async (req, res) => {
   res.json({ queued, skipped });
 });
 
+// Admin: pending_reveals'ta olan waiting jobları kuyruktan sil (duplicate önleme)
+app.post("/api/admin/drain-duplicates", async (req, res) => {
+  const secret = process.env.ADMIN_KEY;
+  if (!secret || req.headers["x-admin-key"] !== secret) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+
+  // Zaten generate edilmiş tokenlar
+  const pendingMap = await connection.hgetall("kandinsky:pending_reveals") ?? {};
+  const pendingIds = new Set(Object.keys(pendingMap).map(Number));
+
+  // Zaten on-chain reveal edilmiş tokenlar
+  const revealedKeys = await connection.keys("kandinsky:revealed:*");
+  for (const key of revealedKeys) {
+    const id = Number(key.split(":")[2]);
+    if (!isNaN(id)) pendingIds.add(id);
+  }
+
+  // Waiting joblardan zaten tamam olanları sil
+  const waitingJobs = await mintQueue.getWaiting(0, 9999);
+  let removed = 0;
+  for (const job of waitingJobs) {
+    if (pendingIds.has(job.data.tokenId)) {
+      await job.remove();
+      removed++;
+    }
+  }
+
+  const stillWaiting = await mintQueue.getWaitingCount();
+  res.json({ removed, stillWaiting, alreadyDone: pendingIds.size });
+});
+
 // Admin: failed job'ları yeniden kuyruğa al
 app.post("/api/admin/retry-failed", async (req, res) => {
   const secret = process.env.ADMIN_KEY;
