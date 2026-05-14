@@ -270,9 +270,11 @@ app.get("/api/admin/queue-stats", async (req, res) => {
 
   const total = waiting + active + completed + failed + delayed;
   const remaining = Math.max(0, 3333 - completed);
+  const pendingRevealCount = await connection.hlen("kandinsky:pending_reveals");
 
   res.json({
     queue: { waiting, active, completed, failed, delayed, total },
+    pendingReveal: pendingRevealCount,
     remaining,
     estimatedMinutes: Math.ceil((waiting + active) * 2),
     tiers: tierCounts,
