@@ -14,7 +14,7 @@ const MAX_PER_WALLET = 3;
 export type MintPhase = "idle" | "signing" | "confirming" | "queuing" | "done" | "error";
 
 export const MINT_PHASE_LABEL: Record<MintPhase, string> = {
-  idle: "Mint Identity",
+  idle: "Mint",
   signing: "Sign in wallet...",
   confirming: "Confirming...",
   queuing: "Queuing portrait...",

@@ -85,7 +85,7 @@ export function MintPanel() {
             onClick={() => phase === "error" ? reset() : mint(effectiveQty)}
             disabled={!canMint && phase !== "error"}
           >
-            {phase === "idle" ? "Mint Identity" : MINT_PHASE_LABEL[phase]}
+            {MINT_PHASE_LABEL[phase]}
             <span className="btnArrow">►</span>
           </button>
         )}
