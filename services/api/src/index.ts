@@ -186,6 +186,69 @@ app.delete("/api/admin/reveal-cache/:tokenId", async (req, res) => {
   res.json({ ok: true, deleted: [revealedKey, jobId] });
 });
 
+// Admin: queue istatistikleri
+app.get("/api/admin/queue-stats", async (req, res) => {
+  const secret = process.env.ADMIN_KEY;
+  if (!secret || req.headers["x-admin-key"] !== secret) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+
+  const [waiting, active, completed, failed, delayed] = await Promise.all([
+    mintQueue.getWaitingCount(),
+    mintQueue.getActiveCount(),
+    mintQueue.getCompletedCount(),
+    mintQueue.getFailedCount(),
+    mintQueue.getDelayedCount(),
+  ]);
+
+  // Aktif job detayları
+  const activeJobs = await mintQueue.getActive();
+  const activeDetails = activeJobs.map(j => ({
+    jobId: j.id,
+    tokenId: j.data.tokenId,
+    wallet: j.data.walletAddress,
+    progress: j.progress,
+    attemptsMade: j.attemptsMade,
+  }));
+
+  // İlk 20 waiting job
+  const waitingJobs = await mintQueue.getWaiting(0, 19);
+  const waitingDetails = waitingJobs.map(j => ({
+    jobId: j.id,
+    tokenId: j.data.tokenId,
+    wallet: j.data.walletAddress,
+  }));
+
+  // Son 10 failed job
+  const failedJobs = await mintQueue.getFailed(0, 9);
+  const failedDetails = failedJobs.map(j => ({
+    jobId: j.id,
+    tokenId: j.data.tokenId,
+    reason: j.failedReason,
+    attempts: j.attemptsMade,
+  }));
+
+  // Tier sayaçları Redis'ten
+  const tiers = ["legendary", "epic", "rare", "uncommon", "common"];
+  const tierCounts = Object.fromEntries(
+    await Promise.all(tiers.map(async t => [t, Number(await connection.get(`kandinsky:tier:${t}`) ?? 0)]))
+  );
+
+  const total = waiting + active + completed + failed + delayed;
+  const remaining = Math.max(0, 3333 - completed);
+
+  res.json({
+    queue: { waiting, active, completed, failed, delayed, total },
+    remaining,
+    estimatedMinutes: Math.ceil((waiting + active) * 2),
+    tiers: tierCounts,
+    activeJobs: activeDetails,
+    waitingJobs: waitingDetails,
+    failedJobs: failedDetails,
+  });
+});
+
 app.get("/api/token/:tokenId", async (req, res) => {
   const tokenId = Number(req.params.tokenId);
   const request = [...mintRequests.values()].find((item) => item.tokenId === tokenId);
