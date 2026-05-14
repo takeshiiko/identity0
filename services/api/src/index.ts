@@ -498,7 +498,7 @@ async function uploadJsonToIPFS(json: unknown, filename: string): Promise<string
 // Batch reveal döngüsü — 30sn'de bir pending_reveals hash'ini okur, batchReveal gönderir
 const BATCH_REVEAL_SIZE = 100;
 const BATCH_REVEAL_INTERVAL = 30_000;
-const MAX_GAS_GWEI = Number(process.env.MAX_GAS_GWEI ?? 5); // bu Gwei'nin üstündeyse bekle
+const MAX_GAS_GWEI = Number(process.env.MAX_GAS_GWEI ?? 1); // bu Gwei'nin üstündeyse bekle
 
 async function runBatchRevealLoop() {
   if (!process.env.CONTRACT_ADDRESS || !process.env.OPERATOR_PRIVATE_KEY || process.env.SKIP_CHAIN_REVEAL === "true") return;
