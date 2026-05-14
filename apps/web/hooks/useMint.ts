@@ -36,10 +36,11 @@ export function useMint() {
     functionName: "mintPrice"
   });
 
-  const { data: totalSupply } = useReadContract({
+  const { data: totalSupply, refetch: refetchSupply } = useReadContract({
     address: CONTRACT,
     abi: identity0Abi,
-    functionName: "totalSupply"
+    functionName: "totalSupply",
+    query: { refetchInterval: 30_000 }
   });
 
   const { data: mintedCount, refetch: refetchMinted } = useReadContract({
@@ -111,7 +112,7 @@ export function useMint() {
         }
       }
 
-      await refetchMinted();
+      await Promise.all([refetchMinted(), refetchSupply()]);
       setPhase("done");
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "";
@@ -121,7 +122,7 @@ export function useMint() {
       } else {
         setErrorMsg(cancelled ? "Transaction cancelled." : "Mint failed. Try again.");
       }
-      await refetchMinted();
+      await Promise.all([refetchMinted(), refetchSupply()]);
       setPhase("error");
     }
   }
