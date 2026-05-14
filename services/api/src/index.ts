@@ -425,6 +425,93 @@ app.post("/api/admin/drain-duplicates", async (req, res) => {
   res.json({ removed, stillWaiting, alreadyDone: pendingIds.size });
 });
 
+// Admin: N batch (varsayılan 1, max 50) manuel reveal tetikle
+app.post("/api/admin/trigger-reveal", async (req, res) => {
+  const secret = process.env.ADMIN_KEY;
+  if (!secret || req.headers["x-admin-key"] !== secret) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+  if (!process.env.CONTRACT_ADDRESS || !process.env.OPERATOR_PRIVATE_KEY) {
+    res.status(500).json({ error: "CONTRACT_ADDRESS veya OPERATOR_PRIVATE_KEY eksik" });
+    return;
+  }
+
+  const batches = Math.min(50, Math.max(1, Number(req.body?.batches ?? 1)));
+  const skipGasCheck = req.body?.skipGasCheck === true;
+
+  const chain = Number(process.env.CHAIN_ID ?? 11155111) === 1 ? mainnet : sepolia;
+  const transport = http(process.env.ETH_RPC_URL ?? process.env.ETH_SEPOLIA_RPC_URL ?? process.env.ETH_MAINNET_RPC_URL);
+  const account = privateKeyToAccount(process.env.OPERATOR_PRIVATE_KEY as `0x${string}`);
+  const publicClient = createPublicClient({ chain, transport });
+  const walletClient = createWalletClient({ account, chain, transport });
+
+  // Gas fiyatı kontrolü
+  const gasPrice = await publicClient.getGasPrice();
+  const gasPriceGwei = Number(gasPrice) / 1e9;
+  if (!skipGasCheck && gasPriceGwei > MAX_GAS_GWEI) {
+    res.status(400).json({ error: `Gas ${gasPriceGwei.toFixed(2)} Gwei > limit ${MAX_GAS_GWEI} Gwei`, gasPriceGwei });
+    return;
+  }
+
+  const batchContract = getContract({
+    address: process.env.CONTRACT_ADDRESS as `0x${string}`,
+    abi: parseAbi(["function batchReveal(uint256[] calldata tokenIds,string[] calldata ipfsCidsOrURIs) external"]),
+    client: { public: publicClient, wallet: walletClient }
+  });
+
+  const results: { batch: number; txHash: string; count: number }[] = [];
+  let totalRevealed = 0;
+
+  for (let b = 0; b < batches; b++) {
+    const all = await connection.hgetall("kandinsky:pending_reveals") ?? {};
+    const entries = Object.entries(all)
+      .map(([id, uri]) => ({ tokenId: Number(id), uri }))
+      .filter(e => !isNaN(e.tokenId))
+      .sort((a, x) => a.tokenId - x.tokenId)
+      .slice(0, BATCH_REVEAL_SIZE);
+
+    if (entries.length === 0) break;
+
+    // Double-reveal koruması
+    const toReveal: typeof entries = [];
+    for (const e of entries) {
+      const already = await connection.get(`kandinsky:revealed:${e.tokenId}`);
+      if (!already) toReveal.push(e);
+      else await connection.hdel("kandinsky:pending_reveals", String(e.tokenId));
+    }
+    if (toReveal.length === 0) continue;
+
+    try {
+      const nonce = await publicClient.getTransactionCount({ address: account.address });
+      const hash = await batchContract.write.batchReveal(
+        [toReveal.map(e => BigInt(e.tokenId)), toReveal.map(e => e.uri)],
+        { nonce }
+      );
+      await publicClient.waitForTransactionReceipt({ hash });
+
+      const pipeline = connection.pipeline();
+      for (const e of toReveal) {
+        pipeline.hdel("kandinsky:pending_reveals", String(e.tokenId));
+        pipeline.set(`kandinsky:revealed:${e.tokenId}`, hash, "EX", 60 * 60 * 24 * 30);
+      }
+      await pipeline.exec();
+
+      results.push({ batch: b + 1, txHash: hash, count: toReveal.length });
+      totalRevealed += toReveal.length;
+      console.log(`[trigger-reveal] batch ${b + 1}: ${toReveal.length} token → ${hash}`);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      console.error(`[trigger-reveal] batch ${b + 1} hata:`, msg);
+      res.status(500).json({ error: msg, results, totalRevealed });
+      return;
+    }
+  }
+
+  const remaining = await connection.hlen("kandinsky:pending_reveals");
+  res.json({ ok: true, totalRevealed, batches: results, remainingPending: remaining, gasPriceGwei });
+});
+
 // Admin: failed job'ları yeniden kuyruğa al
 app.post("/api/admin/retry-failed", async (req, res) => {
   const secret = process.env.ADMIN_KEY;
