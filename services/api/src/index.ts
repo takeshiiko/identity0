@@ -436,21 +436,18 @@ async function runRevealWorkflow(job: Job<MintJobData, MintJobResult>): Promise<
   }
   const metadataUri = `ipfs://${metadataCid}`;
 
+  // Reveal'ı batch kuyruğuna ekle (tek tek tx yerine toplu gönderim)
   await job.updateProgress({ status: "revealing" });
-  const revealTxHash = await revealToken(job.data.tokenId, metadataUri);
+  await connection.hset("kandinsky:pending_reveals", String(job.data.tokenId), metadataUri);
 
   await job.updateProgress({ status: "complete" });
-  const result: MintJobResult = {
+  return {
     tokenId: job.data.tokenId,
     walletAddress: job.data.walletAddress,
     metadataUri,
     imageCid,
     pHash: ""
   };
-  if (revealTxHash) {
-    result.revealTxHash = revealTxHash;
-  }
-  return result;
 }
 
 async function loadStyleReference(): Promise<Buffer | undefined> {
@@ -498,7 +495,74 @@ async function uploadJsonToIPFS(json: unknown, filename: string): Promise<string
   return result.IpfsHash;
 }
 
-// Concurrent reveal'larda nonce çakışmasını önlemek için Redis mutex
+// Batch reveal döngüsü — 30sn'de bir pending_reveals hash'ini okur, batchReveal gönderir
+const BATCH_REVEAL_SIZE = 20;
+const BATCH_REVEAL_INTERVAL = 30_000;
+
+async function runBatchRevealLoop() {
+  if (!process.env.CONTRACT_ADDRESS || !process.env.OPERATOR_PRIVATE_KEY || process.env.SKIP_CHAIN_REVEAL === "true") return;
+
+  const all = await connection.hgetall("kandinsky:pending_reveals");
+  if (!all || Object.keys(all).length === 0) return;
+
+  const entries = Object.entries(all)
+    .map(([id, uri]) => ({ tokenId: Number(id), uri }))
+    .filter(e => !isNaN(e.tokenId));
+
+  if (entries.length === 0) return;
+
+  const chain = Number(process.env.CHAIN_ID ?? 11155111) === 1 ? mainnet : sepolia;
+  const transport = http(process.env.ETH_RPC_URL ?? process.env.ETH_SEPOLIA_RPC_URL ?? process.env.ETH_MAINNET_RPC_URL);
+  const account = privateKeyToAccount(process.env.OPERATOR_PRIVATE_KEY as `0x${string}`);
+  const publicClient = createPublicClient({ chain, transport });
+  const walletClient = createWalletClient({ account, chain, transport });
+  const batchContract = getContract({
+    address: process.env.CONTRACT_ADDRESS as `0x${string}`,
+    abi: parseAbi(["function batchReveal(uint256[] calldata tokenIds,string[] calldata ipfsCidsOrURIs) external"]),
+    client: { public: publicClient, wallet: walletClient }
+  });
+
+  // BATCH_REVEAL_SIZE kadar al
+  const batch = entries.slice(0, BATCH_REVEAL_SIZE);
+
+  // Double-reveal koruması: zaten reveal edilmişleri filtrele
+  const toReveal: typeof batch = [];
+  for (const e of batch) {
+    const alreadyRevealed = await connection.get(`kandinsky:revealed:${e.tokenId}`);
+    if (!alreadyRevealed) toReveal.push(e);
+    else await connection.hdel("kandinsky:pending_reveals", String(e.tokenId));
+  }
+
+  if (toReveal.length === 0) return;
+
+  console.log(`[batch-reveal] ${toReveal.length} token reveal ediliyor: ${toReveal.map(e => `#${e.tokenId}`).join(", ")}`);
+
+  try {
+    const nonce = await publicClient.getTransactionCount({ address: account.address });
+    const hash = await batchContract.write.batchReveal(
+      [toReveal.map(e => BigInt(e.tokenId)), toReveal.map(e => e.uri)],
+      { nonce }
+    );
+    await publicClient.waitForTransactionReceipt({ hash });
+
+    // Başarılı olanları pending'den sil, revealed cache'e ekle
+    const pipeline = connection.pipeline();
+    for (const e of toReveal) {
+      pipeline.hdel("kandinsky:pending_reveals", String(e.tokenId));
+      pipeline.set(`kandinsky:revealed:${e.tokenId}`, hash, "EX", 60 * 60 * 24 * 30);
+    }
+    await pipeline.exec();
+    console.log(`[batch-reveal] ✓ tx: ${hash} | ${toReveal.length} token reveal edildi`);
+  } catch (err) {
+    console.error(`[batch-reveal] ✗ hata:`, err instanceof Error ? err.message : err);
+  }
+}
+
+setInterval(() => {
+  runBatchRevealLoop().catch(err => console.error("[batch-reveal] loop error:", err));
+}, BATCH_REVEAL_INTERVAL);
+
+// Tek token reveal (artık sadece admin manual use için)
 async function revealToken(tokenId: number, metadataUri: string): Promise<string | undefined> {
   if (!process.env.CONTRACT_ADDRESS || !process.env.OPERATOR_PRIVATE_KEY || process.env.SKIP_CHAIN_REVEAL === "true") {
     return undefined;
