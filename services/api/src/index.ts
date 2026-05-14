@@ -287,6 +287,45 @@ app.get("/api/admin/queue-stats", async (req, res) => {
   });
 });
 
+// Admin: Pinata'dan recover edilen CID'leri pending_reveals'a ekle
+app.post("/api/admin/add-pending-reveals", async (req, res) => {
+  const secret = process.env.ADMIN_KEY;
+  if (!secret || req.headers["x-admin-key"] !== secret) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+  const { entries } = req.body as { entries?: { tokenId: number; uri: string }[] };
+  if (!Array.isArray(entries) || entries.length === 0) {
+    res.status(400).json({ error: "entries array required" });
+    return;
+  }
+
+  const pipeline = connection.pipeline();
+  let added = 0;
+  for (const { tokenId, uri } of entries) {
+    if (!Number.isInteger(tokenId) || tokenId < 1 || tokenId > 3333 || !uri) continue;
+    // Zaten on-chain reveal edilmişse ekleme
+    pipeline.exists(`kandinsky:revealed:${tokenId}`);
+    added++;
+  }
+  const existsResults = await pipeline.exec();
+
+  const pipeline2 = connection.pipeline();
+  let skipped = 0;
+  let written = 0;
+  for (let i = 0; i < entries.length; i++) {
+    const { tokenId, uri } = entries[i]!;
+    if (!Number.isInteger(tokenId) || tokenId < 1 || tokenId > 3333 || !uri) continue;
+    const alreadyRevealed = existsResults?.[i]?.[1];
+    if (alreadyRevealed) { skipped++; continue; }
+    pipeline2.hset("kandinsky:pending_reveals", String(tokenId), uri);
+    written++;
+  }
+  await pipeline2.exec();
+
+  res.json({ added: written, skipped });
+});
+
 // Admin: tier sayaçlarını sıfırla / düzelt
 app.post("/api/admin/reset-tiers", async (req, res) => {
   const secret = process.env.ADMIN_KEY;
