@@ -362,6 +362,164 @@ button, a {
   opacity: 0.7;
 }
 
+/* ── Reveal Progress ───────────────────────────── */
+.revealBox {
+  max-width: 520px;
+  margin-top: 34px;
+}
+
+.revealBox > span {
+  display: block;
+  margin-bottom: 10px;
+  font-size: 0.72rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.revealBoxInner {
+  border: 2px solid var(--ink);
+  padding: 18px;
+  background: rgba(239, 228, 207, 0.6);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.revealBarWrap {
+  height: 6px;
+  background: rgba(20, 19, 15, 0.12);
+  position: relative;
+}
+
+.revealBar {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: var(--ink);
+  transition: width 0.8s ease;
+}
+
+.revealCountRow {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.revealCount {
+  font-size: 1.5rem;
+  font-family: var(--display);
+  letter-spacing: -0.01em;
+}
+
+.revealCountOf {
+  font-size: 0.74rem;
+  color: var(--muted);
+  flex: 1;
+}
+
+.revealPct {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.revealStatusRow {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.revealStatusChip {
+  font-size: 0.68rem;
+  letter-spacing: 0.03em;
+  padding: 3px 8px;
+  border: 1px solid var(--line);
+  color: var(--muted);
+}
+
+.revealStatusActive {
+  border-color: var(--ink);
+  color: var(--ink);
+}
+
+.revealProcessing {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  border-top: 1px solid var(--line);
+  padding-top: 10px;
+}
+
+.revealProcessingRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.72rem;
+}
+
+.revealTokenId {
+  font-weight: 700;
+  min-width: 48px;
+  color: var(--ink);
+}
+
+.revealPhaseDot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--red);
+  flex-shrink: 0;
+  animation: pulseDot 1.4s ease-in-out infinite;
+}
+
+@keyframes pulseDot {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.3; }
+}
+
+.revealPhase {
+  color: var(--muted);
+}
+
+.revealTiers {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  border-top: 1px solid var(--line);
+  padding-top: 10px;
+}
+
+.revealTierRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.72rem;
+}
+
+.revealTierDot {
+  width: 8px;
+  height: 8px;
+  flex-shrink: 0;
+}
+
+.revealTierName {
+  flex: 1;
+  color: var(--muted);
+  text-transform: capitalize;
+}
+
+.revealTierCount {
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.revealNote {
+  font-size: 0.68rem;
+  color: var(--muted);
+  margin: 0;
+  border-top: 1px solid var(--line);
+  padding-top: 10px;
+}
+
 .scorePanel {
   max-width: 520px;
   margin-top: 34px;

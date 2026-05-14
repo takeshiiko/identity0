@@ -75,6 +75,39 @@ app.get("/health", (_req, res) => {
   res.json({ ok: true, service: "kandinsky-api" });
 });
 
+// Public: reveal ilerleme durumu (admin key gerekmez)
+app.get("/api/reveal/progress", async (_req, res) => {
+  const [completed, active, waiting, failed] = await Promise.all([
+    mintQueue.getCompletedCount(),
+    mintQueue.getActiveCount(),
+    mintQueue.getWaitingCount(),
+    mintQueue.getFailedCount(),
+  ]);
+
+  const tiers = ["legendary", "epic", "rare", "uncommon", "common"];
+  const tierCounts = Object.fromEntries(
+    await Promise.all(tiers.map(async t => [t, Number(await connection.get(`kandinsky:tier:${t}`) ?? 0)]))
+  );
+
+  const activeJobs = await mintQueue.getActive();
+  const nowProcessing = activeJobs.map(j => ({
+    tokenId: j.data.tokenId,
+    phase: typeof j.progress === "object" && j.progress !== null
+      ? (j.progress as { status?: string }).status ?? "processing"
+      : "processing",
+  }));
+
+  res.json({
+    revealed: completed,
+    total: 3333,
+    active,
+    waiting,
+    failed,
+    tiers: tierCounts,
+    nowProcessing,
+  });
+});
+
 app.post("/api/mint/initiate", mintInitiateLimit, async (req, res) => {
   const { tokenId, walletAddress, txHash } = req.body as Partial<MintJobData>;
   if (!Number.isInteger(tokenId) || !walletAddress || !isAddress(walletAddress)) {

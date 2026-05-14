@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { MintPanel } from "../components/MintPanel";
+import { RevealProgress } from "../components/RevealProgress";
 import { NavWallet } from "../components/NavWallet";
 import { CollectionGallery } from "../components/CollectionGallery";
 import { HeroPortrait } from "../components/HeroPortrait";
@@ -72,6 +73,8 @@ export default function Page() {
             </p>
 
             <MintPanel />
+
+            <RevealProgress />
 
             <div className="scorePanel">
               <h2>Seven-dimension score</h2>
