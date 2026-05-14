@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { MintPanel } from "../components/MintPanel";
 import { RevealProgress } from "../components/RevealProgress";
 import { NavWallet } from "../components/NavWallet";
 import { CollectionGallery } from "../components/CollectionGallery";
@@ -71,8 +70,6 @@ export default function Page() {
             <p>
               Your wallet's on-chain history — transactions, DeFi positions, NFT holdings, age — is scored across seven dimensions and translated into a Bauhaus AI portrait. Your identity, rendered in art.
             </p>
-
-            <MintPanel />
 
             <RevealProgress />
 
