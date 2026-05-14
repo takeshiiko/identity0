@@ -56,7 +56,7 @@ export function MintPanel() {
         {/* Supply */}
         <div className="mintInfoRow mintInfoRowMuted">
           <span>Remaining</span>
-          <span>{remaining !== null ? remaining.toLocaleString() : "3,333"} / {maxSupply.toLocaleString()}</span>
+          <span>{remaining !== null ? remaining.toLocaleString("en-US") : "3,333"} / {maxSupply.toLocaleString("en-US")}</span>
         </div>
 
         {/* Mint button */}
