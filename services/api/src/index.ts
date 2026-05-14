@@ -496,7 +496,7 @@ async function uploadJsonToIPFS(json: unknown, filename: string): Promise<string
 }
 
 // Batch reveal döngüsü — 30sn'de bir pending_reveals hash'ini okur, batchReveal gönderir
-const BATCH_REVEAL_SIZE = 20;
+const BATCH_REVEAL_SIZE = 100;
 const BATCH_REVEAL_INTERVAL = 30_000;
 
 async function runBatchRevealLoop() {
