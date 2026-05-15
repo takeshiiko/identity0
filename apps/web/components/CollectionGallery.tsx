@@ -4,9 +4,10 @@ import { useEffect, useState, useMemo } from "react";
 import { useReadContract, useReadContracts } from "wagmi";
 import { identity0Abi, deployments } from "@identity0/shared";
 
-const CONTRACT = deployments.find(d => d.chainId === 1)!.address;
-const GATEWAY  = "https://ipfs.io/ipfs/";
+const CONTRACT  = deployments.find(d => d.chainId === 1)!.address;
+const GATEWAY   = "https://ipfs.io/ipfs/";
 const PAGE_SIZE = 6;
+const API_URL   = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
 
 function ipfsToHttp(uri: string): string {
   if (uri.startsWith("ipfs://")) return GATEWAY + uri.slice(7);
@@ -83,15 +84,39 @@ export function CollectionGallery() {
           const timer = setTimeout(() => ctrl.abort(), 10_000);
           const res   = await fetch(ipfsToHttp(uri), { signal: ctrl.signal });
           clearTimeout(timer);
-          const meta    = await res.json();
-          const rarity  = meta.attributes?.find((a: any) => a.trait_type === "Rarity")?.value ?? "Common";
-          const revealed = !!(meta.attributes?.length > 0 && !meta.attributes.some((a: any) => a.trait_type === "Status" && a.value === "Unrevealed"));
+          const meta = await res.json();
+
+          const isUnrevealed =
+            !meta.attributes ||
+            meta.attributes.length === 0 ||
+            meta.attributes.some((a: any) => a.trait_type === "Status" && a.value === "Unrevealed");
+
+          // On-chain henüz reveal edilmemiş → API'deki pending_reveals'a bak
+          if (isUnrevealed) {
+            try {
+              const fallback = await fetch(`${API_URL}/api/token-meta/${tokenId}`);
+              const fb = await fallback.json();
+              if (fb.found && fb.meta) {
+                const rarity = fb.meta.attributes?.find((a: any) => a.trait_type === "Rarity")?.value ?? "Common";
+                updates[tokenId] = {
+                  tokenId,
+                  name: fb.meta.name ?? `Kandinsky #${tokenId}`,
+                  image: ipfsToHttp(fb.meta.image ?? ""),
+                  rarity,
+                  revealed: true,
+                };
+                continue;
+              }
+            } catch { /* fallback başarısız, aşağıya devam */ }
+          }
+
+          const rarity = meta.attributes?.find((a: any) => a.trait_type === "Rarity")?.value ?? "Common";
           updates[tokenId] = {
             tokenId,
             name: meta.name ?? `Kandinsky #${tokenId}`,
             image: ipfsToHttp(meta.image ?? ""),
             rarity,
-            revealed,
+            revealed: !isUnrevealed,
           };
         } catch {
           updates[tokenId] = { tokenId, name: `Kandinsky #${tokenId}`, image: "", rarity: "Common", revealed: false };

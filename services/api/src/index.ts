@@ -111,6 +111,33 @@ app.get("/api/reveal/progress", async (_req, res) => {
   });
 });
 
+// Public: token metadata — pending_reveals'ta varsa gerçek IPFS metadata'sını döndür
+app.get("/api/token-meta/:tokenId", async (req, res) => {
+  const tokenId = Number(req.params.tokenId);
+  if (isNaN(tokenId) || tokenId < 1 || tokenId > 3333) {
+    res.status(400).json({ error: "Invalid tokenId" });
+    return;
+  }
+
+  const uri = await connection.hget("kandinsky:pending_reveals", String(tokenId));
+  if (!uri) {
+    res.json({ found: false });
+    return;
+  }
+
+  try {
+    const ipfsUrl = uri.startsWith("ipfs://")
+      ? `https://ipfs.io/ipfs/${uri.slice(7)}`
+      : uri;
+    const response = await fetch(ipfsUrl, { signal: AbortSignal.timeout(10_000) });
+    if (!response.ok) throw new Error(`IPFS ${response.status}`);
+    const meta = await response.json();
+    res.json({ found: true, uri, meta });
+  } catch {
+    res.json({ found: true, uri, meta: null });
+  }
+});
+
 app.post("/api/mint/initiate", mintInitiateLimit, async (req, res) => {
   const { tokenId, walletAddress, txHash } = req.body as Partial<MintJobData>;
   if (!Number.isInteger(tokenId) || !walletAddress || !isAddress(walletAddress)) {
