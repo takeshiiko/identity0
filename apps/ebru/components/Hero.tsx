@@ -2,33 +2,6 @@
 
 import { useEffect, useRef } from "react";
 
-/* Decorative SVG motif — minimal Turkish geometric pattern */
-function GeometricAccent({ className }: { className?: string }) {
-  return (
-    <svg
-      className={className}
-      width="120"
-      height="120"
-      viewBox="0 0 120 120"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <circle cx="60" cy="60" r="58" stroke="rgba(201,168,76,0.18)" strokeWidth="0.5" />
-      <circle cx="60" cy="60" r="44" stroke="rgba(201,168,76,0.12)" strokeWidth="0.5" />
-      <circle cx="60" cy="60" r="28" stroke="rgba(46,196,182,0.14)" strokeWidth="0.5" />
-      <line x1="60" y1="2" x2="60" y2="118" stroke="rgba(201,168,76,0.1)" strokeWidth="0.5" />
-      <line x1="2" y1="60" x2="118" y2="60" stroke="rgba(201,168,76,0.1)" strokeWidth="0.5" />
-      <line x1="19" y1="19" x2="101" y2="101" stroke="rgba(46,196,182,0.08)" strokeWidth="0.5" />
-      <line x1="101" y1="19" x2="19" y2="101" stroke="rgba(46,196,182,0.08)" strokeWidth="0.5" />
-      <polygon
-        points="60,16 104,60 60,104 16,60"
-        stroke="rgba(201,168,76,0.15)"
-        strokeWidth="0.5"
-        fill="none"
-      />
-    </svg>
-  );
-}
 
 export default function Hero() {
   const titleRef = useRef<HTMLHeadingElement>(null);
@@ -81,10 +54,6 @@ export default function Hero() {
             "radial-gradient(ellipse 60% 55% at 50% 50%, rgba(201,168,76,0.06) 0%, transparent 70%)",
         }}
       />
-
-      {/* ── Corner geometric accents ── */}
-      <GeometricAccent className="absolute top-20 left-8 md:left-16 opacity-50 animate-[float_8s_ease-in-out_infinite]" />
-      <GeometricAccent className="absolute bottom-16 right-8 md:right-16 opacity-40 animate-[float_10s_ease-in-out_infinite_reverse]" />
 
       {/* ── Top gold line ── */}
       <div className="absolute top-0 left-0 right-0 h-px gold-divider opacity-60" />
