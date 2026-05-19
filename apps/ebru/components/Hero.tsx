@@ -74,7 +74,7 @@ export default function Hero() {
           <h1
             className="font-cormorant font-light select-none"
             style={{
-              fontSize: "clamp(5rem, 18vw, 16rem)",
+              fontSize: "clamp(3.5rem, 13vw, 11rem)",
               lineHeight: 0.9,
               letterSpacing: "0.06em",
               background: "linear-gradient(160deg, #8b6914 0%, #c9a84c 30%, #e8cc7a 55%, #c9a84c 75%, #8b6914 100%)",
@@ -84,7 +84,7 @@ export default function Hero() {
               animationFillMode: "both",
             }}
           >
-            EBRU
+            DERVISH
           </h1>
         </div>
 
@@ -104,7 +104,7 @@ export default function Hero() {
           className="font-inter font-light text-white/40 max-w-md leading-relaxed mb-12 animate-[fadeUp_1s_ease-out_0.8s_both]"
           style={{ fontSize: "0.82rem", letterSpacing: "0.03em" }}
         >
-          Born from 500 years of Ottoman ebru art,
+          Born from 500 years of Turkish Ebru art,
           a special collection living on the Ethereum blockchain.
           Every token is an unrepeatable marbling moment.
         </p>
@@ -115,7 +115,7 @@ export default function Hero() {
             <button className="btn-mint">Mint Now</button>
           </a>
           <a href="#about">
-            <button className="btn-outline">About Ebru</button>
+            <button className="btn-outline">About Dervish</button>
           </a>
         </div>
 
@@ -124,11 +124,11 @@ export default function Hero() {
           {[
             { label: "Total Supply", value: "TBD" },
             { label: "Network", value: "Ethereum" },
-            { label: "Standard", value: "ERC-721" },
+            { label: "Mint Price", value: "TBD" },
           ].map((s) => (
             <div key={s.label} className="flex flex-col items-center gap-1">
               <span className="font-cormorant text-gold text-2xl tracking-wide">{s.value}</span>
-              <span className="font-inter text-[10px] tracking-[0.2em] uppercase text-white/30">{s.label}</span>
+              <span className="font-inter text-[10px] tracking-[0.2em] pl-[0.2em] uppercase text-white/30">{s.label}</span>
             </div>
           ))}
         </div>
@@ -136,7 +136,7 @@ export default function Hero() {
 
       {/* ── Scroll indicator ── */}
       <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-[fadeIn_1s_ease-out_1.5s_both]">
-        <span className="font-inter text-[9px] tracking-[0.3em] uppercase text-white/25">Explore</span>
+        <span className="font-inter text-[9px] tracking-[0.3em] pl-[0.3em] uppercase text-white/25">Explore</span>
         <div className="w-px h-12 bg-gradient-to-b from-gold/40 to-transparent animate-[float_2s_ease-in-out_infinite]" />
       </div>
 

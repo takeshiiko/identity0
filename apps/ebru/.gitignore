@@ -1,0 +1,8 @@
+.next
+node_modules
+.env.local
+.turbo
+*.tsbuildinfo
+
+# Large unused video file
+public/video/ebru-bg.mp4
