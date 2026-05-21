@@ -363,6 +363,61 @@ button, a {
 }
 
 /* ── Reveal Progress ───────────────────────────── */
+/* Coming Soon box */
+.comingSoonBox {
+  max-width: 520px;
+  margin-top: 34px;
+}
+
+.comingSoonLabel {
+  display: block;
+  margin-bottom: 10px;
+  font-size: 0.72rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.comingSoonInner {
+  border: 2px solid var(--ink);
+  padding: 28px 24px;
+  background: rgba(239, 228, 207, 0.6);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.comingSoonTitle {
+  margin: 0;
+  font-family: var(--display);
+  font-size: 2rem;
+  letter-spacing: -0.01em;
+  line-height: 1;
+}
+
+.comingSoonDivider {
+  width: 40px;
+  height: 2px;
+  background: var(--ink);
+  margin: 4px 0;
+}
+
+.comingSoonSub {
+  margin: 0;
+  font-size: 0.76rem;
+  line-height: 1.7;
+  color: var(--muted);
+  max-width: 360px;
+}
+
+.comingSoonDate {
+  margin: 6px 0 0;
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+
 .revealBox {
   max-width: 520px;
   margin-top: 34px;

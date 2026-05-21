@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { RevealProgress } from "../components/RevealProgress";
 import { NavWallet } from "../components/NavWallet";
 import { CollectionGallery } from "../components/CollectionGallery";
 import { HeroPortrait } from "../components/HeroPortrait";
@@ -71,7 +70,18 @@ export default function Page() {
               Your wallet's on-chain history — transactions, DeFi positions, NFT holdings, age — is scored across seven dimensions and translated into a Bauhaus AI portrait. Your identity, rendered in art.
             </p>
 
-            <RevealProgress />
+            <div className="comingSoonBox">
+              <span className="comingSoonLabel">Mint</span>
+              <div className="comingSoonInner">
+                <p className="comingSoonTitle">Coming Soon</p>
+                <div className="comingSoonDivider" />
+                <p className="comingSoonSub">
+                  3,333 unique Bauhaus portraits.<br />
+                  Each one generated from your wallet's on-chain history.
+                </p>
+                <p className="comingSoonDate">2025</p>
+              </div>
+            </div>
 
             <div className="scorePanel">
               <h2>Seven-dimension score</h2>
