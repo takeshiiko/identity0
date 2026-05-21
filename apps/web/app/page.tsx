@@ -71,8 +71,7 @@ export default function Page() {
             </p>
 
             <div className="comingSoonBox">
-              <span className="comingSoonLabel">Mint</span>
-              <div className="comingSoonInner">
+<div className="comingSoonInner">
                 <p className="comingSoonTitle">Coming Soon</p>
                 <div className="comingSoonBlur" />
               </div>
