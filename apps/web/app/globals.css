@@ -395,27 +395,12 @@ button, a {
   line-height: 1;
 }
 
-.comingSoonDivider {
-  width: 40px;
-  height: 2px;
-  background: var(--ink);
-  margin: 4px 0;
-}
-
-.comingSoonSub {
-  margin: 0;
-  font-size: 0.76rem;
-  line-height: 1.7;
-  color: var(--muted);
-  max-width: 360px;
-}
-
-.comingSoonDate {
-  margin: 6px 0 0;
-  font-size: 0.68rem;
-  letter-spacing: 0.1em;
-  color: var(--muted);
-  text-transform: uppercase;
+.comingSoonBlur {
+  height: 64px;
+  background: rgba(20, 19, 15, 0.06);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border: 1px solid var(--line);
 }
 
 .revealBox {

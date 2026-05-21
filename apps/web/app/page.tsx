@@ -74,12 +74,7 @@ export default function Page() {
               <span className="comingSoonLabel">Mint</span>
               <div className="comingSoonInner">
                 <p className="comingSoonTitle">Coming Soon</p>
-                <div className="comingSoonDivider" />
-                <p className="comingSoonSub">
-                  3,333 unique Bauhaus portraits.<br />
-                  Each one generated from your wallet's on-chain history.
-                </p>
-                <p className="comingSoonDate">2025</p>
+                <div className="comingSoonBlur" />
               </div>
             </div>
 
