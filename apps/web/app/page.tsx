@@ -80,7 +80,7 @@ export default function Page() {
             </div>
 
             <a href="https://dervisheth.art" target="_blank" rel="noopener noreferrer" className="burnCta">
-              <span className="burnCtaText">Want a spot in the Dervish collection? Burn yours.</span>
+              <span className="burnCtaText">Burn your Kandinsky. Earn your spot.</span>
               <span className="burnCtaArrow">→</span>
             </a>
 
