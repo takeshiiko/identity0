@@ -35,7 +35,6 @@ export function BurnCounter() {
         <div className="burnCounterRow">
           <span className="burnStat burnStatLoading" />
           <span className="burnStat burnStatLoading" />
-          <span className="burnStat burnStatLoading" />
         </div>
       </div>
     );
@@ -43,27 +42,19 @@ export function BurnCounter() {
 
   if (!stats) return null;
 
+  const remaining = 3333 - stats.total_burns;
+
   return (
     <div className="burnCounter">
       <div className="burnCounterRow">
         <div className="burnStatBlock">
           <strong>{stats.total_burns.toLocaleString("en-US")}</strong>
-          <span>Total Burns</span>
+          <span>Burned</span>
         </div>
         <div className="burnDividerV" />
         <div className="burnStatBlock">
-          <strong>{stats.gtd_count.toLocaleString("en-US")}</strong>
-          <span>GTD</span>
-        </div>
-        <div className="burnDividerV" />
-        <div className="burnStatBlock">
-          <strong>{stats.fcfs_count.toLocaleString("en-US")}</strong>
-          <span>FCFS</span>
-        </div>
-        <div className="burnDividerV" />
-        <div className="burnStatBlock">
-          <strong>{stats.wallets.toLocaleString("en-US")}</strong>
-          <span>Wallets</span>
+          <strong>{remaining.toLocaleString("en-US")}</strong>
+          <span>Remaining</span>
         </div>
       </div>
     </div>
