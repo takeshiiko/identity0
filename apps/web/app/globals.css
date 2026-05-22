@@ -552,8 +552,8 @@ button, a {
 }
 
 .burnFlameCore {
-  fill: var(--ink);
-  opacity: 0.85;
+  fill: #c0392b;
+  opacity: 0.9;
   transform-origin: 16px 38px;
   animation: flameSway 2.4s ease-in-out infinite;
 }
