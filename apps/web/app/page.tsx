@@ -73,6 +73,12 @@ export default function Page() {
 
             <BurnCounter />
 
+            <div className="burnTiers">
+              <span className="burnTierItem"><b>5 burns</b> GTD</span>
+              <span className="burnTierDivider" />
+              <span className="burnTierItem"><b>3 burns</b> FCFS</span>
+            </div>
+
             <a href="https://dervisheth.art" target="_blank" rel="noopener noreferrer" className="burnCta">
               <span className="burnCtaText">Want a spot in the Dervish collection? Burn yours.</span>
               <span className="burnCtaArrow">→</span>
