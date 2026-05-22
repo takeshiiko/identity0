@@ -64,6 +64,9 @@ export function BurnCounter() {
             ? <span className="burnStatLoading" />
             : <strong>{burned.toLocaleString("en-US")}</strong>}
           <span>Burned</span>
+          {!loading && burned > 0 && (
+            <span className="burnPctBadge">{pct.toFixed(1)}%</span>
+          )}
         </div>
         <div className="burnDividerV" />
         {/* Remaining */}
@@ -75,17 +78,9 @@ export function BurnCounter() {
         </div>
       </div>
 
-      {/* Progress bar — label bar içinde kalır */}
+      {/* Progress bar */}
       <div className="burnProgressWrap">
         <div className="burnProgressBar" style={{ width: loading ? "0%" : `${pct}%` }} />
-        {!loading && burned > 0 && (
-          <span
-            className="burnProgressLabel"
-            style={{ left: `clamp(12px, ${pct}%, calc(100% - 28px))` }}
-          >
-            {pct.toFixed(1)}%
-          </span>
-        )}
       </div>
 
       {/* Animated ticker */}
