@@ -74,7 +74,7 @@ export function BurnCounter() {
           {loading
             ? <span className="burnStatLoading" />
             : <strong>{remaining.toLocaleString("en-US")}</strong>}
-          <span>Remaining</span>
+          <span>Remaining Supply</span>
         </div>
       </div>
 

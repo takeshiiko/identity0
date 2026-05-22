@@ -389,6 +389,7 @@ button, a {
   justify-content: center;
   gap: 5px;
   padding: 18px 12px;
+  min-height: 100px;
 }
 
 .burnStatBlock strong {
