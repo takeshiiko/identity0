@@ -4,6 +4,7 @@ import { useState } from "react";
 import { NavWallet } from "../components/NavWallet";
 import { CollectionGallery } from "../components/CollectionGallery";
 import { HeroPortrait } from "../components/HeroPortrait";
+import { BurnCounter } from "../components/BurnCounter";
 
 // Score labels match actual WalletScores keys (age, tx, defi, nft, risk, multichain, wealth)
 // Values are illustrative — real values are derived per wallet at mint time
@@ -71,10 +72,11 @@ export default function Page() {
             </p>
 
             <div className="comingSoonBox">
-<div className="comingSoonInner">
+              <div className="comingSoonInner">
                 <p className="comingSoonTitle">Coming Soon</p>
                 <div className="comingSoonBlur" />
               </div>
+              <BurnCounter />
             </div>
 
             <div className="scorePanel">

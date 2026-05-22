@@ -4,7 +4,10 @@ import { useEffect, useState, useMemo } from "react";
 import { useReadContract, useReadContracts } from "wagmi";
 import { identity0Abi, deployments } from "@identity0/shared";
 
-const CONTRACT  = deployments.find(d => d.chainId === 1)!.address;
+const CONTRACT  = (
+  deployments.find(d => d.chainId === 1)?.address ??
+  "0x1e9fe9a5bba33d0403368fc2dce7af660daf5b1e"
+) as `0x${string}`;
 const GATEWAY   = "https://ipfs.io/ipfs/";
 const PAGE_SIZE = 6;
 const API_URL   = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
