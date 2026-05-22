@@ -363,15 +363,21 @@ button, a {
 }
 
 /* ── Reveal Progress ───────────────────────────── */
-/* Burn Counter */
-.burnCounter {
-  margin-top: 14px;
+/* ── Burn Widget ── */
+.burnWidget {
+  max-width: 520px;
+  margin-top: 34px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
 }
 
+/* Counter row */
 .burnCounterRow {
   display: flex;
   align-items: stretch;
   border: 1.5px solid var(--ink);
+  border-bottom: none;
   background: rgba(239, 228, 207, 0.6);
 }
 
@@ -381,20 +387,20 @@ button, a {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 4px;
-  padding: 14px 10px;
+  gap: 5px;
+  padding: 18px 12px;
 }
 
 .burnStatBlock strong {
   font-family: var(--display);
-  font-size: 1.35rem;
+  font-size: 1.6rem;
   line-height: 1;
   letter-spacing: -0.01em;
 }
 
 .burnStatBlock span {
   font-size: 0.62rem;
-  letter-spacing: 0.07em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--muted);
 }
@@ -405,59 +411,81 @@ button, a {
   align-self: stretch;
 }
 
-.burnStat {
-  flex: 1;
-  height: 56px;
-}
-
 .burnStatLoading {
+  display: block;
+  width: 60px;
+  height: 24px;
   background: rgba(20, 19, 15, 0.07);
   animation: pulse 1.4s ease-in-out infinite;
+  margin-bottom: 2px;
 }
 
 @keyframes pulse {
   0%, 100% { opacity: 1; }
-  50%       { opacity: 0.4; }
+  50%       { opacity: 0.35; }
 }
 
-/* Coming Soon box */
-.comingSoonBox {
-  max-width: 520px;
-  margin-top: 34px;
+/* Progress bar */
+.burnProgressWrap {
+  position: relative;
+  height: 4px;
+  background: rgba(20, 19, 15, 0.1);
+  border-left: 1.5px solid var(--ink);
+  border-right: 1.5px solid var(--ink);
 }
 
-.comingSoonLabel {
-  display: block;
-  margin-bottom: 10px;
-  font-size: 0.72rem;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
+.burnProgressBar {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: var(--ink);
+  transition: width 1s ease;
+}
+
+.burnProgressLabel {
+  position: absolute;
+  top: 7px;
+  transform: translateX(-50%);
+  font-size: 0.56rem;
+  letter-spacing: 0.06em;
   color: var(--muted);
+  white-space: nowrap;
 }
 
-.comingSoonInner {
-  border: 2px solid var(--ink);
-  padding: 28px 24px;
-  background: rgba(239, 228, 207, 0.6);
+/* Ticker */
+.burnTicker {
+  border: 1.5px solid var(--ink);
+  overflow: hidden;
+  height: 34px;
   display: flex;
-  flex-direction: column;
-  gap: 10px;
+  align-items: center;
 }
 
-.comingSoonTitle {
-  margin: 0;
-  font-family: var(--display);
-  font-size: 2rem;
-  letter-spacing: -0.01em;
-  line-height: 1;
+.burnTickerTrack {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  white-space: nowrap;
+  animation: ticker 18s linear infinite;
+  padding-right: 20px;
 }
 
-.comingSoonBlur {
-  height: 64px;
-  background: rgba(20, 19, 15, 0.06);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-  border: 1px solid var(--line);
+.burnTickerText {
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink);
+  opacity: 0.7;
+}
+
+.burnTickerDot {
+  font-size: 0.55rem;
+  color: var(--gold);
+  opacity: 0.9;
+}
+
+@keyframes ticker {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
 }
 
 .revealBox {

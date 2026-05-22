@@ -71,13 +71,7 @@ export default function Page() {
               Your wallet's on-chain history — transactions, DeFi positions, NFT holdings, age — is scored across seven dimensions and translated into a Bauhaus AI portrait. Your identity, rendered in art.
             </p>
 
-            <div className="comingSoonBox">
-              <div className="comingSoonInner">
-                <p className="comingSoonTitle">Coming Soon</p>
-                <div className="comingSoonBlur" />
-              </div>
-              <BurnCounter />
-            </div>
+            <BurnCounter />
 
             <div className="scorePanel">
               <h2>Seven-dimension score</h2>
