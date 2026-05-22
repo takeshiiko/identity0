@@ -449,6 +449,51 @@ button, a {
   letter-spacing: 0.06em;
   color: var(--muted);
   white-space: nowrap;
+  pointer-events: none;
+}
+
+/* Flame SVG */
+.burnStatBlockFire {
+  position: relative;
+  overflow: hidden;
+}
+
+.burnFlame {
+  width: 22px;
+  height: 28px;
+  margin-bottom: 2px;
+}
+
+.burnFlameCore {
+  fill: var(--ink);
+  opacity: 0.85;
+  transform-origin: 16px 38px;
+  animation: flameSway 2.4s ease-in-out infinite;
+}
+
+.burnFlameInner {
+  fill: var(--gold);
+  opacity: 0.9;
+  transform-origin: 16px 34px;
+  animation: flameSway 1.8s ease-in-out infinite reverse;
+}
+
+.burnFlameEmber {
+  fill: var(--gold);
+  opacity: 0.7;
+  animation: emberPulse 1.2s ease-in-out infinite;
+}
+
+@keyframes flameSway {
+  0%, 100% { transform: scaleX(1)   scaleY(1); }
+  25%       { transform: scaleX(0.9) scaleY(1.04); }
+  50%       { transform: scaleX(1.1) scaleY(0.97); }
+  75%       { transform: scaleX(0.95) scaleY(1.03); }
+}
+
+@keyframes emberPulse {
+  0%, 100% { opacity: 0.7; rx: 4; }
+  50%       { opacity: 1;   rx: 3; }
 }
 
 /* Ticker */
