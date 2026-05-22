@@ -73,6 +73,11 @@ export default function Page() {
 
             <BurnCounter />
 
+            <a href="https://dervisheth.art" target="_blank" rel="noopener noreferrer" className="burnCta">
+              <span className="burnCtaText">Want a spot in the Dervish collection? Burn yours.</span>
+              <span className="burnCtaArrow">→</span>
+            </a>
+
             <div className="scorePanel">
               <h2>Seven-dimension score</h2>
               {scoreRows.map(([label, value, color]) => (

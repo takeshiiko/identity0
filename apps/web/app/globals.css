@@ -453,6 +453,46 @@ button, a {
   pointer-events: none;
 }
 
+/* Burn CTA */
+.burnCta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 520px;
+  margin-top: 10px;
+  padding: 11px 14px;
+  border: 1px solid var(--line);
+  text-decoration: none;
+  color: var(--ink);
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.burnCta:hover {
+  border-color: var(--ink);
+  background: rgba(20, 19, 15, 0.04);
+}
+
+.burnCtaText {
+  font-size: 0.74rem;
+  letter-spacing: 0.01em;
+  color: var(--muted);
+}
+
+.burnCta:hover .burnCtaText {
+  color: var(--ink);
+}
+
+.burnCtaArrow {
+  font-size: 0.85rem;
+  color: var(--muted);
+  transition: transform 0.15s;
+}
+
+.burnCta:hover .burnCtaArrow {
+  transform: translateX(3px);
+  color: var(--ink);
+}
+
 .burnPctBadge {
   position: absolute;
   bottom: 7px;
