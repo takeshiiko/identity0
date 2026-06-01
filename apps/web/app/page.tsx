@@ -73,18 +73,7 @@ export default function Page() {
 
             <BurnCounter />
 
-            <div className="burnTiers">
-              <span className="burnTierItem"><b>5 burns</b> GTD</span>
-              <span className="burnTierDivider" />
-              <span className="burnTierItem"><b>3 burns</b> FCFS</span>
-            </div>
-
-            <a href="https://dervisheth.art" target="_blank" rel="noopener noreferrer" className="burnCta">
-              <span className="burnCtaText">Burn your Kandinsky. Secure your spot for Dervish.</span>
-              <span className="burnCtaArrow">→</span>
-            </a>
-
-            <div className="scorePanel">
+<div className="scorePanel">
               <h2>Seven-dimension score</h2>
               {scoreRows.map(([label, value, color]) => (
                 <div className="scoreLine" key={label}>
