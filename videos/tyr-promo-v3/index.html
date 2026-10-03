@@ -1,0 +1,541 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <title>Tyr — one desk (promo v3)</title>
+    <script src="assets/gsap.min.js"></script>
+    <style>
+      @font-face { font-family: "JetBrains Mono"; font-weight: 400; src: url("assets/fonts/JetBrainsMono-400-latin.woff2") format("woff2"); }
+      @font-face { font-family: "JetBrains Mono"; font-weight: 600; src: url("assets/fonts/JetBrainsMono-600-latin.woff2") format("woff2"); }
+      @font-face { font-family: "JetBrains Mono"; font-weight: 700; src: url("assets/fonts/JetBrainsMono-700-latin.woff2") format("woff2"); }
+      @font-face { font-family: "Chakra Petch"; font-weight: 600; src: url("assets/fonts/ChakraPetch-600-latin.woff2") format("woff2"); }
+      @font-face { font-family: "Chakra Petch"; font-weight: 700; src: url("assets/fonts/ChakraPetch-700-latin.woff2") format("woff2"); }
+      @font-face { font-family: "Cinzel"; font-weight: 800; src: url("assets/fonts/Cinzel-800-latin.woff2") format("woff2"); }
+      @font-face { font-family: "Noto Sans Runic"; font-weight: 400; src: url("assets/fonts/NotoSansRunic-400-runic.woff2") format("woff2"); }
+
+      :root {
+        --paper: #ece6d6; --paper2: #f4efe3; --ink: #0b0f12; --ink2: #3a4148; --ink3: #52574f;
+        --slab: #0b0f12; --line: #1c252b; --line2: #2c3a42; --bone: #f3e9d2; --dim: #8a9a91;
+        --lime: #c6ff3d; --cyan: #3de0ff; --mag: #ff3d9a;
+        --mono: "JetBrains Mono", ui-monospace, monospace;
+        --disp: "Chakra Petch", "JetBrains Mono", monospace;
+        --serif: "Cinzel", serif; --rune: "Noto Sans Runic", serif;
+      }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1920px; height: 1080px; overflow: hidden; background: var(--paper); color: var(--ink); font-family: var(--mono); }
+      #root { position: relative; width: 100%; height: 100%; overflow: hidden; background: #e4ddcb; }
+      .clip { position: absolute; inset: 0; width: 100%; height: 100%; overflow: hidden; }
+      .grid { position: absolute; inset: 0; background:
+        linear-gradient(rgba(11,15,18,.06) 1px, transparent 1px) 0 0 / 80px 80px,
+        linear-gradient(90deg, rgba(11,15,18,.06) 1px, transparent 1px) 0 0 / 80px 80px; }
+
+      /* camera */
+      #stage { position: absolute; inset: 0; overflow: hidden; }
+      #world { position: absolute; left: 0; top: 0; width: 6560px; height: 4040px; transform-origin: 0 0; }
+      .board { position: absolute; width: 1920px; height: 1080px; overflow: hidden; background: var(--paper);
+        box-shadow: 0 0 0 2px rgba(11,15,18,.9), 30px 30px 0 rgba(11,15,18,.12); }
+      .board.dark { background: radial-gradient(1400px 900px at 40% 30%, #141a1f, #06080a 75%); color: var(--bone); }
+      .blob { position: absolute; border-radius: 50%; filter: blur(80px); opacity: .55; }
+      .tag { position: absolute; left: 140px; top: 70px; display: flex; gap: 16px; align-items: center; font-size: 22px; letter-spacing: .3em; text-transform: uppercase; color: var(--ink2); }
+      .dark .tag { color: var(--dim); }
+      .tag .r { font-family: var(--rune); font-size: 40px; letter-spacing: 0; color: var(--ink); }
+      .dark .tag .r { color: var(--lime); }
+      .hl { position: relative; display: inline-block; }
+      .hl > i { position: absolute; left: -10px; right: -10px; top: 16%; bottom: 6%; background: var(--lime); transform-origin: 0 50%; display: block; }
+      .hl > b { position: relative; font-weight: inherit; }
+      .h { font-family: var(--disp); font-weight: 700; line-height: 1.02; }
+      .cursor { position: absolute; left: 0; top: 0; width: 40px; height: 52px; z-index: 30; }
+      .slab { position: absolute; background: var(--slab); color: var(--bone); box-shadow: 0 0 0 2px var(--ink), 20px 20px 0 rgba(11,15,18,.16); }
+      .corner { position: absolute; width: 22px; height: 22px; border: 0 solid var(--lime); }
+      .corner.a { left: -2px; top: -2px; border-left-width: 3px; border-top-width: 3px; }
+      .corner.b { right: -2px; bottom: -2px; border-right-width: 3px; border-bottom-width: 3px; }
+
+      /* A — the problem */
+      #A .l1, #A .l2 { position: absolute; left: 140px; font-size: 100px; white-space: nowrap; }
+      #A .l1 { top: 200px; } #A .l2 { top: 320px; color: var(--ink2); }
+      #A .l2 span, #A .l1 span { display: inline-block; }
+      #A .sub { position: absolute; left: 146px; top: 490px; width: 860px; font-size: 30px; line-height: 1.5; color: var(--ink2); }
+      #A .panel { left: 1130px; top: 170px; width: 680px; height: 760px; padding: 34px; }
+      #A .panel .hd { display: flex; justify-content: space-between; align-items: center; font-size: 22px; letter-spacing: .25em; text-transform: uppercase; color: var(--dim); padding-bottom: 22px; border-bottom: 2px dashed var(--line2); }
+      #A .clear { border: 2px solid var(--lime); color: var(--lime); padding: 8px 18px; font-size: 20px; letter-spacing: .2em; }
+      #A .alert { position: absolute; left: 34px; right: 34px; height: 128px; background: #10161a; border: 2px solid var(--line2); padding: 22px 26px 22px 96px; }
+      #A .alert .ic { position: absolute; left: 26px; top: 28px; width: 46px; height: 46px; display: flex; align-items: center; justify-content: center; font-size: 26px; font-weight: 700; color: var(--ink); }
+      #A .alert b { display: block; font-family: var(--disp); font-size: 34px; font-weight: 700; color: var(--bone); }
+      #A .alert span { display: block; margin-top: 6px; font-size: 22px; color: var(--dim); }
+      #A .empty { position: absolute; left: 34px; right: 34px; top: 340px; text-align: center; font-size: 26px; color: var(--dim); }
+
+      /* B — brand */
+      #B .coin { position: absolute; left: 870px; top: 150px; width: 180px; height: 180px; border-radius: 50%; border: 4px solid var(--ink); }
+      #B .name { position: absolute; left: 0; right: 0; top: 360px; height: 230px; display: flex; justify-content: center; gap: 30px; font-family: var(--serif); font-weight: 800; font-size: 210px; line-height: 230px; }
+      #B .name span { display: block; }
+      #B .sub { position: absolute; left: 0; right: 0; top: 610px; text-align: center; font-size: 28px; letter-spacing: .5em; text-transform: uppercase; color: var(--ink2); }
+      #B .line { position: absolute; left: 0; right: 0; top: 740px; display: flex; justify-content: center; font-size: 70px; }
+
+      /* C — venues + wallets */
+      #C .row { position: absolute; left: 0; right: 0; top: 440px; height: 110px; display: flex; justify-content: center; align-items: center; gap: 34px; }
+      #C .pill { display: flex; align-items: center; height: 104px; padding: 0 44px; font-family: var(--disp); font-weight: 700; font-size: 52px; border: 3px solid var(--ink); background: var(--paper2); }
+      #C .pill.ink { background: var(--ink); color: var(--bone); }
+      #C .link { width: 70px; height: 70px; }
+      #C .slot { position: relative; width: 470px; height: 104px; }
+      #C .slot .pill { position: absolute; left: 0; top: 0; width: 470px; justify-content: center; }
+      #C .float { position: absolute; padding: 14px 26px; border: 2px solid var(--ink); background: var(--paper2); font-size: 28px; }
+      #C .float.far { filter: blur(3px); opacity: .55; }
+      #C .claim { position: absolute; left: 0; right: 0; top: 650px; text-align: center; font-size: 60px; }
+
+      /* D — the ticket (dark) */
+      #D .words { position: absolute; left: 140px; top: 130px; display: flex; gap: 34px; font-size: 92px; }
+      #D .words span { display: block; }
+      #D .ticket { left: 140px; top: 290px; width: 660px; height: 720px; }
+      #D .tk-h { display: flex; justify-content: space-between; padding: 22px 28px; border-bottom: 2px dashed var(--line2); font-size: 22px; letter-spacing: .25em; text-transform: uppercase; }
+      #D .stg { position: absolute; left: 28px; display: flex; gap: 14px; align-items: center; font-size: 20px; letter-spacing: .25em; text-transform: uppercase; color: var(--cyan); }
+      #D .stg b { border: 2px solid var(--line2); color: var(--lime); padding: 2px 8px; font-weight: 400; }
+      #D .fld { position: absolute; left: 28px; right: 28px; height: 70px; display: flex; align-items: center; }
+      #D .fld .lb { width: 120px; font-size: 24px; color: var(--cyan); }
+      #D .fld .in { position: relative; flex: 1; height: 64px; border: 2px solid var(--line2); background: #06080a; display: flex; align-items: center; padding: 0 18px; font-size: 24px; color: var(--lime); white-space: nowrap; overflow: hidden; }
+      #D .fld .in .ph { color: #4d5b54; }
+      #D .caret { display: inline-block; width: 12px; height: 30px; background: var(--lime); margin-left: 3px; }
+      #D .cards { position: absolute; left: 28px; right: 28px; top: 380px; display: flex; gap: 10px; }
+      #D .card { flex: 1; height: 104px; border: 2px solid var(--line2); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; color: #8a9a91; font-size: 18px; }
+      #D .card svg { width: 96px; height: 42px; }
+      #D .card svg line { stroke: currentColor; stroke-width: 1; }
+      #D .card.on { border-color: var(--lime); color: var(--lime); background: rgba(198,255,61,.06); }
+      #D .sum { position: absolute; left: 28px; right: 28px; top: 510px; border-left: 4px solid var(--lime); padding: 8px 18px; font-size: 22px; line-height: 1.5; color: var(--bone); }
+      #D .sum em { display: block; font-style: normal; font-size: 16px; letter-spacing: .25em; color: var(--dim); text-transform: uppercase; }
+      #D .keys { position: absolute; left: 0; right: 0; bottom: 0; height: 86px; display: flex; }
+      #D .keys div { flex: 1; display: flex; align-items: center; justify-content: center; font-family: var(--disp); font-weight: 700; font-size: 30px; letter-spacing: .3em; text-transform: uppercase; }
+      #D .k-run { background: var(--lime); color: var(--ink); }
+      #D .k-ex { color: var(--mag); border-top: 2px solid var(--line2); position: relative; }
+      #D .k-ex .f { position: absolute; inset: 0; background: var(--mag); opacity: 0; display: block; }
+      #D .k-ex b { position: relative; }
+      #D .pipe { left: 900px; top: 290px; width: 880px; height: 560px; padding: 0; }
+      #D .pipe .tk-h span:last-child { color: var(--dim); }
+      #D .pr { position: absolute; left: 30px; right: 30px; height: 96px; display: flex; align-items: center; gap: 26px; border-bottom: 1px solid var(--line); }
+      #D .pr .st { width: 44px; height: 44px; border: 2px solid var(--line2); display: flex; align-items: center; justify-content: center; font-size: 24px; color: var(--ink); font-weight: 700; }
+      #D .pr b { width: 150px; font-family: var(--disp); font-size: 38px; font-weight: 700; color: #74847b; }
+      #D .pr span { font-size: 22px; color: #74847b; }
+      #D .toast { position: absolute; left: 900px; top: 890px; width: 880px; height: 100px; background: var(--lime); color: var(--ink); display: flex; align-items: center; padding: 0 36px; gap: 22px; font-family: var(--disp); font-weight: 700; font-size: 40px; box-shadow: 0 0 0 2px var(--ink); }
+      #D .toast span { font-family: var(--mono); font-weight: 400; font-size: 22px; }
+
+      /* E — rebalance */
+      #E .q { position: absolute; left: 140px; top: 130px; font-size: 100px; }
+      #E .pos { left: 160px; top: 290px; width: 1600px; height: 620px; }
+      #E .pos .tk-h { display: flex; justify-content: space-between; padding: 22px 30px; border-bottom: 2px dashed var(--line2); font-size: 22px; letter-spacing: .2em; text-transform: uppercase; color: var(--dim); }
+      #E .pos .tk-h b { color: var(--bone); font-weight: 600; }
+      #E .state { position: absolute; left: 30px; top: 90px; width: 700px; height: 40px; }
+      #E .state span { position: absolute; left: 0; top: 0; font-size: 26px; letter-spacing: .2em; text-transform: uppercase; white-space: nowrap; }
+      #E .rb { position: absolute; right: 30px; top: 84px; border: 3px solid var(--lime); color: var(--lime); padding: 10px 28px; font-size: 26px; letter-spacing: .2em; text-transform: uppercase; }
+      #E .chart { position: absolute; left: 30px; right: 30px; top: 150px; bottom: 30px; overflow: hidden; }
+      #E .band { position: absolute; left: 0; top: 0; width: 1540px; height: 440px; }
+      #E .bin { position: absolute; bottom: 50px; width: 40px; height: 330px; transform-origin: 50% 100%; display: block; }
+      #E .edge { position: absolute; top: 20px; bottom: 50px; width: 2px; background: repeating-linear-gradient(0deg, #8a9a91 0 8px, transparent 8px 16px); display: block; }
+      #E .axis { position: absolute; left: 0; right: 0; bottom: 48px; height: 2px; background: var(--line2); }
+      #E .price { position: absolute; left: 770px; top: 0; bottom: 40px; width: 4px; background: var(--bone); }
+      #E .price b { position: absolute; left: 14px; top: 0; font-size: 22px; letter-spacing: .2em; font-weight: 400; white-space: nowrap; }
+      #E .tail { position: absolute; left: 160px; top: 950px; display: flex; gap: 34px; font-size: 56px; }
+      #E .tail span { display: block; }
+
+      /* F — compound */
+      #F .q { position: absolute; left: 140px; top: 130px; font-size: 100px; }
+      #F .tile { top: 330px; width: 700px; height: 400px; padding: 40px 46px; }
+      #F .tile .k { font-size: 24px; letter-spacing: .25em; text-transform: uppercase; color: var(--dim); }
+      #F .tile .v { margin-top: 50px; font-family: var(--disp); font-weight: 700; font-size: 160px; line-height: 1; white-space: nowrap; }
+      #F .tile .u { margin-top: 20px; font-size: 32px; color: var(--dim); }
+      #F .arrow { position: absolute; left: 880px; top: 470px; width: 160px; height: 120px; }
+      #F .btn { position: absolute; left: 160px; top: 780px; width: 700px; height: 90px; border: 3px solid var(--ink); background: var(--paper2); display: flex; align-items: center; justify-content: center; font-size: 32px; letter-spacing: .25em; text-transform: uppercase; }
+      #F .btn .f { position: absolute; inset: 0; background: var(--lime); opacity: 0; display: block; }
+      #F .btn b { position: relative; font-weight: 600; }
+      #F .fly { position: absolute; left: 300px; top: 520px; font-family: var(--disp); font-weight: 700; font-size: 64px; background: var(--lime); color: var(--ink); padding: 4px 18px; box-shadow: 0 0 0 2px var(--ink); }
+      #F .back { position: absolute; left: 140px; top: 920px; font-size: 64px; }
+      .note { position: absolute; font-size: 18px; letter-spacing: .2em; text-transform: uppercase; color: var(--ink3); }
+
+      /* overlay + CTA (screen space) */
+      #ov .box { position: absolute; left: 360px; top: 380px; width: 1200px; height: 320px; background: var(--paper); box-shadow: 0 0 0 3px var(--ink), 24px 24px 0 rgba(11,15,18,.2); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; }
+      #ov .a { font-family: var(--disp); font-weight: 700; font-size: 76px; }
+      #ov .b { font-family: var(--disp); font-weight: 700; font-size: 76px; }
+      #cta .bg { position: absolute; inset: 0; background: var(--paper); }
+      #cta .coin { position: absolute; left: 880px; top: 130px; width: 160px; height: 160px; border-radius: 50%; border: 4px solid var(--ink); }
+      #cta .name { position: absolute; left: 0; right: 0; top: 310px; height: 220px; text-align: center; font-family: var(--serif); font-weight: 800; font-size: 200px; line-height: 220px; letter-spacing: .08em; }
+      #cta .verbs { position: absolute; left: 0; right: 0; top: 560px; text-align: center; font-family: var(--disp); font-weight: 700; font-size: 50px; }
+      #cta .go { position: absolute; left: 610px; top: 680px; width: 700px; height: 110px; background: var(--ink); color: var(--lime); display: flex; align-items: center; justify-content: center; font-family: var(--disp); font-weight: 700; font-size: 54px; box-shadow: 14px 14px 0 var(--lime); }
+      #cta .fine { position: absolute; left: 0; right: 0; top: 860px; text-align: center; font-size: 22px; letter-spacing: .3em; text-transform: uppercase; color: var(--ink3); }
+      #cta .end { position: absolute; inset: 0; background: var(--ink); opacity: 0; }
+    </style>
+  </head>
+  <body>
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+      <filter id="mb" x="-10%" y="-10%" width="120%" height="120%"><feGaussianBlur id="mb-blur" in="SourceGraphic" stdDeviation="0 0" /></filter>
+    </svg>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="50" data-width="1920" data-height="1080">
+
+      <div id="desk" data-layout-allow-overlap class="clip" data-start="0" data-duration="45.2" data-track-index="1">
+        <div class="grid"></div>
+        <div id="stage">
+          <div id="world">
+
+            <!-- A · the problem -->
+            <div class="board" id="A" style="left:0;top:0">
+              <div class="blob" style="left:-200px;top:600px;width:700px;height:500px;background:#c6ff3d"></div>
+              <div class="tag"><span class="r">ᛏ</span><span>a liquidity position</span></div>
+              <div class="h l1" id="a-l1"><span>Price</span> <span id="a-moved">moved.</span></div>
+              <div class="h l2" id="a-l2"><span>Your</span> <span>band</span> <span>didn't.</span></div>
+              <div class="sub" id="a-sub">Out of range, a position earns nothing. Fixing it by hand means closing, swapping and opening again.</div>
+              <div class="slab panel" id="a-panel">
+                <i class="corner a"></i><i class="corner b"></i>
+                <div class="hd"><span>desk alerts</span><span class="clear" id="a-clear">clear all</span></div>
+                <div class="alert" id="al1" style="top:110px"><div class="ic" style="background:#ff3d9a">!</div><b>out of range — idle</b><span>price left the band 6h ago</span></div>
+                <div class="alert" id="al2" style="top:258px"><div class="ic" style="background:#ffb020">$</div><b>fees unclaimed</b><span>sitting in the position, not compounding</span></div>
+                <div class="alert" id="al3" style="top:406px"><div class="ic" style="background:#3de0ff">↻</div><b>rebalance by hand</b><span>close → swap → reopen, three apps</span></div>
+                <div class="alert" id="al4" style="top:554px"><div class="ic" style="background:#c6ff3d">+</div><b>new pool, new token</b><span>scan it, buy it, plan the band, sign</span></div>
+                <div class="empty" id="a-empty" style="opacity:0">nothing on the blotter.</div>
+              </div>
+              <svg class="cursor" id="curA" viewBox="0 0 20 26"><path d="M1 1 L1 21 L6 16 L10 25 L13 24 L9 15 L16 15 Z" fill="#0b0f12" stroke="#f3e9d2" stroke-width="1.5"/></svg>
+            </div>
+
+            <!-- B · brand -->
+            <div class="board" id="B" style="left:2320px;top:0">
+              <div class="blob" style="left:1300px;top:-200px;width:800px;height:600px;background:#3de0ff;opacity:.35"></div>
+              <img class="coin" id="b-coin" src="assets/logo.png" alt="" />
+              <div class="name" id="b-name"><span>T</span><span>Y</span><span>R</span></div>
+              <div class="sub" id="b-sub">liquidity daemon · beta</div>
+              <div class="h line" id="b-line"><span>One desk for&nbsp;</span><span class="hl" id="b-hl"><i></i><b>every liquidity move.</b></span></div>
+            </div>
+
+            <!-- C · venues + wallets -->
+            <div class="board" id="C" style="left:2320px;top:1480px">
+              <div class="tag"><span class="r">ᚹ</span><span>where it works</span></div>
+              <div class="float far" style="left:180px;top:200px">Solana</div>
+              <div class="float" id="fl1" style="left:300px;top:760px">Phantom</div>
+              <div class="float far" style="left:1500px;top:180px">EVM</div>
+              <div class="float" id="fl2" style="left:1460px;top:790px">Solflare</div>
+              <div class="float" id="fl3" style="left:880px;top:880px">Backpack</div>
+              <div class="float far" style="left:120px;top:480px">DLMM</div>
+              <div class="float far" style="left:1640px;top:500px">DAMM v2</div>
+              <div class="row" id="c-row">
+                <div class="pill ink" id="c-tyr">ᛏ TYR</div>
+                <svg class="link" id="c-link" viewBox="0 0 24 24" fill="none" stroke="#0b0f12" stroke-width="2.4"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg>
+                <div class="slot"><div class="pill" id="v1">Meteora</div><div class="pill" id="v2" style="opacity:0">Uniswap v4</div><div class="pill" id="v3" style="opacity:0">Uniswap v3</div></div>
+              </div>
+              <div class="h claim" id="c-claim"><span class="hl"><i></i><b>Your wallet signs.</b></span> The desk holds no key.</div>
+            </div>
+
+            <!-- D · open (dark) -->
+            <div class="board dark" id="D" style="left:4640px;top:1480px">
+              <div class="tag" style="top:60px"><span class="r">ᛏ</span><span>01 — open a position</span></div>
+              <div class="h words"><span id="dw1" style="opacity:0">Paste.</span><span id="dw2" style="opacity:0">Run.</span><span id="dw3" style="color:#c6ff3d;opacity:0">Execute.</span></div>
+              <div class="slab ticket" id="d-ticket">
+                <i class="corner a"></i><i class="corner b"></i>
+                <div class="tk-h"><span>ticket</span><span id="d-armed" style="color:#8a9a91">idle</span></div>
+                <div class="stg" style="top:92px"><b>01</b>target</div>
+                <div class="fld" style="top:134px"><span class="lb">--ca</span><div class="in" id="d-ca" style="font-size:17px;padding:0 12px"><span id="d-ca-t"></span><span class="ph" id="d-ca-ph">paste a mint address</span><i class="caret" id="d-caret"></i></div></div>
+                <div class="fld" style="top:216px"><span class="lb">--budget</span><div class="in"><span id="d-bud"></span><span class="ph" id="d-bud-ph">how much to commit</span><span style="margin-left:auto;color:#8a9a91">SOL</span></div></div>
+                <div class="stg" style="top:322px"><b>02</b>strategy</div>
+                <div class="cards">
+                  <div class="card" id="cd1"><svg viewBox="0 0 54 24"><g fill="currentColor"><rect x="2" y="15" width="4" height="8"/><rect x="8" y="10" width="4" height="13"/><rect x="14" y="6" width="4" height="17"/><rect x="20" y="3" width="4" height="20"/><rect x="30" y="3" width="4" height="20"/><rect x="36" y="6" width="4" height="17"/><rect x="42" y="10" width="4" height="13"/><rect x="48" y="15" width="4" height="8"/></g><line x1="27" y1="1" x2="27" y2="23"/></svg>two-sided</div>
+                  <div class="card" id="cd2"><svg viewBox="0 0 54 24"><g fill="currentColor"><rect x="30" y="18" width="4" height="5"/><rect x="36" y="14" width="4" height="9"/><rect x="42" y="9" width="4" height="14"/><rect x="48" y="3" width="4" height="20"/></g><line x1="27" y1="1" x2="27" y2="23"/></svg>sell ladder</div>
+                  <div class="card" id="cd3"><svg viewBox="0 0 54 24"><g fill="currentColor"><rect x="2" y="3" width="4" height="20"/><rect x="8" y="9" width="4" height="14"/><rect x="14" y="14" width="4" height="9"/><rect x="20" y="18" width="4" height="5"/></g><line x1="27" y1="1" x2="27" y2="23"/></svg>buy ladder</div>
+                  <div class="card" id="cd4"><svg viewBox="0 0 54 24"><g fill="currentColor"><rect x="6" y="8" width="4" height="15"/><rect x="16" y="14" width="4" height="9"/><rect x="34" y="5" width="4" height="18"/><rect x="44" y="12" width="4" height="11"/></g><line x1="27" y1="1" x2="27" y2="23"/></svg>custom</div>
+                </div>
+                <div class="sum" id="d-sum"><em>what this does</em>Buy half the budget, pair it with the rest, open a two-sided position around the price.</div>
+                <div class="keys"><div class="k-run" id="d-run">run</div><div class="k-ex" id="d-ex"><i class="f" id="d-exf"></i><b id="d-ext">execute</b></div></div>
+              </div>
+              <div class="slab pipe" id="d-pipe">
+                <i class="corner a"></i><i class="corner b"></i>
+                <div class="tk-h"><span>pipeline</span><span id="d-pipe-s">nothing signed until confirm</span></div>
+                <div class="pr" style="top:84px"><div class="st" id="ps1"></div><b id="pb1">scan</b><span id="pt1">reads the mint and its market</span></div>
+                <div class="pr" style="top:180px"><div class="st" id="ps2"></div><b id="pb2">buy</b><span id="pt2">half the budget, best route</span></div>
+                <div class="pr" style="top:276px"><div class="st" id="ps3"></div><b id="pb3">plan</b><span id="pt3">band, amounts, minimum out</span></div>
+                <div class="pr" style="top:372px"><div class="st" id="ps4"></div><b id="pb4">sign</b><span id="pt4">built, simulated, shown to you</span></div>
+                <div class="pr" style="top:468px;border-bottom:0"><div class="st" id="ps5"></div><b id="pb5">confirm</b><span id="pt5">your wallet signs</span></div>
+              </div>
+              <div class="toast" id="d-toast" style="opacity:0">✓ position open<span>two-sided · in range · earning</span></div>
+              <svg class="cursor" id="curD" viewBox="0 0 20 26"><path d="M1 1 L1 21 L6 16 L10 25 L13 24 L9 15 L16 15 Z" fill="#f3e9d2" stroke="#0b0f12" stroke-width="1.5"/></svg>
+            </div>
+
+            <!-- E · rebalance -->
+            <div class="board" id="E" style="left:4640px;top:2960px">
+              <div class="tag" style="top:60px"><span class="r">ᚱ</span><span>02 — rebalance</span></div>
+              <div class="h q" id="e-q">Price left the band?</div>
+              <div class="note" style="right:160px;top:250px">illustrative position</div>
+              <div class="slab pos" id="e-pos">
+                <i class="corner a"></i><i class="corner b"></i>
+                <div class="tk-h"><span><b>TKN / SOL</b> · dlmm · two-sided</span><span>positions</span></div>
+                <div class="state"><span id="se1" style="color:#c6ff3d">in range — earning</span><span id="se2" style="color:#ff3d9a;opacity:0">out of range — idle</span><span id="se3" style="color:#c6ff3d;opacity:0">new band — earning</span></div>
+                <div class="rb" id="e-rb">rebalance</div>
+                <div class="chart"><div class="band" id="e-band"></div><div class="axis"></div><div class="price" id="e-price" data-layout-allow-overflow><b>PRICE</b></div></div>
+              </div>
+              <div class="h tail" id="e-tail"><span>Same pool.</span><span>Same fee.</span><span class="hl"><i></i><b>New band.</b></span></div>
+              <svg class="cursor" id="curE" viewBox="0 0 20 26"><path d="M1 1 L1 21 L6 16 L10 25 L13 24 L9 15 L16 15 Z" fill="#0b0f12" stroke="#f3e9d2" stroke-width="1.5"/></svg>
+            </div>
+
+            <!-- F · compound -->
+            <div class="board" id="F" style="left:2320px;top:2960px">
+              <div class="blob" style="left:1100px;top:700px;width:800px;height:500px;background:#c6ff3d;opacity:.4"></div>
+              <div class="tag" style="top:60px"><span class="r">ᛉ</span><span>03 — compound</span></div>
+              <div class="h q" id="f-q">Fees piling up?</div>
+              <div class="note" style="right:160px;top:290px">illustrative numbers</div>
+              <div class="slab tile" id="f-fee" style="left:160px"><div class="k">unclaimed fees</div><div class="v" id="f-fv">0.000</div><div class="u">SOL</div></div>
+              <div class="slab tile" id="f-pos" style="left:1060px"><div class="k">position</div><div class="v" id="f-pv">5.000</div><div class="u">SOL</div></div>
+              <svg class="arrow" viewBox="0 0 160 120"><path id="f-path" d="M10 60 H130 M100 28 L140 60 L100 92" fill="none" stroke="#0b0f12" stroke-width="10" stroke-linecap="square"/></svg>
+              <div class="btn" id="f-btn"><i class="f" id="f-btnf"></i><b>compound</b></div>
+              <div class="fly" id="f-fly" data-layout-allow-overlap>+0.412</div>
+              <div class="h back" id="f-back"><span class="hl"><i></i><b>Claim it. Put it straight back in.</b></span></div>
+              <svg class="cursor" id="curF" viewBox="0 0 20 26"><path d="M1 1 L1 21 L6 16 L10 25 L13 24 L9 15 L16 15 Z" fill="#0b0f12" stroke="#f3e9d2" stroke-width="1.5"/></svg>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- overlay during the pull-back (screen space) -->
+      <div id="ov" class="clip" data-layout-allow-overlap data-start="41.6" data-duration="3.4" data-track-index="2">
+        <div class="box" id="ov-box" data-layout-allow-overlap>
+          <div class="a" id="ov-a" data-layout-allow-overlap>Open. Rebalance. Compound.</div>
+          <div class="b" id="ov-b" data-layout-allow-overlap><span class="hl" data-layout-allow-overlap><i></i><b data-layout-allow-overlap>One desk.</b></span></div>
+        </div>
+      </div>
+
+      <!-- CTA (screen space) -->
+      <div id="cta" class="clip" data-layout-allow-overlap data-start="44.6" data-duration="5.4" data-track-index="3">
+        <div class="bg" id="cta-bg"></div>
+        <div class="grid"></div>
+        <img class="coin" id="cta-coin" src="assets/logo.png" alt="" />
+        <div class="name" id="cta-name">TYR</div>
+        <div class="verbs" id="cta-verbs">open · rebalance · compound</div>
+        <div class="go" id="cta-go">tyrliquidity.app →</div>
+        <div class="fine" id="cta-fine">beta · meteora · uniswap v4 · uniswap v3 · the desk holds no key</div>
+        <svg class="cursor" id="curG" viewBox="0 0 20 26"><path d="M1 1 L1 21 L6 16 L10 25 L13 24 L9 15 L16 15 Z" fill="#0b0f12" stroke="#f3e9d2" stroke-width="1.5"/></svg>
+        <div class="end" id="cta-end"></div>
+      </div>
+
+      <audio id="bgm" src="assets/audio/mix.mp3" data-start="0" data-duration="50" data-track-index="9" data-volume="1"></audio>
+    </div>
+
+    <script>
+      const $ = (id) => document.getElementById(id);
+      const world = $("world"), stage = $("stage"), blurNode = $("mb-blur");
+
+      // ---------- world-space measuring (no transforms on boards) ----------
+      function wpos(el) {
+        let x = 0, y = 0, n = el;
+        while (n && n !== world) { x += n.offsetLeft; y += n.offsetTop; n = n.offsetParent; }
+        return { x: x + el.offsetWidth / 2, y: y + el.offsetHeight / 2 };
+      }
+      const BOARD = { A: [960, 540], B: [3280, 540], C: [3280, 2020], D: [5600, 2020], E: [5600, 3500], F: [3280, 3500] };
+
+      // ---------- camera ----------
+      const cam = { cx: 0, cy: 0, s: 1 };
+      const applyCam = () => { world.style.transform = `translate(${960 - cam.s * cam.cx}px, ${540 - cam.s * cam.cy}px) scale(${cam.s})`; };
+      const blur = { x: 0, y: 0 };
+      const writeBlur = () => {
+        blurNode.setAttribute("stdDeviation", `${blur.x.toFixed(2)} ${blur.y.toFixed(2)}`);
+        stage.style.filter = blur.x + blur.y > 0.05 ? "url(#mb)" : "none";
+      };
+
+      // rebalance bins
+      const NB = 13, BW = 40, BG = 7, BX = 770 - (NB * (BW + BG)) / 2;
+      const band = $("e-band"), bins = [];
+      const binCol = (i) => (i < (NB - 1) / 2 ? "#3de0ff" : i > (NB - 1) / 2 ? "#c6ff3d" : "#f3e9d2");
+      for (let i = 0; i < NB; i++) {
+        const b = document.createElement("i"); b.className = "bin"; b.id = "eb" + i;
+        b.style.left = BX + i * (BW + BG) + "px"; b.style.background = binCol(i);
+        band.appendChild(b); bins.push(b);
+      }
+      [BX - 8, BX + NB * (BW + BG)].forEach((x) => { const e = document.createElement("i"); e.className = "edge"; e.style.left = x + "px"; band.appendChild(e); });
+      const spot = (i) => 0.25 + 0.75 * Math.exp(-Math.pow((i - (NB - 1) / 2) / 3.6, 2));
+
+      document.fonts.ready.then(() => {
+        const tl = gsap.timeline({ paused: true });
+        const E = "power3.out";
+
+        const leg = (t, dur, to, axis, peak) => {
+          tl.to(cam, { ...to, duration: dur, ease: "power3.inOut", onUpdate: applyCam }, t);
+          const up = {}, dn = {};
+          if (axis.includes("x")) { up.x = peak; dn.x = 0; }
+          if (axis.includes("y")) { up.y = peak; dn.y = 0; }
+          tl.to(blur, { ...up, duration: dur / 2, ease: "power2.in", onUpdate: writeBlur }, t);
+          tl.to(blur, { ...dn, duration: dur / 2, ease: "power2.out", onUpdate: writeBlur }, t + dur / 2);
+        };
+        const press = (el, t, s = 0.94) => {
+          tl.to(el, { scale: s, duration: 0.07, ease: "power2.in" }, t);
+          tl.to(el, { scale: 1, duration: 0.3, ease: E }, t + 0.07);
+        };
+        const curTo = (cur, el, t, dur, dx = 0, dy = 10) => {
+          const p = wpos(el); const b = cur.parentElement; const bx = b.offsetLeft, by = b.offsetTop;
+          tl.to(cur, { x: p.x - bx + dx, y: p.y - by + dy, duration: dur, ease: "power2.inOut" }, t);
+        };
+        const curClick = (cur, t) => { tl.to(cur, { scale: 0.85, duration: 0.07 }, t); tl.to(cur, { scale: 1, duration: 0.2 }, t + 0.07); };
+        const typeInto = (el, text, t, dur) => {
+          const o = { n: 0 };
+          tl.fromTo(o, { n: 0 }, { n: text.length, duration: dur, ease: "none", onUpdate: () => { el.textContent = text.slice(0, Math.round(o.n)); } }, t);
+        };
+        const counter = (el, from, to, t, dur, ease) => {
+          const o = { v: from };
+          tl.fromTo(o, { v: from }, { v: to, duration: dur, ease: ease || "power1.out", onUpdate: () => { el.textContent = o.v.toFixed(3); } }, t);
+        };
+        const hl = (sel, t, d) => tl.fromTo(sel, { scaleX: 0 }, { scaleX: 1, duration: d || 0.4, ease: "power2.out" }, t);
+
+        // ================= A · problem (0–7) =================
+        const mv = wpos($("a-moved"));
+        tl.fromTo(cam, { cx: mv.x, cy: mv.y, s: 3.4 }, { cx: 960, cy: 540, s: 1, duration: 2.2, ease: "power3.inOut", onUpdate: applyCam, immediateRender: true }, 0);
+        tl.fromTo("#a-l1", { opacity: 0 }, { opacity: 1, duration: 0.3 }, 0.0);
+        tl.fromTo("#a-l2 span", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.45, ease: E, stagger: 0.18 }, 1.5);
+        tl.fromTo("#a-sub", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, ease: E }, 2.4);
+        tl.fromTo("#a-panel", { opacity: 0, x: 120, rotationY: -22, transformPerspective: 1800 }, { opacity: 1, x: 0, rotationY: 0, duration: 0.8, ease: E }, 2.2);
+        ["#al1", "#al2", "#al3", "#al4"].forEach((a, i) => {
+          const t = 3.0 + i * 0.32;
+          tl.fromTo(a, { opacity: 0, x: 260, filter: "blur(14px)" }, { opacity: 1, x: 0, filter: "blur(0px)", duration: 0.45, ease: "expo.out" }, t);
+        });
+        tl.set("#curA", { x: 1300, y: 1150 }, 0);
+        curTo($("curA"), $("a-clear"), 4.6, 1.0);
+        curClick($("curA"), 5.7); press("#a-clear", 5.7);
+        ["#al4", "#al3", "#al2", "#al1"].forEach((a, i) => tl.to(a, { opacity: 0, x: -60, scale: 0.92, duration: 0.25, ease: "power2.in" }, 5.85 + i * 0.07));
+        tl.to("#a-empty", { opacity: 1, duration: 0.3 }, 6.3);
+
+        // A → B whip
+        leg(6.8, 0.8, { cx: BOARD.B[0], cy: BOARD.B[1] }, "x", 22);
+
+        // ================= B · brand (7.6–11.4) =================
+        tl.fromTo("#b-coin", { opacity: 0, scale: 0.6, rotation: -40 }, { opacity: 1, scale: 1, rotation: 0, duration: 0.9, ease: E }, 7.3);
+        tl.fromTo("#b-name span", { opacity: 0, y: 80, rotationX: -70, transformPerspective: 900, filter: "blur(10px)" }, { opacity: 1, y: 0, rotationX: 0, filter: "blur(0px)", duration: 0.8, ease: E, stagger: 0.12 }, 7.6);
+        tl.fromTo("#b-sub", { opacity: 0 }, { opacity: 1, duration: 0.5 }, 8.5);
+        tl.fromTo("#b-line", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.5, ease: E }, 9.3);
+        hl("#b-hl > i", 9.8, 0.5);
+        tl.to(cam, { s: 1.06, duration: 1.4, ease: "power2.out", onUpdate: applyCam }, 9.8);
+
+        // B → C pan down
+        leg(11.2, 0.9, { cx: BOARD.C[0], cy: BOARD.C[1], s: 1 }, "y", 20);
+
+        // ================= C · venues (12.1–16.3) =================
+        tl.fromTo("#c-tyr", { opacity: 0, x: 120 }, { opacity: 1, x: 0, duration: 0.5, ease: E }, 12.1);
+        tl.fromTo("#c-link", { opacity: 0, scale: 0.5 }, { opacity: 1, scale: 1, duration: 0.4, ease: E }, 12.4);
+        tl.fromTo("#v1", { opacity: 0, x: -60 }, { opacity: 1, x: 0, duration: 0.45, ease: E }, 12.6);
+        tl.to("#v1", { opacity: 0, y: -50, filter: "blur(8px)", duration: 0.25, ease: "power2.in" }, 13.5);
+        tl.fromTo("#v2", { opacity: 0, y: 50, filter: "blur(8px)" }, { opacity: 1, y: 0, filter: "blur(0px)", duration: 0.35, ease: E }, 13.65);
+        tl.to("#v2", { opacity: 0, y: -50, filter: "blur(8px)", duration: 0.25, ease: "power2.in" }, 14.3);
+        tl.fromTo("#v3", { opacity: 0, y: 50, filter: "blur(8px)" }, { opacity: 1, y: 0, filter: "blur(0px)", duration: 0.35, ease: E }, 14.45);
+        tl.fromTo("#C .float", { opacity: 0, scale: 0.6 }, { opacity: (i, el) => (el.classList.contains("far") ? 0.55 : 1), scale: 1, duration: 0.6, ease: E, stagger: 0.06 }, 13.0);
+        tl.fromTo("#c-claim", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.5, ease: E }, 15.0);
+        hl("#c-claim .hl > i", 15.3, 0.4);
+        tl.to(cam, { s: 0.94, duration: 1.4, ease: "power2.out", onUpdate: applyCam }, 14.8);
+
+        // C → D whip (into the dark board)
+        leg(16.2, 0.9, { cx: BOARD.D[0], cy: BOARD.D[1], s: 1 }, "x", 24);
+
+        // ================= D · open (17.1–27) =================
+        tl.fromTo("#d-ticket", { opacity: 0, rotationX: 38, rotationZ: -6, y: 120, transformPerspective: 1600, transformOrigin: "50% 100%" }, { opacity: 1, rotationX: 0, rotationZ: 0, y: 0, duration: 1.2, ease: E }, 16.8);
+        tl.fromTo("#d-pipe", { opacity: 0, rotationX: 38, rotationZ: 6, y: 120, transformPerspective: 1600, transformOrigin: "50% 100%" }, { opacity: 0.35, rotationX: 0, rotationZ: 0, y: 0, duration: 1.2, ease: E }, 17.0);
+        // dive to the address field
+        const caP = wpos($("d-ca"));
+        tl.to(cam, { cx: caP.x, cy: caP.y + 40, s: 1.75, duration: 1.0, ease: "power3.inOut", onUpdate: applyCam }, 18.2);
+        tl.set("#d-ca-ph", { opacity: 0 }, 19.2);
+        typeInto($("d-ca-t"), "7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU", 19.2, 1.0);
+        tl.fromTo("#dw1", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.4, ease: E }, 19.2);
+        tl.set("#d-bud-ph", { opacity: 0 }, 20.4); typeInto($("d-bud"), "5", 20.4, 0.05);
+        tl.set("#d-caret", { opacity: 0 }, 20.4);
+        tl.set("#d-armed", { textContent: "armed", color: "#c6ff3d" }, 20.5);
+        // ease back to the whole ticket, pick the strategy
+        tl.to(cam, { cx: 5440, cy: 2040, s: 1.2, duration: 0.9, ease: "power3.inOut", onUpdate: applyCam }, 20.6);
+        tl.set("#curD", { x: 760, y: 1120 }, 0);
+        curTo($("curD"), $("cd1"), 20.8, 0.7);
+        curClick($("curD"), 21.55); press("#cd1", 21.55);
+        tl.set("#cd1", { className: "card on" }, 21.6);
+        curTo($("curD"), $("d-run"), 21.8, 0.5);
+        curClick($("curD"), 22.35); press("#d-run", 22.35);
+        tl.fromTo("#dw2", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.4, ease: E }, 22.35);
+        // camera slides to the pipeline
+        tl.to(cam, { cx: 5600, cy: 2020, s: 1, duration: 0.9, ease: "power3.inOut", onUpdate: applyCam }, 22.5);
+        tl.to("#d-pipe", { opacity: 1, duration: 0.3 }, 22.6);
+        [1, 2, 3, 4].forEach((k, i) => {
+          const t = 23.1 + i * 0.5;
+          tl.set("#ps" + k, { backgroundColor: k === 4 ? "#ffb020" : "#c6ff3d", borderColor: k === 4 ? "#ffb020" : "#c6ff3d", textContent: k === 4 ? "…" : "✓" }, t);
+          tl.set(["#pb" + k, "#pt" + k], { color: "#f3e9d2" }, t);
+        });
+        tl.set("#d-pipe-s", { textContent: "awaiting confirmation", color: "#ffb020" }, 24.6);
+        curTo($("curD"), $("d-ex"), 24.4, 0.6);
+        curClick($("curD"), 25.1); press("#d-ex", 25.1);
+        tl.fromTo("#d-exf", { opacity: 0 }, { opacity: 1, duration: 0.12 }, 25.12);
+        tl.set("#d-ext", { color: "#0b0f12" }, 25.12);
+        tl.fromTo("#dw3", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.4, ease: E }, 25.1);
+        tl.set("#ps4", { backgroundColor: "#c6ff3d", borderColor: "#c6ff3d", textContent: "✓" }, 25.4);
+        tl.set("#ps5", { backgroundColor: "#c6ff3d", borderColor: "#c6ff3d", textContent: "✓" }, 25.7);
+        tl.set(["#pb5", "#pt5"], { color: "#f3e9d2" }, 25.7);
+        tl.set("#d-pipe-s", { textContent: "signed by your wallet", color: "#c6ff3d" }, 25.7);
+        tl.fromTo("#d-toast", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.45, ease: "expo.out" }, 25.8);
+
+        // D → E pan down
+        leg(26.9, 0.9, { cx: BOARD.E[0], cy: BOARD.E[1], s: 1 }, "y", 20);
+
+        // ================= E · rebalance (27.8–35) =================
+        tl.fromTo("#e-q", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.5, ease: E }, 27.6);
+        tl.fromTo("#e-pos", { opacity: 0, y: 80 }, { opacity: 1, y: 0, duration: 0.7, ease: E }, 27.4);
+        bins.forEach((b, i) => tl.fromTo(b, { scaleY: 0 }, { scaleY: spot(i), duration: 0.5, ease: E }, 27.9 + i * 0.03));
+        tl.fromTo("#se1", { opacity: 0 }, { opacity: 1, duration: 0.3 }, 28.3);
+        tl.fromTo("#e-price", { x: 0 }, { x: 420, duration: 2.2, ease: "power1.inOut" }, 28.6);
+        tl.set("#se1", { opacity: 0 }, 30.5); tl.set("#se2", { opacity: 1 }, 30.5);
+        bins.forEach((b) => tl.to(b, { backgroundColor: "#3a4148", duration: 0.3 }, 30.5));
+        tl.to(cam, { s: 1.08, cy: BOARD.E[1] - 20, duration: 1.2, ease: "power2.out", onUpdate: applyCam }, 30.4);
+        tl.set("#curE", { x: 1500, y: 1150 }, 0);
+        curTo($("curE"), $("e-rb"), 30.6, 0.9);
+        curClick($("curE"), 31.6); press("#e-rb", 31.6);
+        tl.to("#e-rb", { backgroundColor: "#c6ff3d", color: "#0b0f12", duration: 0.25 }, 31.65);
+        bins.forEach((b, i) => tl.to(b, { scaleY: 0.05, duration: 0.25, ease: "power2.in" }, 31.8 + i * 0.01));
+        tl.fromTo("#e-band", { x: 0 }, { x: 420, duration: 0.01 }, 32.1);
+        bins.forEach((b, i) => tl.to(b, { scaleY: spot(i), backgroundColor: binCol(i), duration: 0.5, ease: E }, 32.15 + i * 0.03));
+        tl.set("#se2", { opacity: 0 }, 32.5); tl.set("#se3", { opacity: 1 }, 32.5);
+        tl.to(cam, { s: 1, cy: BOARD.E[1], duration: 0.8, ease: "power2.inOut", onUpdate: applyCam }, 32.6);
+        tl.fromTo("#e-tail span", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.4, ease: E, stagger: 0.4 }, 33.0);
+        hl("#e-tail .hl > i", 33.95, 0.35);
+
+        // E → F whip left
+        leg(34.9, 0.8, { cx: BOARD.F[0], cy: BOARD.F[1], s: 1 }, "x", 22);
+
+        // ================= F · compound (35.7–41.6) =================
+        tl.fromTo("#f-q", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.5, ease: E }, 35.6);
+        tl.fromTo(["#f-fee", "#f-pos"], { opacity: 0, y: 70 }, { opacity: 1, y: 0, duration: 0.6, ease: E, stagger: 0.15 }, 35.5);
+        const fv = $("f-fv"), pv = $("f-pv");
+        counter(fv, 0, 0.412, 36.0, 2.0);
+        tl.fromTo("#f-path", { strokeDasharray: 320, strokeDashoffset: 320 }, { strokeDashoffset: 0, duration: 0.6, ease: E }, 37.0);
+        tl.fromTo("#f-btn", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.4, ease: E }, 37.2);
+        tl.set("#curF", { x: 900, y: 1150 }, 0);
+        curTo($("curF"), $("f-btn"), 37.5, 0.8);
+        curClick($("curF"), 38.4); press("#f-btn", 38.4, 0.96);
+        tl.fromTo("#f-btnf", { opacity: 0 }, { opacity: 1, duration: 0.15 }, 38.45);
+        tl.fromTo("#f-fly", { opacity: 0, x: 0, y: 0, scale: 0.8 }, { opacity: 1, x: 0, y: -10, scale: 1, duration: 0.2, immediateRender: true }, 38.55);
+        tl.to("#f-fly", { x: 900, y: -10, duration: 0.6, ease: "power3.inOut" }, 38.75);
+        tl.to("#f-fly", { opacity: 0, scale: 0.6, duration: 0.2 }, 39.35);
+        counter(fv, 0.412, 0, 38.75, 0.5, "power2.out");
+        counter(pv, 5.0, 5.412, 39.3, 0.8, E);
+        tl.to("#f-pos", { boxShadow: "0 0 0 2px #0b0f12, 20px 20px 0 #c6ff3d", duration: 0.3 }, 39.3);
+        tl.fromTo("#f-back", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.45, ease: E }, 39.9);
+        hl("#f-back .hl > i", 40.2, 0.45);
+
+        // ================= pull back over the whole desk (41.6–44.6) =================
+        tl.to(cam, { cx: 3280, cy: 2020, s: 0.255, duration: 1.4, ease: "power3.inOut", onUpdate: applyCam }, 41.5);
+        tl.to(blur, { x: 8, y: 8, duration: 0.7, ease: "power2.in", onUpdate: writeBlur }, 41.5);
+        tl.to(blur, { x: 0, y: 0, duration: 0.7, ease: "power2.out", onUpdate: writeBlur }, 42.2);
+        tl.fromTo("#ov-box", { opacity: 0, scale: 0.9 }, { opacity: 1, scale: 1, duration: 0.5, ease: E }, 42.5);
+        tl.fromTo("#ov-a", { opacity: 0, filter: "blur(16px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.6, ease: E }, 42.6);
+        tl.fromTo("#ov-b", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.4, ease: E }, 43.3);
+        hl("#ov-b .hl > i", 43.55, 0.35);
+
+        // ================= CTA (44.6–50) =================
+        tl.fromTo("#cta-bg", { opacity: 0 }, { opacity: 1, duration: 0.4, ease: "power2.out" }, 44.6);
+        tl.fromTo("#cta-coin", { opacity: 0, scale: 0.7, rotation: -30 }, { opacity: 1, scale: 1, rotation: 0, duration: 0.7, ease: E }, 44.8);
+        tl.fromTo("#cta-name", { opacity: 0, y: 40, filter: "blur(12px)" }, { opacity: 1, y: 0, filter: "blur(0px)", duration: 0.8, ease: E }, 45.0);
+        tl.fromTo("#cta-verbs", { opacity: 0 }, { opacity: 1, duration: 0.4 }, 45.7);
+        tl.fromTo("#cta-go", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.5, ease: E }, 46.0);
+        tl.fromTo("#cta-fine", { opacity: 0 }, { opacity: 1, duration: 0.4 }, 46.5);
+        tl.fromTo("#curG", { x: 1300, y: 1100, opacity: 0 }, { x: 1080, y: 750, opacity: 1, duration: 0.8, ease: "power2.inOut" }, 46.6);
+        curClick($("curG"), 47.5); press("#cta-go", 47.5, 0.95);
+        tl.to("#cta-go", { boxShadow: "0px 0px 0 #c6ff3d", x: 14, y: 14, duration: 0.12 }, 47.5);
+        tl.to("#cta-go", { boxShadow: "14px 14px 0 #c6ff3d", x: 0, y: 0, duration: 0.35, ease: E }, 47.62);
+        tl.fromTo("#cta-end", { opacity: 0 }, { opacity: 1, duration: 0.7, ease: "power2.in" }, 49.3);
+
+        applyCam(); writeBlur();
+        window.__timelines["main"] = tl;
+        if (window.__hfForceTimelineRebind) window.__hfForceTimelineRebind();
+      });
+    </script>
+  </body>
+</html>
