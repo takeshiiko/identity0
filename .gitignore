@@ -1,5 +1,6 @@
 node_modules
-.claude
+.claude/*
+!.claude/skills/
 .DS_Store
 identity0/
 dist
