@@ -1,0 +1,370 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <title>Tyr — open, rebalance, compound (promo v2)</title>
+    <script src="assets/gsap.min.js"></script>
+    <style>
+      @font-face { font-family: "JetBrains Mono"; font-weight: 400; src: url("assets/fonts/JetBrainsMono-400-latin.woff2") format("woff2"); }
+      @font-face { font-family: "JetBrains Mono"; font-weight: 600; src: url("assets/fonts/JetBrainsMono-600-latin.woff2") format("woff2"); }
+      @font-face { font-family: "JetBrains Mono"; font-weight: 700; src: url("assets/fonts/JetBrainsMono-700-latin.woff2") format("woff2"); }
+      @font-face { font-family: "Chakra Petch"; font-weight: 600; src: url("assets/fonts/ChakraPetch-600-latin.woff2") format("woff2"); }
+      @font-face { font-family: "Chakra Petch"; font-weight: 700; src: url("assets/fonts/ChakraPetch-700-latin.woff2") format("woff2"); }
+      @font-face { font-family: "Cinzel"; font-weight: 600; src: url("assets/fonts/Cinzel-600-latin.woff2") format("woff2"); }
+      @font-face { font-family: "Cinzel"; font-weight: 800; src: url("assets/fonts/Cinzel-800-latin.woff2") format("woff2"); }
+      @font-face { font-family: "Noto Sans Runic"; font-weight: 400; src: url("assets/fonts/NotoSansRunic-400-runic.woff2") format("woff2"); }
+
+      :root {
+        --paper: #ece6d6; --paper2: #e2dbc8; --ink: #0b0f12; --ink2: #3a4148; --ink3: #52574f;
+        --lime: #c6ff3d; --cyan: #3de0ff; --mag: #ff3d9a; --bone: #f3e9d2; --slab: #0b0f12; --slab-line: #2c3a42;
+        --mono: "JetBrains Mono", ui-monospace, monospace;
+        --disp: "Chakra Petch", "JetBrains Mono", monospace;
+        --serif: "Cinzel", serif;
+        --rune: "Noto Sans Runic", serif;
+      }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1920px; height: 1080px; overflow: hidden; background: var(--paper); color: var(--ink); font-family: var(--mono); }
+      #root { position: relative; width: 100%; height: 100%; overflow: hidden; background: var(--paper); }
+      .clip { position: absolute; inset: 0; width: 100%; height: 100%; overflow: hidden; }
+      .paper { position: absolute; inset: 0;
+        background:
+          radial-gradient(1400px 800px at 20% 10%, rgba(255,255,255,.45), transparent 60%),
+          radial-gradient(1200px 900px at 90% 100%, rgba(120,100,60,.10), transparent 60%),
+          linear-gradient(rgba(11,15,18,.05) 1px, transparent 1px) 0 0 / 80px 80px,
+          linear-gradient(90deg, rgba(11,15,18,.05) 1px, transparent 1px) 0 0 / 80px 80px,
+          var(--paper); }
+      .inkbg { position: absolute; inset: 0; background: radial-gradient(1200px 800px at 50% 40%, #141a1f, #06080a 70%); }
+      .sec { position: absolute; left: 160px; top: 120px; display: flex; align-items: center; gap: 18px; font-size: 24px; letter-spacing: .3em; text-transform: uppercase; color: var(--ink2); }
+      .sec .r { font-family: var(--rune); font-size: 44px; color: var(--ink); letter-spacing: 0; }
+      .hl { position: relative; display: inline-block; }
+      .hl > i { position: absolute; left: -10px; right: -10px; top: 18%; bottom: 8%; background: var(--lime); transform-origin: 0 50%; display: block; z-index: 0; }
+      .hl > b { position: relative; z-index: 1; font-weight: inherit; }
+      .slab { position: absolute; background: var(--slab); color: var(--bone); box-shadow: 18px 18px 0 rgba(11,15,18,.18); }
+      .note { position: absolute; font-size: 18px; letter-spacing: .2em; text-transform: uppercase; color: var(--ink3); }
+
+      /* HUD */
+      #hud { z-index: 40; pointer-events: none; }
+      #hud .frame { position: absolute; inset: 36px; border: 2px solid rgba(11,15,18,.85); }
+      #hud .tl { position: absolute; left: 60px; top: 50px; font-size: 18px; letter-spacing: .3em; text-transform: uppercase; color: var(--ink); background: var(--paper); padding: 0 12px; }
+      #hud .tr { position: absolute; right: 60px; top: 50px; font-size: 18px; letter-spacing: .3em; text-transform: uppercase; color: var(--ink); background: var(--paper); padding: 0 12px; }
+      #hud .ruler { position: absolute; left: 160px; right: 160px; bottom: 36px; height: 14px;
+        background: repeating-linear-gradient(90deg, rgba(11,15,18,.7) 0 2px, transparent 2px 40px); }
+      #hud .prog { position: absolute; left: 160px; bottom: 36px; width: 1600px; height: 6px; background: var(--ink); transform-origin: 0 50%; display: block; }
+      #wipe { position: absolute; top: 0; bottom: 0; left: 0; width: 2400px; background: var(--ink); }
+      #wipe i { position: absolute; top: 0; bottom: 0; right: 0; width: 60px; background: var(--lime); display: block; }
+
+      /* S1 hook */
+      #s1 .row { position: absolute; left: 150px; display: flex; align-items: center; gap: 40px; }
+      #s1 .row .r { font-family: var(--rune); font-size: 120px; width: 110px; text-align: center; color: var(--ink); }
+      #s1 .row .w { font-family: var(--disp); font-weight: 700; font-size: 196px; line-height: 1; letter-spacing: -.01em; }
+      #s1 .tag { position: absolute; left: 1200px; top: 840px; font-size: 40px; color: var(--ink); }
+
+      /* S2 brand */
+      #s2 .coin { position: absolute; left: 870px; top: 150px; width: 180px; height: 180px; border-radius: 50%; box-shadow: 0 0 80px rgba(217,168,91,.35); }
+      #s2 .name { position: absolute; left: 0; right: 0; top: 360px; height: 260px; text-align: center; font-family: var(--serif); font-weight: 800; font-size: 240px; line-height: 260px; color: var(--bone); letter-spacing: .08em; }
+      #s2 .sub { position: absolute; left: 0; right: 0; top: 660px; text-align: center; font-size: 30px; letter-spacing: .45em; text-transform: uppercase; color: #8a9a91; }
+      #s2 .verbs { position: absolute; left: 0; right: 0; top: 760px; display: flex; justify-content: center; gap: 22px; }
+      #s2 .verbs span { display: block; border: 2px solid #2c3a42; padding: 12px 26px; font-size: 28px; color: var(--bone); letter-spacing: .1em; }
+      #s2 .verbs span.on { background: var(--lime); border-color: var(--lime); color: var(--ink); }
+
+      /* S3 open */
+      #s3 h2 { position: absolute; left: 150px; top: 210px; width: 1050px; font-family: var(--disp); font-weight: 700; font-size: 150px; line-height: 1.04; }
+      #s3 h2 .wd { display: block; }
+      #s3 h2 .wd.hl, #s5 h2 .ln.hl { display: table; }
+      #s3 .lede { position: absolute; left: 160px; top: 700px; width: 1100px; font-size: 28px; line-height: 1.5; color: var(--ink2); }
+      #s3 .tk { left: 1310px; top: 110px; width: 400px; height: 732px; padding: 0; overflow: hidden; }
+      #s3 .tk img { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+      #s3 .pipe { position: absolute; left: 160px; top: 850px; width: 1060px; display: flex; gap: 12px; }
+      #s3 .pipe span { display: block; flex: 1; border: 2px solid var(--ink); padding: 14px 0; text-align: center; font-size: 24px; letter-spacing: .2em; text-transform: uppercase; color: var(--ink); background: var(--paper); }
+      #s3 .stamp { position: absolute; left: 1300px; top: 870px; width: 420px; height: 90px; border: 4px solid var(--ink); background: var(--lime); font-family: var(--disp); font-weight: 700; font-size: 40px; display: flex; align-items: center; justify-content: center; letter-spacing: .06em; }
+
+      /* S4 rebalance */
+      #s4 h2 { position: absolute; left: 150px; top: 190px; font-family: var(--disp); font-weight: 700; font-size: 104px; line-height: 1; }
+      #s4 .chart { left: 160px; top: 360px; width: 1600px; height: 560px; overflow: hidden; }
+      #s4 .band { position: absolute; left: 0; top: 0; width: 1600px; height: 560px; }
+      #s4 .bin { position: absolute; bottom: 70px; width: 40px; height: 380px; transform-origin: 50% 100%; display: block; }
+      #s4 .edge { position: absolute; top: 60px; bottom: 70px; width: 2px; background: repeating-linear-gradient(0deg, #8a9a91 0 8px, transparent 8px 16px); }
+      #s4 .axis { position: absolute; left: 40px; right: 40px; bottom: 68px; height: 2px; background: #2c3a42; }
+      #s4 .price { position: absolute; left: 800px; top: 40px; bottom: 60px; width: 4px; background: var(--bone); }
+      #s4 .price b { position: absolute; left: 14px; top: 0; font-size: 22px; letter-spacing: .2em; white-space: nowrap; font-weight: 400; color: var(--bone); }
+      #s4 .state { position: absolute; left: 40px; top: 24px; height: 40px; width: 700px; }
+      #s4 .state span { position: absolute; left: 0; top: 0; font-size: 26px; letter-spacing: .2em; text-transform: uppercase; white-space: nowrap; }
+      #s4 .btn { position: absolute; right: 40px; bottom: 10px; border: 3px solid var(--lime); color: var(--lime); padding: 10px 26px; font-size: 26px; letter-spacing: .2em; text-transform: uppercase; }
+      #s4 .tail { position: absolute; left: 160px; top: 950px; width: 1600px; display: flex; gap: 34px; font-family: var(--disp); font-weight: 700; font-size: 52px; }
+      #s4 .tail span { display: block; }
+      #s4 .cursor, #s5 .cursor { position: absolute; width: 38px; height: 50px; }
+
+      /* S5 compound */
+      #s5 h2 { position: absolute; left: 150px; top: 190px; width: 1600px; font-family: var(--disp); font-weight: 700; font-size: 96px; line-height: 1.05; }
+      #s5 h2 .ln { display: block; }
+      #s5 .tile { top: 470px; width: 700px; height: 380px; padding: 40px 44px; }
+      #s5 .tile .k { font-size: 24px; letter-spacing: .25em; text-transform: uppercase; color: #8a9a91; }
+      #s5 .tile .v { margin-top: 40px; font-family: var(--disp); font-weight: 700; font-size: 150px; line-height: 1; white-space: nowrap; }
+      #s5 .tile .u { margin-top: 18px; font-size: 32px; color: #8a9a91; }
+      #s5 .arrow { position: absolute; left: 870px; top: 590px; width: 180px; height: 140px; }
+      #s5 .btn { position: absolute; left: 160px; top: 880px; width: 700px; height: 80px; border: 3px solid var(--ink); background: var(--paper); font-size: 30px; letter-spacing: .25em; text-transform: uppercase; display: flex; align-items: center; justify-content: center; }
+      #s5 .btn .f { position: absolute; inset: 0; background: var(--lime); display: block; opacity: 0; }
+      #s5 .btn b { position: relative; font-weight: 600; }
+      #s5 .fly { position: absolute; left: 260px; top: 640px; font-family: var(--disp); font-weight: 700; font-size: 60px; color: var(--ink); background: var(--lime); padding: 4px 18px; opacity: 0; }
+
+      /* S6 more */
+      #s6 .cards { position: absolute; left: 160px; top: 260px; width: 1600px; display: flex; gap: 40px; }
+      #s6 .card { position: relative; flex: 1; height: 420px; background: var(--slab); color: var(--bone); padding: 40px; box-shadow: 18px 18px 0 rgba(11,15,18,.18); }
+      #s6 .card .r { font-family: var(--rune); font-size: 60px; color: var(--lime); }
+      #s6 .card h3 { margin-top: 30px; font-family: var(--disp); font-weight: 700; font-size: 72px; }
+      #s6 .card p { margin-top: 20px; font-size: 26px; line-height: 1.5; color: #8a9a91; }
+      #s6 .sig { position: absolute; left: 160px; top: 790px; font-family: var(--disp); font-weight: 700; font-size: 80px; }
+
+      /* S7 CTA */
+      #s7 .coin { position: absolute; left: 870px; top: 120px; width: 180px; height: 180px; border-radius: 50%; border: 4px solid var(--ink); }
+      #s7 .name { position: absolute; left: 0; right: 0; top: 320px; height: 240px; text-align: center; font-family: var(--serif); font-weight: 800; font-size: 220px; line-height: 240px; color: var(--ink); letter-spacing: .08em; }
+      #s7 .verbs { position: absolute; left: 0; right: 0; top: 590px; text-align: center; font-family: var(--disp); font-weight: 700; font-size: 54px; letter-spacing: .04em; }
+      #s7 .url { position: absolute; left: 0; right: 0; top: 700px; display: flex; justify-content: center; }
+      #s7 .url .hl { font-family: var(--disp); font-weight: 700; font-size: 84px; }
+      #s7 .venues { position: absolute; left: 0; right: 0; top: 850px; display: flex; justify-content: center; gap: 16px; }
+      #s7 .venues span { display: block; border: 2px solid var(--ink); padding: 10px 22px; font-size: 24px; }
+      #s7 .fine { position: absolute; left: 0; right: 0; top: 930px; text-align: center; font-size: 20px; letter-spacing: .3em; text-transform: uppercase; color: var(--ink3); }
+      #s7 .end { position: absolute; inset: 0; background: var(--ink); opacity: 0; }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="45" data-width="1920" data-height="1080">
+
+      <!-- S1 · three verbs (0–4) -->
+      <section id="s1" class="clip" data-start="0" data-duration="4" data-track-index="1">
+        <div class="paper"></div>
+        <div class="row" id="r1" style="top:150px"><span class="r">ᛏ</span><span class="w hl"><i></i><b>OPEN.</b></span></div>
+        <div class="row" id="r2" style="top:370px"><span class="r">ᚱ</span><span class="w hl"><i></i><b>REBALANCE.</b></span></div>
+        <div class="row" id="r3" style="top:590px"><span class="r">ᛉ</span><span class="w hl"><i></i><b>COMPOUND.</b></span></div>
+        <div class="tag" id="s1-tag">— one desk.</div>
+      </section>
+
+      <!-- S2 · brand (4–8) -->
+      <section id="s2" class="clip" data-start="4" data-duration="4" data-track-index="1">
+        <div class="inkbg"></div>
+        <img class="coin" id="s2-coin" src="assets/logo.png" alt="" />
+        <div class="name" id="s2-name">TYR</div>
+        <div class="sub" id="s2-sub">liquidity daemon · beta</div>
+        <div class="verbs" id="s2-verbs"><span id="v-open">open</span><span id="v-reb">rebalance</span><span id="v-cmp">compound</span></div>
+      </section>
+
+      <!-- S3 · open, fast (8–18) -->
+      <section id="s3" class="clip" data-start="8" data-duration="10" data-track-index="1">
+        <div class="paper"></div>
+        <div class="sec"><span class="r">ᛏ</span><span>01 — open a position</span></div>
+        <h2><span class="wd" id="o1">Paste.</span><span class="wd" id="o2">Run.</span><span class="wd hl" id="o3"><i></i><b>Execute.</b></span></h2>
+        <div class="lede" id="s3-lede">A mint address and a budget. The desk buys half, pairs it with the rest and opens the position in one pass.</div>
+        <div class="slab tk" id="s3-tk"><img id="tkA" src="assets/ui/tk-t0-empty.png" alt="" /><img id="tkB" src="assets/ui/tk-t1-filled.png" alt="" /></div>
+        <div class="pipe" id="s3-pipe"><span id="pp1">scan</span><span id="pp2">buy</span><span id="pp3">plan</span><span id="pp4">sign</span><span id="pp5">confirm</span></div>
+        <div class="stamp" id="s3-stamp">POSITION OPEN ✓</div>
+      </section>
+
+      <!-- S4 · rebalance (18–28) -->
+      <section id="s4" class="clip" data-start="18" data-duration="10" data-track-index="1">
+        <div class="paper"></div>
+        <div class="sec"><span class="r">ᚱ</span><span>02 — rebalance</span></div>
+        <h2 id="s4-h"><span id="s4-h1">Price left the band?</span></h2>
+        <div class="slab chart" id="s4-chart">
+          <div class="band" id="s4-band"></div>
+          <div class="axis"></div>
+          <div class="price" id="s4-price" data-layout-allow-overflow><b>PRICE</b></div>
+          <div class="state"><span id="st-earn" style="color:#c6ff3d">in range — earning</span><span id="st-idle" style="color:#ff3d9a">out of range — idle</span><span id="st-new" style="color:#c6ff3d">new band — earning</span></div>
+          <div class="btn" id="s4-btn">rebalance</div>
+        </div>
+        <div class="tail" id="s4-tail"><span>Same pool.</span><span>Same fee.</span><span class="hl"><i></i><b>New band.</b></span></div>
+        <div class="note" style="right:160px;top:330px">illustrative position</div>
+        <svg class="cursor" id="s4-cursor" viewBox="0 0 20 26"><path d="M1 1 L1 21 L6 16 L10 25 L13 24 L9 15 L16 15 Z" fill="#0b0f12" stroke="#ece6d6" stroke-width="1.5"/></svg>
+      </section>
+
+      <!-- S5 · compound (28–37) -->
+      <section id="s5" class="clip" data-start="28" data-duration="9" data-track-index="1">
+        <div class="paper"></div>
+        <div class="sec"><span class="r">ᛉ</span><span>03 — compound</span></div>
+        <h2><span class="ln" id="c1">Claim the fees.</span><span class="ln hl" id="c2"><i></i><b>Put them straight back in.</b></span></h2>
+        <div class="slab tile" id="t-fee" style="left:160px"><div class="k">unclaimed fees</div><div class="v" id="v-fee">0.000</div><div class="u">SOL</div></div>
+        <div class="slab tile" id="t-pos" style="left:1060px"><div class="k">position</div><div class="v" id="v-pos">5.000</div><div class="u">SOL</div></div>
+        <svg class="arrow" id="s5-arrow" viewBox="0 0 180 140"><path id="s5-path" d="M10 70 H150 M120 35 L160 70 L120 105" fill="none" stroke="#0b0f12" stroke-width="10" stroke-linecap="square"/></svg>
+        <div class="btn" id="s5-btn"><i class="f" id="s5-btnf"></i><b>compound</b></div>
+        <div class="fly" id="s5-fly" data-layout-allow-overlap>+0.412</div>
+        <div class="note" style="right:160px;top:430px">illustrative numbers</div>
+        <svg class="cursor" id="s5-cursor" viewBox="0 0 20 26"><path d="M1 1 L1 21 L6 16 L10 25 L13 24 L9 15 L16 15 Z" fill="#0b0f12" stroke="#ece6d6" stroke-width="1.5"/></svg>
+      </section>
+
+      <!-- S6 · the rest of the desk (37–41) -->
+      <section id="s6" class="clip" data-start="37" data-duration="4" data-track-index="1">
+        <div class="paper"></div>
+        <div class="sec"><span class="r">ᚷ</span><span>and the rest of the desk</span></div>
+        <div class="cards">
+          <div class="card" id="k1"><div class="r">ᚠ</div><h3>fees</h3><p>Claim what the position has earned, to your wallet. It stays open.</p></div>
+          <div class="card" id="k2"><div class="r">ᛞ</div><h3>close</h3><p>Both legs plus uncollected fees out, and the position's rent back.</p></div>
+          <div class="card" id="k3"><div class="r">ᛊ</div><h3>pnl</h3><p>The card: time held, profit, fee and PnL, ready to post.</p></div>
+        </div>
+        <div class="sig" id="s6-sig"><span class="hl"><i></i><b>Every signature is yours.</b></span></div>
+      </section>
+
+      <!-- S7 · CTA (41–45) -->
+      <section id="s7" class="clip" data-start="41" data-duration="4" data-track-index="1">
+        <div class="paper"></div>
+        <img class="coin" id="s7-coin" src="assets/logo.png" alt="" />
+        <div class="name" id="s7-name">TYR</div>
+        <div class="verbs" id="s7-verbs">open · rebalance · compound</div>
+        <div class="url" id="s7-url"><span class="hl"><i></i><b>tyrliquidity.app</b></span></div>
+        <div class="venues" id="s7-venues"><span>Meteora</span><span>Uniswap v4</span><span>Uniswap v3</span></div>
+        <div class="fine">beta · the desk holds no key</div>
+        <div class="end" id="s7-end"></div>
+      </section>
+
+      <!-- HUD + wipe -->
+      <div id="hud" class="clip" data-start="0" data-duration="45" data-track-index="5">
+        <div class="frame" id="hud-frame"></div>
+        <div class="tl" id="hud-tl">ᛏ tyr // liquidity daemon</div>
+        <div class="tr" id="hud-tr">00 / 03</div>
+        <div class="ruler" id="hud-ruler"></div>
+        <i class="prog" id="hud-prog"></i>
+        <div id="wipe" data-layout-allow-overflow><i></i></div>
+      </div>
+
+      <audio id="bgm" src="assets/audio/bgm.mp3" data-start="0" data-duration="45" data-track-index="9" data-volume="0.9"></audio>
+    </div>
+
+    <script>
+      // ---------- build the rebalance bins (deterministic) ----------
+      const NB = 13, BW = 40, BG = 7, BAND_X = 495;   // band centred on x≈800 inside the 1600px chart
+      const band = document.getElementById("s4-band");
+      const binEls = [];
+      for (let i = 0; i < NB; i++) {
+        const b = document.createElement("i");
+        b.className = "bin"; b.id = "rb" + i;
+        b.style.left = BAND_X + i * (BW + BG) + "px";
+        b.style.background = i < (NB - 1) / 2 ? "#3de0ff" : i > (NB - 1) / 2 ? "#c6ff3d" : "#f3e9d2";
+        band.appendChild(b); binEls.push(b);
+      }
+      const eL = document.createElement("i"); eL.className = "edge"; eL.style.left = BAND_X - 8 + "px"; band.appendChild(eL);
+      const eR = document.createElement("i"); eR.className = "edge"; eR.style.left = BAND_X + NB * (BW + BG) + "px"; band.appendChild(eR);
+      const spot = (i) => 0.25 + 0.75 * Math.exp(-Math.pow((i - (NB - 1) / 2) / 3.6, 2));
+
+      const tl = gsap.timeline({ paused: true });
+      const E = "power3.out";
+      const wipe = (t) => {
+        tl.fromTo("#wipe", { x: -2400 }, { x: 1920, duration: 0.5, ease: "power2.inOut", immediateRender: t === 4.0 }, t - 0.25);
+      };
+      const hiFrom = (sel, t, d) => tl.fromTo(sel, { scaleX: 0 }, { scaleX: 1, duration: d || 0.35, ease: "power2.out" }, t);
+
+      // progress ruler across the whole film
+      tl.fromTo("#hud-prog", { scaleX: 0 }, { scaleX: 1, duration: 45, ease: "none" }, 0);
+
+      // ===== S1 (0–4)
+      [["#r1", 0.5], ["#r2", 1.5], ["#r3", 2.5]].forEach(([r, t]) => {
+        tl.fromTo(r, { opacity: 0, x: -60 }, { opacity: 1, x: 0, duration: 0.35, ease: "expo.out" }, t);
+        hiFrom(r + " .hl > i", t + 0.12, 0.3);
+      });
+      tl.fromTo("#s1-tag", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.4, ease: E }, 3.2);
+
+      // ===== S2 (4–8)
+      wipe(4.0);
+      tl.set(["#hud-tl", "#hud-tr"], { backgroundColor: "#06080a", color: "#f3e9d2" }, 4.0);
+      tl.set("#hud-frame", { borderColor: "rgba(243,233,210,.6)" }, 4.0);
+      tl.fromTo("#s2-coin", { opacity: 0, scale: 0.8, rotation: -25 }, { opacity: 1, scale: 1, rotation: 0, duration: 0.8, ease: E }, 4.2);
+      tl.fromTo("#s2-name", { opacity: 0, y: 40, filter: "blur(12px)" }, { opacity: 1, y: 0, filter: "blur(0px)", duration: 0.9, ease: E }, 4.4);
+      tl.fromTo("#s2-sub", { opacity: 0 }, { opacity: 1, duration: 0.4 }, 5.2);
+      tl.fromTo("#s2-verbs span", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.35, ease: E, stagger: 0.25 }, 5.7);
+      tl.set("#v-open", { className: "on" }, 6.6); tl.set("#v-open", { className: "" }, 7.0);
+      tl.set("#v-reb", { className: "on" }, 7.0); tl.set("#v-reb", { className: "" }, 7.4);
+      tl.set("#v-cmp", { className: "on" }, 7.4);
+
+      // ===== S3 (8–18) open
+      wipe(8.0);
+      tl.set(["#hud-tl", "#hud-tr"], { backgroundColor: "#ece6d6", color: "#0b0f12" }, 8.0);
+      tl.set("#hud-frame", { borderColor: "rgba(11,15,18,.85)" }, 8.0);
+      tl.set("#hud-tr", { textContent: "01 / 03" }, 8.0);
+      tl.fromTo("#s3-tk", { opacity: 0, y: 80, rotation: 4 }, { opacity: 1, y: 0, rotation: -2, duration: 0.8, ease: E }, 8.2);
+      tl.set("#tkB", { opacity: 0 }, 8.0);
+      [["#o1", 8.5], ["#o2", 9.5], ["#o3", 10.5]].forEach(([w, t]) => tl.fromTo(w, { opacity: 0, y: 50 }, { opacity: 1, y: 0, duration: 0.4, ease: "expo.out" }, t));
+      tl.to("#tkB", { opacity: 1, duration: 0.2 }, 9.0);
+      hiFrom("#o3 > i", 10.7, 0.35);
+      tl.fromTo("#s3-lede", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, ease: E }, 11.6);
+      tl.fromTo("#s3-pipe span", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.3, ease: E, stagger: 0.08 }, 12.6);
+      ["#pp1", "#pp2", "#pp3", "#pp4", "#pp5"].forEach((p, i) => {
+        const t = 13.4 + i * 0.5;
+        tl.set(p, { backgroundColor: i === 3 ? "#ff3d9a" : "#c6ff3d" }, t);
+      });
+      tl.fromTo("#s3-stamp", { opacity: 0, scale: 1.4, rotation: -8 }, { opacity: 1, scale: 1, rotation: -3, duration: 0.35, ease: "expo.out" }, 16.1);
+
+      // ===== S4 (18–28) rebalance
+      wipe(18.0);
+      tl.set("#hud-tr", { textContent: "02 / 03" }, 18.0);
+      tl.fromTo("#s4-h1", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.5, ease: E }, 18.3);
+      tl.fromTo("#s4-chart", { opacity: 0, y: 60 }, { opacity: 1, y: 0, duration: 0.6, ease: E }, 18.4);
+      binEls.forEach((b, i) => tl.fromTo(b, { scaleY: 0 }, { scaleY: spot(i), duration: 0.5, ease: E }, 18.7 + i * 0.03));
+      tl.set("#st-idle", { opacity: 0 }, 18.0); tl.set("#st-new", { opacity: 0 }, 18.0);
+      tl.fromTo("#st-earn", { opacity: 0 }, { opacity: 1, duration: 0.3 }, 19.3);
+      // price walks out of the band to the right
+      tl.fromTo("#s4-price", { x: 0 }, { x: 420, duration: 2.6, ease: "power1.inOut" }, 19.6);
+      tl.set("#st-earn", { opacity: 0 }, 21.6);
+      tl.set("#st-idle", { opacity: 1 }, 21.6);
+      binEls.forEach((b) => tl.to(b, { backgroundColor: "#3a4148", duration: 0.3 }, 21.6));
+      tl.to(["#s4-band .edge"], { opacity: 0.5, duration: 0.3 }, 21.6);
+      // cursor presses rebalance
+      tl.fromTo("#s4-cursor", { x: 1300, y: 1040, opacity: 0 }, { x: 1640, y: 880, opacity: 1, duration: 0.9, ease: "power2.inOut" }, 22.4);
+      tl.to("#s4-btn", { scale: 0.92, duration: 0.08, ease: "power2.in" }, 23.35);
+      tl.to("#s4-btn", { scale: 1, backgroundColor: "#c6ff3d", color: "#0b0f12", duration: 0.3, ease: E }, 23.43);
+      tl.to("#s4-cursor", { opacity: 0, duration: 0.3 }, 23.9);
+      // band re-forms around the new price
+      binEls.forEach((b, i) => tl.to(b, { scaleY: 0.05, duration: 0.25, ease: "power2.in" }, 23.6 + i * 0.01));
+      tl.fromTo("#s4-band", { x: 0 }, { x: 420, duration: 0.01 }, 23.9);
+      binEls.forEach((b, i) => {
+        const c = i < (NB - 1) / 2 ? "#3de0ff" : i > (NB - 1) / 2 ? "#c6ff3d" : "#f3e9d2";
+        tl.to(b, { scaleY: spot(i), backgroundColor: c, duration: 0.5, ease: E }, 24.0 + i * 0.03);
+      });
+      tl.to(["#s4-band .edge"], { opacity: 1, duration: 0.3 }, 24.0);
+      tl.set("#st-idle", { opacity: 0 }, 24.3); tl.set("#st-new", { opacity: 1 }, 24.3);
+      tl.fromTo("#s4-tail span", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.4, ease: E, stagger: 0.45 }, 24.8);
+      hiFrom("#s4-tail .hl > i", 25.85, 0.35);
+
+      // ===== S5 (28–37) compound
+      wipe(28.0);
+      tl.set("#hud-tr", { textContent: "03 / 03" }, 28.0);
+      tl.fromTo("#c1", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.5, ease: E }, 28.3);
+      tl.fromTo(["#t-fee", "#t-pos"], { opacity: 0, y: 60 }, { opacity: 1, y: 0, duration: 0.6, ease: E, stagger: 0.15 }, 28.5);
+      const fee = { v: 0 }, pos = { v: 5 };
+      const vf = document.getElementById("v-fee"), vp = document.getElementById("v-pos");
+      tl.fromTo(fee, { v: 0 }, { v: 0.412, duration: 2.6, ease: "power1.out", onUpdate: () => { vf.textContent = fee.v.toFixed(3); } }, 29.0);
+      tl.fromTo("#s5-path", { strokeDasharray: 400, strokeDashoffset: 400 }, { strokeDashoffset: 0, duration: 0.6, ease: E }, 30.0);
+      tl.fromTo("#s5-btn", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.4, ease: E }, 30.6);
+      tl.fromTo("#s5-cursor", { x: 900, y: 1040, opacity: 0 }, { x: 560, y: 905, opacity: 1, duration: 0.8, ease: "power2.inOut" }, 31.0);
+      tl.to("#s5-btn", { scale: 0.96, duration: 0.08, ease: "power2.in" }, 31.9);
+      tl.to("#s5-btn", { scale: 1, duration: 0.3, ease: E }, 31.98);
+      tl.fromTo("#s5-btnf", { opacity: 0 }, { opacity: 1, duration: 0.15 }, 31.95);
+      tl.to("#s5-cursor", { opacity: 0, duration: 0.3 }, 32.4);
+      tl.fromTo("#s5-fly", { opacity: 0, x: 0, y: 0 }, { opacity: 1, x: 0, y: -10, duration: 0.2 }, 32.1);
+      tl.to("#s5-fly", { x: 900, y: 0, duration: 0.7, ease: "power2.inOut" }, 32.3);
+      tl.to("#s5-fly", { opacity: 0, duration: 0.2 }, 33.0);
+      tl.to(fee, { v: 0, duration: 0.5, ease: "power2.out", onUpdate: () => { vf.textContent = fee.v.toFixed(3); } }, 32.3);
+      tl.fromTo(pos, { v: 5 }, { v: 5.412, duration: 0.8, ease: E, onUpdate: () => { vp.textContent = pos.v.toFixed(3); } }, 33.0);
+      tl.fromTo("#t-pos", { boxShadow: "18px 18px 0 rgba(11,15,18,.18)" }, { boxShadow: "18px 18px 0 rgba(198,255,61,1)", duration: 0.3 }, 33.0);
+      tl.fromTo("#c2", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.5, ease: E }, 33.8);
+      hiFrom("#c2 > i", 34.2, 0.45);
+
+      // ===== S6 (37–41) the rest
+      wipe(37.0);
+      tl.set("#hud-tr", { textContent: "+ more" }, 37.0);
+      tl.fromTo(["#k1", "#k2", "#k3"], { opacity: 0, y: 70 }, { opacity: 1, y: 0, duration: 0.45, ease: "expo.out", stagger: 0.5 }, 37.2);
+      tl.fromTo("#s6-sig", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.45, ease: E }, 39.2);
+      hiFrom("#s6-sig .hl > i", 39.5, 0.4);
+
+      // ===== S7 (41–45) CTA
+      wipe(41.0);
+      tl.set("#hud-tr", { textContent: "tyr" }, 41.0);
+      tl.fromTo("#s7-coin", { opacity: 0, scale: 0.8, rotation: -20 }, { opacity: 1, scale: 1, rotation: 0, duration: 0.7, ease: E }, 41.1);
+      tl.fromTo("#s7-name", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.7, ease: E }, 41.3);
+      tl.fromTo("#s7-verbs", { opacity: 0 }, { opacity: 1, duration: 0.4 }, 41.9);
+      tl.fromTo("#s7-url", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.4, ease: E }, 42.3);
+      hiFrom("#s7-url .hl > i", 42.5, 0.4);
+      tl.fromTo("#s7-venues span", { opacity: 0 }, { opacity: 1, duration: 0.3, stagger: 0.12 }, 42.9);
+      tl.fromTo("#s7-end", { opacity: 0 }, { opacity: 1, duration: 0.6, ease: "power2.in" }, 44.4);
+
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>
