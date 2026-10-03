@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>tyr · how to use</title>
+<meta name="description" content="How the desk works, in plain language: the ticket, the three strategies, what "in range" means, and what can go against you.">
+<meta name="theme-color" content="#06080a">
+<link rel="icon" type="image/png" href="/img/favicon.png">
+<link rel="apple-touch-icon" href="/img/favicon.png">
+<link rel="canonical" href="https://www.tyrliquidity.app/guide.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Tyr">
+<meta property="og:title" content="Tyr — how to use">
+<meta property="og:description" content="How the desk works, in plain language: the ticket, the three strategies, what "in range" means, and what can go against you.">
+<meta property="og:url" content="https://www.tyrliquidity.app/guide.html">
+<meta property="og:image" content="https://www.tyrliquidity.app/img/og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Tyr — liquidity daemon">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="/app.css">
+<link rel="stylesheet" href="/guide.css">
+</head>
+<body>
+
+<div id="gate" class="gate">
+  <div class="gatebox">
+    <h1>tyr<em>beta</em></h1>
+    <p class="hint">Enter the shared password to open the desk.</p>
+    <label for="pw">password</label>
+    <input id="pw" type="password" autocomplete="current-password">
+    <button id="btn-login" style="margin-top:12px">unlock</button>
+    <div id="gate-err"></div>
+  </div>
+</div>
+
+<div id="app" class="hidden">
+<nav class="rail" aria-label="rooms">
+  <div class="logo" aria-hidden="true"><i></i></div>
+  <a href="/"><svg viewBox="0 0 24 24"><path d="M13 3 5 14h6l-1 7 8-11h-6l1-7z"/></svg><span>run</span></a>
+  <a href="/pools.html"><svg viewBox="0 0 24 24"><path d="M12 3 3 8l9 5 9-5-9-5z"/><path d="M3 12l9 5 9-5"/><path d="M3 16l9 5 9-5"/></svg><span>positions</span></a>
+  <a href="/wallet.html"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="2.5"/><path d="M3 10h18"/><circle cx="16.5" cy="14.5" r="1.2"/></svg><span>wallet</span></a>
+  <a href="/radar.html" id="nav-radar" class="hidden"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/></svg><span>radar</span></a>
+  <a href="/guide.html" class="on"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 17v.01M12 14c0-2 2-2.2 2-4a2 2 0 1 0-4 0"/></svg><span>how to</span></a>
+</nav>
+<div class="wrap">
+
+<header>
+  <div class="brand"><i aria-hidden="true"></i><div><b>tyr<em>beta</em></b><small>// liquidity daemon</small></div></div>
+  <div class="meta meta-chain"><div class="chainsw" id="m-chainwrap" role="radiogroup" aria-label="network" data-chain=""></div></div>
+  <div class="meta trim">wallet <b id="m-wallet">—</b></div>
+</header>
+
+<main class="guide">
+
+<section>
+  <div class="head"><span>what this is</span><span>read once</span></div>
+  <div class="body">
+    <p class="g-lead">Tyr opens a <b>liquidity position</b> for you. You name a token and a budget; it buys
+      the token with half of that, pairs it with the other half, and puts both into a pool. From then on
+      every trade through that pool pays you a cut of its fee — for as long as the price stays inside the
+      band you chose.</p>
+    <svg class="g-svg" viewBox="0 0 760 150" role="img" aria-label="Budget splits into a token leg and a quote leg, which become one position">
+      <defs><marker id="ar" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto">
+        <path d="M0 0 L8 4 L0 8 z" fill="var(--deco)"/></marker></defs>
+      <rect x="8" y="52" width="150" height="46" class="g-box"/>
+      <text x="83" y="72" class="g-t">budget</text><text x="83" y="90" class="g-n">1 SOL</text>
+      <path d="M162 75 H226" class="g-line" marker-end="url(#ar)"/>
+      <rect x="232" y="16" width="170" height="46" class="g-box g-accent"/>
+      <text x="317" y="36" class="g-t">buys the token</text><text x="317" y="54" class="g-n">0.5 SOL → 12,400 TKN</text>
+      <rect x="232" y="90" width="170" height="46" class="g-box"/>
+      <text x="317" y="110" class="g-t">stays as quote</text><text x="317" y="128" class="g-n">0.5 SOL</text>
+      <path d="M406 39 H470 V68" class="g-line"/><path d="M406 113 H470 V82" class="g-line" marker-end="url(#ar)"/>
+      <rect x="476" y="52" width="276" height="46" class="g-box g-brand"/>
+      <text x="614" y="72" class="g-t">one position, both legs</text>
+      <text x="614" y="90" class="g-n">earning the pool's fee while in range</text>
+    </svg>
+    <p class="hint">The server never holds a key. It reads the chain, builds the transaction and simulates it —
+      then your wallet signs. Nothing moves without that signature.</p>
+  </div>
+</section>
+
+<section>
+  <div class="head"><span class="n">01</span><span>before the first run</span></div>
+  <div class="body">
+    <ol class="g-steps">
+      <li><b>Connect a wallet.</b> Press <code>connect wallet</code> in the top bar. Phantom, Solflare or
+        Backpack. The address you connect is the address every number on the desk is about.</li>
+      <li><b>Fund it.</b> You need the budget itself <i>plus</i> rent: Solana charges for the accounts a
+        position allocates. Joining an existing pool costs roughly <b>0.04–0.15 SOL</b>; opening a brand-new
+        pair costs about <b>0.18 SOL</b> on top of your budget. It is not a fee — most of the position's own
+        rent comes back when you close it.</li>
+      <li><b>Start small.</b> The desk is in beta. Your first run should be a number you would shrug at.</li>
+    </ol>
+  </div>
+</section>
+
+<section>
+  <div class="head"><span class="n">02</span><span>the ticket</span></div>
+  <div class="body">
+    <p class="g-lead">Everything a run needs is on the left, in three stages. Nothing here signs anything.</p>
+    <dl class="g-fields">
+      <dt>01 target</dt><dd>The two things the run is about: the token's mint address, and how much you
+        commit. Paste the address and the market panel wakes up on the right. The budget is empty on
+        purpose — a number sitting in the field is a number someone sends without deciding it — and
+        <b>max</b> fills in what the wallet can actually commit, holding back enough SOL for rent.</dd>
+      <dt>02 strategy</dt><dd>Four cards, and the bars drawn on each one are the band it opens:
+        <b>two-sided</b>, <b>sell ladder</b>, <b>buy ladder</b>, <b>custom</b>. This is the decision the
+        run turns on — the next section is about nothing else.</dd>
+      <dt>venue</dt><dd>Under <b>custom</b>. <b>DLMM</b> is a ladder of bins you can shape, it is often
+        where the depth actually is, and each edge of its band moves on its own — so all three cards
+        open on it. <b>DAMM v2</b> is one symmetric curve over one range: simpler, one transaction,
+        and under <b>custom</b> when you want it.</dd>
+      <dt>shape</dt><dd>Under <b>custom</b>, DLMM only — how the liquidity is spread across the band. See below.</dd>
+      <dt>mode</dt><dd><b>join</b> puts you in the pool the token already trades in: real flow, fee split with
+        the other providers. <b>create</b> opens your own pool at your own fee — all of it yours, but only
+        if trades route to you.</dd>
+      <dt>03 tuning</dt><dd>Closed, it shows the values it holds: fee, band, bin step, slip. Open it to change
+        the pool's fee tier, how far the band reaches either side of the price, how wide one bin is, and how
+        much slippage the buy tolerates. The quote is the chain's own token and is in there too, shown rather
+        than typed.</dd>
+      <dt>skip buy</dt><dd>Tick it when the tokens are already in your wallet. The whole budget then goes to the
+        quote leg instead of half. Both ladders tick it for you, and say so.</dd>
+    </dl>
+    <p class="hint">Above <b>run</b> there is a sentence saying what the run will do — what is bought, which
+      side of the price the money ends up on, and whose pool it lands in. It is the last thing to read before
+      you press anything, and the command echoed under it is the same run in flags.</p>
+  </div>
+</section>
+
+<section>
+  <div class="head"><span class="n">03</span><span>the three strategies</span></div>
+  <div class="body">
+    <p class="g-lead">One card decides where your money sits relative to the price, and that decides
+      what the position does for a living. Everything else on the ticket is detail next to it.
+      <b>Cyan is quote, lime is token</b> — the same colours the chart uses.</p>
+    <div class="g-three">
+      <div><svg class="g-svg g-strat" viewBox="0 0 240 150" role="img" aria-label="Liquidity on both sides of the price: quote below, token above"><rect class="q" x="52" y="82" width="12" height="22"/><rect class="q" x="68" y="68" width="12" height="36"/><rect class="q" x="84" y="54" width="12" height="50"/><rect class="q" x="100" y="40" width="12" height="64"/><rect class="t" x="128" y="40" width="12" height="64"/><rect class="t" x="144" y="54" width="12" height="50"/><rect class="t" x="160" y="68" width="12" height="36"/><rect class="t" x="176" y="82" width="12" height="22"/><line class="px" x1="120" y1="26" x2="120" y2="112"/><text class="s e l" x="10" y="126">cheaper</text><text class="s px-l" x="120" y="126">price</text><text class="s e r" x="230" y="126">dearer</text><text class="s" x="120" y="144">half below, half above</text></svg><b>two-sided</b><p>Half the budget buys the token, half stays as quote, and both sit around the
+        price. It earns on trades in either direction, and it is the only one of the three that keeps
+        working whichever way the price goes. The cost: a fall leaves you holding more of what fell.
+        Start here.</p></div>
+      <div><svg class="g-svg g-strat" viewBox="0 0 240 150" role="img" aria-label="Liquidity only above the price, all of it token, growing outward"><rect class="t" x="128" y="82" width="12" height="22"/><rect class="t" x="144" y="68" width="12" height="36"/><rect class="t" x="160" y="54" width="12" height="50"/><rect class="t" x="176" y="40" width="12" height="64"/><line class="px" x1="120" y1="26" x2="120" y2="112"/><text class="s e l" x="10" y="126">cheaper</text><text class="s px-l" x="120" y="126">price</text><text class="s e r" x="230" y="126">dearer</text><text class="s" x="120" y="144">all token, above the price</text></svg><b>sell ladder</b><p>Only tokens you already hold, stacked above the price. A rise fills it
+        from the bottom up — you are selling into strength in steps, and collecting the pool's fee on
+        every step instead of paying one. It never buys a fall, which is the point. Nothing is bought
+        to open it, so the budget can be left empty.</p></div>
+      <div><svg class="g-svg g-strat" viewBox="0 0 240 150" role="img" aria-label="Liquidity only under the price, all of it quote, growing outward"><rect class="q" x="52" y="40" width="12" height="64"/><rect class="q" x="68" y="54" width="12" height="50"/><rect class="q" x="84" y="68" width="12" height="36"/><rect class="q" x="100" y="82" width="12" height="22"/><line class="px" x1="120" y1="26" x2="120" y2="112"/><text class="s e l" x="10" y="126">cheaper</text><text class="s px-l" x="120" y="126">price</text><text class="s e r" x="230" y="126">dearer</text><text class="s" x="120" y="144">all quote, under the price</text></svg><b>buy ladder</b><p>The mirror: only quote, stacked under the price. A fall fills it in
+        steps — you are buying weakness at prices you chose in advance, and being paid the fee for it.
+        It never sells a rise, so you end up holding the token. Run it on one you would want cheaper,
+        not on one you are trying to catch.</p></div>
+    </div>
+    <p class="hint"><b>Which one, when.</b> A token you have no view on, and want to earn on:
+      <b>two-sided</b>. A bag you are already holding and would happily sell higher: <b>sell ladder</b> —
+      it is the shape that would have sold a run-up gradually instead of all at the top, or not at all.
+      A token you want more of, cheaper: <b>buy ladder</b>. On a fast pump-and-dump, two-sided is the one
+      that hurts: it buys the whole way down.</p>
+    <p class="hint">Both ladders are DLMM positions and both tick <b>skip buy</b> for you, because a
+      ladder is made of what you already have. The fourth card, <b>custom</b>, sets nothing at all — it
+      hands you the venue and the shape and lets you build the band yourself. Whatever you pick, the
+      sentence above <b>run</b> says it back to you in words before anything is signed.</p>
+  </div>
+</section>
+
+<section>
+  <div class="head"><span class="n">04</span><span>the band, and what "in range" means</span></div>
+  <div class="body">
+    <p class="g-lead">A position only earns while the price is inside its band. Wide bands earn less per
+      trade but stay in range; narrow bands earn more and fall out sooner.</p>
+    <svg class="g-svg" viewBox="0 0 760 170" role="img" aria-label="A price band: earning while the price sits inside it, idle when it leaves">
+      <rect x="40" y="34" width="290" height="52" class="g-band"/>
+      <line x1="185" y1="24" x2="185" y2="96" class="g-mark"/>
+      <text x="185" y="18" class="g-t g-ok">price here — earning</text>
+      <text x="40" y="110" class="g-n g-l">−40%</text><text x="330" y="110" class="g-n g-r">+40%</text>
+      <rect x="410" y="34" width="290" height="52" class="g-band g-band-off"/>
+      <line x1="726" y1="24" x2="726" y2="96" class="g-mark g-mark-off"/>
+      <text x="748" y="18" class="g-t g-off g-r">price left — idle</text>
+      <text x="410" y="110" class="g-n g-l">−40%</text><text x="700" y="110" class="g-n g-r">+40%</text>
+      <text x="40" y="146" class="g-n g-l">Out of range you hold one side only: all token if it fell, all quote if it rose.</text>
+      <text x="40" y="162" class="g-n g-l">The position is not lost — it waits, or you rebalance it around the new price.</text>
+    </svg>
+    <p class="hint"><b>Drag it.</b> The chart on the right draws the band the ticket would open, and its
+      min and max lines can be pulled. On <b>DLMM</b> each edge moves on its own — that is how a band
+      that only reaches upward gets made. On <b>DAMM v2</b> the two are one symmetric curve, so pulling
+      either moves both and the <b>range</b> in tuning follows. Joining a DAMM v2 pool has no band of its
+      own: you add to the pool's curve, so there is nothing there to drag.</p>
+  </div>
+</section>
+
+<section>
+  <div class="head"><span class="n">05</span><span>shapes (DLMM)</span></div>
+  <div class="body">
+    <svg class="g-svg" viewBox="0 0 760 130" role="img" aria-label="Spot spreads evenly, curve piles at the price, bid-ask pushes to the edges">
+      <g class="g-bars" data-shape="spot"></g>
+    </svg>
+    <div class="g-three">
+      <div><b>spot</b><p>Even across every bin. No view on where the price settles — the default, and the one to
+        start with.</p></div>
+      <div><b>curve</b><p>Piled at the current price. Earns more while it stays put, less once it wanders.</p></div>
+      <div><b>bid-ask</b><p>Pushed to the edges. Buys more as the price falls and sells more as it rises.</p></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="head"><span class="n">06</span><span>the five steps</span></div>
+  <div class="body">
+    <p class="g-lead">Press <b>run</b> and the desk walks the pipeline. It stops at the first thing that
+      looks wrong, and nothing is signed until you press <b>execute</b>.</p>
+    <ol class="g-pipe">
+      <li><b>scan</b><span>what the chain can be asked about the mint. On Solana that is the freeze
+        authority — a mint that can freeze your account — and whether a pool can be opened on it at all.
+        It is not a rug check: it cannot see intent, a thin float, or who holds the supply.</span></li>
+      <li><b>buy</b><span>half the budget swaps into the token, through the best route. Your wallet signs it.</span></li>
+      <li><b>plan</b><span>the band, the amounts, the minimum out — priced against the market, not against the pool.</span></li>
+      <li><b>sign</b><span>the position transaction is built and simulated. It is shown to you, not sent.</span></li>
+      <li><b>confirm</b><span>you press execute, your wallet signs, the receipt comes back.</span></li>
+    </ol>
+    <p class="hint"><b>Market gap</b> is the distance between the pool's price and where the token actually
+      trades. A pool far from the market hands your tokens to the first arbitrageur. Above 15% the desk says so
+      in red. <b>On Solana it does not stop the run</b> — reading it before you press execute is your job.</p>
+  </div>
+</section>
+
+<section>
+  <div class="head"><span class="n">07</span><span>after it is open</span></div>
+  <div class="body">
+    <dl class="g-fields">
+      <dt>fees</dt><dd>Claim what the position has earned, to your wallet. The position stays open.</dd>
+      <dt>compound</dt><dd>Claim and put the same fees straight back in. On DLMM that is two signatures —
+        Meteora has no single reinvest instruction.</dd>
+      <dt>rebalance</dt><dd>Price left the band? This closes the position and hands the ticket back with the
+        same pool, fee and band, the assets already in your wallet. You choose the new band and press run.</dd>
+      <dt>close</dt><dd>Takes everything out — both legs plus uncollected fees — and returns the position's rent.</dd>
+      <dt>pnl</dt><dd>Downloads the card: time held, profit, TVL, fee and PnL, ready to post.</dd>
+    </dl>
+  </div>
+</section>
+
+<section>
+  <div class="head"><span class="n">08</span><span>what can go against you</span></div>
+  <div class="body">
+    <ul class="g-risks">
+      <li><b>Impermanent loss.</b> A position that ends out of range holds more of whatever fell. Fees are the
+        compensation; they do not always cover it.</li>
+      <li><b>New tokens are new tokens.</b> The security scan catches the obvious traps — a mint that can be
+        inflated, a punishing tax, an owner who can freeze you. It does not catch intent.</li>
+      <li><b>Rent is not all refundable.</b> The position's own rent comes back on close. A bin array nobody had
+        paid for does not — it belongs to the pool now.</li>
+      <li><b>Your own pool needs flow.</b> Opening one at a fat fee earns nothing if aggregators route elsewhere.
+        Joining earns a share of real volume.</li>
+      <li><b>Beta.</b> Numbers on screen are read from the chain and can be stale for a block or two. Nothing
+        here is advice; the signature is always yours.</li>
+    </ul>
+  </div>
+</section>
+
+</main>
+</div>
+</div>
+
+<script src="/vendor-solana-web3.js"></script>
+<script src="/common.js"></script>
+<script src="/guide.js"></script>
+</body>
+</html>

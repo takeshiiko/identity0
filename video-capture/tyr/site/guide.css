@@ -1,0 +1,81 @@
+/* The how-to page: the desk's own skin, set for reading rather than for work. */
+/* Centred: the desk's rooms fill the width because they are instruments,
+   but prose has a comfortable measure and wants the page around it. The
+   selector has to out-rank .wrap > :not(header), which gives every room a
+   flat 16px on both sides. */
+.wrap > .guide{max-width:980px;margin-left:auto;margin-right:auto}
+.guide section{margin-bottom:14px}
+.g-lead{font-size:13px;line-height:1.75;color:var(--fg);margin:0 0 14px;max-width:72ch}
+.g-lead b{color:var(--brand);font-weight:600}
+.guide .hint{max-width:72ch}
+
+/* diagrams */
+.g-svg{display:block;width:100%;height:auto;margin:6px 0 16px;background:rgba(6,9,11,.55);border:1px solid var(--line)}
+.g-box{fill:rgba(255,255,255,.02);stroke:var(--line2)}
+.g-box.g-accent{stroke:var(--cyan)}
+.g-box.g-brand{stroke:var(--brand)}
+.g-line{stroke:var(--deco);stroke-width:1.5;fill:none}
+.g-t{fill:var(--fg);font:600 11px var(--mono);letter-spacing:.1em;text-anchor:middle;text-transform:uppercase}
+.g-n{fill:var(--dim);font:400 11px var(--mono);text-anchor:middle}
+.g-t.g-l,.g-n.g-l{text-anchor:start}
+.g-t.g-r,.g-n.g-r{text-anchor:end}
+.g-band{fill:rgba(198,255,61,.1);stroke:var(--brand)}
+.g-band.g-band-off{fill:rgba(255,255,255,.02);stroke:var(--line2)}
+.g-mark{stroke:var(--cyan);stroke-width:2}
+.g-mark.g-mark-off{stroke:var(--warn)}
+.g-t.g-ok{fill:var(--cyan)}
+.g-t.g-off{fill:var(--warn)}
+.g-bars rect{fill:var(--brand);opacity:.75}
+.g-bars text{fill:var(--dim);font:600 10px var(--mono);letter-spacing:.14em;text-anchor:middle;text-transform:uppercase}
+
+
+/* the numbered lists */
+.g-steps,.g-pipe{margin:0;padding:0;list-style:none;counter-reset:g}
+.g-steps li,.g-pipe li{counter-increment:g;position:relative;padding:0 0 12px 34px;font-size:12.5px;line-height:1.7;color:var(--dim);max-width:74ch}
+.g-steps li::before,.g-pipe li::before{content:counter(g);position:absolute;left:0;top:1px;width:20px;height:20px;
+  display:grid;place-items:center;border:1px solid var(--line2);font:700 10px var(--mono);color:var(--brand)}
+.g-steps b,.g-pipe b{color:var(--fg);font-weight:600}
+.g-pipe li span{display:block;color:var(--dim)}
+.g-pipe li b{font:600 11px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--cyan)}
+
+/* field glossary */
+.g-fields{display:grid;grid-template-columns:130px minmax(0,1fr);gap:0;margin:0}
+.g-fields dt{padding:9px 12px 9px 0;border-top:1px dashed var(--line2);font:600 11px var(--mono);
+  letter-spacing:.1em;color:var(--cyan);text-transform:uppercase}
+.g-fields dd{padding:9px 0;margin:0;border-top:1px dashed var(--line2);font-size:12.5px;line-height:1.7;color:var(--dim)}
+.g-fields dd b{color:var(--fg);font-weight:600}
+
+.g-three{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.g-three b{display:block;font:600 11px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--brand);margin-bottom:5px}
+.g-three p{margin:0;font-size:12px;line-height:1.65;color:var(--dim)}
+
+.g-risks{margin:0;padding-left:18px;max-width:74ch}
+.g-risks li{margin-bottom:9px;font-size:12.5px;line-height:1.7;color:var(--dim)}
+.g-risks b{color:var(--fg);font-weight:600}
+.guide code{font:500 11.5px var(--mono);color:var(--brand);background:rgba(198,255,61,.07);padding:1px 5px;border:1px solid var(--line2)}
+
+@media(max-width:760px){
+  .g-fields{grid-template-columns:1fr}
+  .g-fields dt{padding-bottom:0;border-top:1px dashed var(--line2)}
+  .g-fields dd{border-top:0;padding-top:4px}
+  .g-three{grid-template-columns:1fr}
+}
+
+/* the three strategies, in the chart's own colours: cyan is the quote side,
+   lime the token side, amber the price -- so the diagram and the position's
+   own bin profile can be read as the same picture */
+.g-strat rect.q{fill:var(--cyan);opacity:.55}
+.g-strat rect.t{fill:var(--brand);opacity:.55}
+.g-strat line.px{stroke:var(--warn);stroke-width:2}
+.g-strat line.sep{stroke:var(--line);stroke-width:1}
+.g-strat text.h{fill:var(--fg);font:600 11px var(--mono);letter-spacing:.14em;text-anchor:middle;text-transform:uppercase}
+.g-strat text.s{fill:var(--dim);font:400 10px var(--mono);text-anchor:middle}
+.g-strat text.s.e{fill:var(--deco);font-size:9px}
+/* the CSS text-anchor out-ranks the attribute, so the edge labels say so here */
+.g-strat text.l{text-anchor:start}
+.g-strat text.r{text-anchor:end}
+.g-strat text.px-l{fill:var(--warn);font-size:9px}
+/* one diagram per column, sitting on its own paragraph: at phone width the
+   three stack and each gets the whole measure, instead of one wide picture
+   shrinking its own labels to nothing */
+.g-three .g-svg{margin:0 0 10px}

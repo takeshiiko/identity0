@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>tyr · radar</title>
+<meta name="description" content="New pairs as they appear, with the depth and the flow behind them — so a position is opened on a market rather than on a name.">
+<meta name="theme-color" content="#06080a">
+<link rel="icon" type="image/png" href="/img/favicon.png">
+<link rel="apple-touch-icon" href="/img/favicon.png">
+<link rel="canonical" href="https://www.tyrliquidity.app/radar.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Tyr">
+<meta property="og:title" content="Tyr — radar">
+<meta property="og:description" content="New pairs as they appear, with the depth and the flow behind them — so a position is opened on a market rather than on a name.">
+<meta property="og:url" content="https://www.tyrliquidity.app/radar.html">
+<meta property="og:image" content="https://www.tyrliquidity.app/img/og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Tyr — liquidity daemon">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="/app.css">
+<style>
+  /* the radar's own: a dense ledger that refreshes in place */
+  .radar-bar{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;margin-bottom:12px}
+  .radar-bar .tabs{margin:0}
+  .radar-bar .flt{display:inline-flex;align-items:center;gap:6px;color:var(--dim);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase}
+  .radar-bar .flt input{width:88px;padding:5px 8px;font-size:12px}
+  .radar-bar .tick{margin-left:auto;color:var(--mute);font-size:10.5px}
+  .radar-bar .tick b{color:var(--dim);font-weight:500}
+  table.radar{width:100%;border-collapse:collapse;font-size:12px;min-width:980px}
+  table.radar th{text-align:right;font-size:9.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);padding:0 10px 8px 0;
+    border-bottom:1px solid var(--line2);cursor:pointer;user-select:none;white-space:nowrap}
+  table.radar th:first-child,table.radar th.l{text-align:left}
+  table.radar th.on{color:var(--brand)}
+  table.radar th.on::after{content:" ▾"}
+  table.radar td{padding:9px 10px 9px 0;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap;vertical-align:middle;width:auto;color:inherit}
+  table.radar td:first-child,table.radar td.l{text-align:left}
+  table.radar td:first-child{padding-left:8px;padding-right:18px;min-width:190px}
+  table.radar tbody tr{cursor:pointer}
+  table.radar tbody tr:hover td{background:rgba(255,255,255,.025)}
+  table.radar tr.hot td{background:rgba(198,255,61,.05)}
+  table.radar tr.hot td:first-child{box-shadow:inset 2px 0 0 var(--brand)}
+  /* logo in its own fixed column, text in another; a long symbol clips
+     instead of pushing the address into the next cell */
+  .tk{display:grid;grid-template-columns:24px minmax(0,1fr);align-items:center;gap:0 12px}
+  .tk img,.tk .ph{width:24px;height:24px;border-radius:50%;background:var(--panel2);object-fit:cover;display:block}
+  .tk .ph{display:grid;place-items:center;font-size:9px;color:var(--mute)}
+  .tk > div{min-width:0}
+  .tk b{display:block;color:var(--fg);font-weight:700;letter-spacing:.02em;line-height:1.25;max-width:150px;overflow:hidden;text-overflow:ellipsis}
+  .tk small{display:block;color:var(--mute);font-size:10px;letter-spacing:0;line-height:1.3;margin-top:2px}
+  td.chg{font-weight:600}
+  .bs{color:var(--dim);font-size:10.5px}
+  .bs i{font-style:normal}.bs i.b{color:var(--acc)}.bs i.s{color:var(--bad)}
+  td .bar{display:inline-block;height:3px;background:var(--brand);opacity:.55;vertical-align:middle;margin-right:6px}
+  @keyframes tick{from{background:rgba(198,255,61,.22)}to{background:transparent}}
+  td.tick{animation:tick 1.2s ease-out}
+  .age{color:var(--dim);font-size:11px}
+  .age.new{color:var(--warn)}
+</style>
+</head>
+<body>
+
+<div id="gate" class="gate">
+  <div class="gatebox">
+    <h1>tyr<em>beta</em></h1>
+    <p class="hint">Enter the shared password to open the desk.</p>
+    <label for="pw">password</label>
+    <input id="pw" type="password" autocomplete="current-password">
+    <button id="btn-login" style="margin-top:12px">unlock</button>
+    <div id="gate-err"></div>
+  </div>
+</div>
+
+<div id="app" class="hidden">
+<nav class="rail" aria-label="rooms">
+  <div class="logo" aria-hidden="true"><i></i></div>
+  <a href="/"><svg viewBox="0 0 24 24"><path d="M13 3 5 14h6l-1 7 8-11h-6l1-7z"/></svg><span>run</span></a>
+  <a href="/pools.html"><svg viewBox="0 0 24 24"><path d="M12 3 3 8l9 5 9-5-9-5z"/><path d="M3 12l9 5 9-5"/><path d="M3 16l9 5 9-5"/></svg><span>positions</span></a>
+  <a href="/wallet.html"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="2.5"/><path d="M3 10h18"/><circle cx="16.5" cy="14.5" r="1.2"/></svg><span>wallet</span></a>
+  <a href="/radar.html" id="nav-radar" class="on"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/></svg><span>radar</span></a>
+  <a href="/guide.html"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 17v.01M12 14c0-2 2-2.2 2-4a2 2 0 1 0-4 0"/></svg><span>how to</span></a>
+</nav>
+<div class="wrap">
+
+<header>
+  <div class="brand"><i aria-hidden="true"></i><div><b>tyr<em>beta</em></b><small>// liquidity daemon</small></div></div>
+  <div class="meta meta-chain"><div class="chainsw" id="m-chainwrap" role="radiogroup" aria-label="network" data-chain=""></div></div>
+  <div class="meta trim">wallet <b id="m-wallet">—</b></div>
+</header>
+
+<section id="not-here" class="hidden">
+  <div class="head"><span>radar</span><span>off</span></div>
+  <div class="body"><p class="hint">The radar reads GeckoTerminal, which indexes Solana. Switch to Solana in the bar above.</p></div>
+</section>
+
+<section id="sec-radar" class="framed">
+  <div class="head"><span>radar</span><span id="s0">—</span></div>
+  <div class="body">
+    <div class="radar-bar">
+      <div class="tabs" id="lists">
+        <button type="button" data-list="trending" data-dur="5m" class="on">trending 5m</button>
+        <button type="button" data-list="trending" data-dur="1h">1h</button>
+        <button type="button" data-list="trending" data-dur="6h">6h</button>
+        <button type="button" data-list="trending" data-dur="24h">24h</button>
+        <button type="button" data-list="new" data-dur="5m">new pools</button>
+        <button type="button" data-list="volume" data-dur="24h">top volume</button>
+      </div>
+      <label class="flt" for="f-mcap">mcap ≥ <input id="f-mcap" inputmode="decimal" placeholder="0" title="minimum market cap, USD"></label>
+      <label class="flt" for="f-liq">liq ≥ <input id="f-liq" inputmode="decimal" placeholder="0" title="minimum liquidity, USD"></label>
+      <label class="flt" for="f-hot">hot: 5m vol ≥ <input id="f-hot" inputmode="decimal" placeholder="100000" title="rows over this are marked and, with notifications on, announced"></label>
+      <label class="flt chk" style="margin:0"><input type="checkbox" id="f-notify"> notify</label>
+      <span class="tick">refresh <b id="tick">—</b> · <b id="count">0</b> tokens</span>
+    </div>
+    <div class="tablewrap"><div id="list" class="tablehost"><div class="hint">loading…</div></div></div>
+  </div>
+</section>
+
+</div></div>
+<script src="/vendor-solana-web3.js"></script>
+<script src="/common.js"></script>
+<script src="/radar.js"></script>
+</body>
+</html>
